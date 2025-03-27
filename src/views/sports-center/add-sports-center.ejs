@@ -1,0 +1,96 @@
+<%- include('../partials/header') %>
+    <!-- END #header -->
+    <!-- BEGIN #sidebar -->
+    <%- include('../partials/sidebar') %>
+        <!-- END #sidebar -->
+        <!-- BEGIN #content -->
+        <div id="content" class="app-content">
+            <div class="d-flex align-items-center mb-3">
+                <div>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                        <li class="breadcrumb-item active">
+                            <%= title %>
+                        </li>
+                    </ul>
+                    <h1 class="page-header mb-0">Add New Sports Center</h1>
+                </div>
+                <div class="ms-auto">
+                    <a href="#" class="btn btn-theme"><i class="fa fa-plus-circle fa-fw me-1"></i> Create Sports
+                        Center</a>
+                </div>
+            </div>
+            <form method="POST" action="admin/sports-center/create-sports-center">
+                <div class="row gx-4">
+                    <div class="col-xl-8">
+                        <div class="card mb-4">
+                            <div class="card-header bg-none fw-bold"> Sports Center Information </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Sports Center Name <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="sports_center_name"
+                                        placeholder="Sports Center name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Address</label>
+                                    <input type="text" class="form-control" name="sports_center_address"
+                                        placeholder="Address" required>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Longitude</label>
+                                            <input type="text" class="form-control" name="longitude"
+                                                placeholder="Longitude" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Latitude</label>
+                                            <input type="text" class="form-control" name="latitude"
+                                                placeholder="Latitude" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <label class="form-label">Sports Center Description <span
+                                            class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="summernote" rows="10"
+                                        name="sports_center_description" required></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4">
+                        <div class="card mb-4">
+                            <div class="card-header bg-none fw-bold d-flex align-items-center">
+                                <div class="flex-1">
+                                    <div>Features</div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div id="featuresDropdown"></div>
+                                <input type="hidden" name="sports_center_features" id="featuresInput" required>
+                            </div>
+                        </div>
+                        <div class="card mb-4">
+                            <div class="card-header bg-none fw-bold d-flex align-items-center">
+                                <div class="flex-1">
+                                    <div>Games</div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div id="gamesDropdown"></div>
+                                <input type="hidden" name="sports_center_games" id="gamesInput" required>
+                            </div>
+                        </div>
+                    </div>
+                    <center><button class="btn btn-primary" type="submit">Create</button></center>
+                </div>
+            </form>
+            <!-- New row content starts here -->
+        </div>
+        <!-- END #content -->
+        <!-- BEGIN btn-scroll-top -->
+        <%- include('../partials/footer') %>

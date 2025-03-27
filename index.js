@@ -10,7 +10,7 @@ const flash = require('connect-flash');
 const methodOverride = require('method-override');
 
 
-// const adminRoutes = require('./src/routes/adminRoutes');
+const adminRoutes = require('./src/routes/adminRoutes');
 // const apiRoutes = require('./src/routes/apiRoutes');
 
 
@@ -60,8 +60,9 @@ app.set('views', './src/views');
 app.set('view engine', 'ejs');
 
 
-// api routes
+// routes
 
+app.use('/admin', adminRoutes);
 
 
 

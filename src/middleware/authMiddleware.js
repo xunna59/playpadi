@@ -3,7 +3,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 const authMiddleware = (req, res, next) => {
     if (!req.cookies || !req.cookies.token) {
-        return res.redirect('/admin/admin-login');
+        return res.redirect('/admin/login');
     }
 
     try {
@@ -15,7 +15,7 @@ const authMiddleware = (req, res, next) => {
         next(); // Proceed to the next middleware or controller
     } catch (err) {
         console.error("JWT Verification Error:", err.message);
-        return res.redirect('/admin/admin-login');
+        return res.redirect('/admin/login');
     }
 };
 

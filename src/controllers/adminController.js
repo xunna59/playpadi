@@ -18,7 +18,7 @@ const adminAuthController = {
 
     renderLogin: (req, res) => {
 
-        res.render('auth/auth-login', { title: 'Nadina - Admin Sign In' });
+        res.render('auth/login', { title: 'Admin Sign In' });
 
     },
 
@@ -33,29 +33,28 @@ const adminAuthController = {
             const { email, password } = req.body;
 
             const admin = await Admin.findOne({ where: { email } });
+
             if (!admin) {
-                return res.status(400).json({ success: false, message: "Invalid credentials" });
+                req.flash('error_msg', 'Invalid credentials');
+                return res.redirect('/admin/login');
             }
 
             const isMatch = await bcrypt.compare(password, admin.password);
 
             if (!isMatch) {
-                return res.status(400).json({ success: false, message: "Invalid credentials" });
+                req.flash('error_msg', 'Invalid credentials');
+                return res.redirect('/admin/login');
             }
 
-            // Generate JWT token
             const payload = { id: admin.id, email: admin.email, username: admin.username, role: admin.role };
 
             const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
             res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
 
-            // Send the response with the JWT token
-            res.status(200).json({
-                success: true,
-                message: `Welcome ${admin.role}`,
-                token
-            });
+            // Redirect to dashboard
+            return res.redirect(303, '/admin/dashboard');
+
         } catch (error) {
             next(error);
         }
@@ -93,7 +92,6 @@ const adminAuthController = {
         try {
             const { token, newPassword } = req.body;
 
-            // Verify the reset token
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             const user = await Admin.findByPk(decoded.id);
 
@@ -101,7 +99,6 @@ const adminAuthController = {
                 return res.status(404).json({ success: false, message: 'User not found or token is invalid' });
             }
 
-            // Hash the new password and save it
             const hashedPassword = await bcrypt.hash(newPassword, 10);
             user.password = hashedPassword;
 
@@ -110,7 +107,6 @@ const adminAuthController = {
             res.status(200).json({ success: true, message: 'Password has been reset successfully' });
         } catch (error) {
 
-            // Check for expired token
             if (error.name === 'TokenExpiredError') {
 
                 return res.status(400).json({ success: false, message: 'Token expired. Please request a new password reset.' });
@@ -267,7 +263,7 @@ const adminAuthController = {
         res.clearCookie('token', { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
 
         // Redirect to the login page after logging out
-        return res.redirect('/admin/admin-login');
+        return res.redirect('/admin/login');
     },
 
     updateAdminPassword: async (req, res, next) => {

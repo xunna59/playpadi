@@ -1,0 +1,40 @@
+<%- include('partials/header') %>
+	<!-- END #header -->
+	<!-- BEGIN #sidebar -->
+	<%- include('partials/sidebar') %>
+		<!-- END #sidebar -->
+		<!-- BEGIN #content -->
+		<div id="content" class="app-content">
+			<div class="d-flex align-items-center mb-3">
+				<div>
+					<ul class="breadcrumb">
+						<li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+						<li class="breadcrumb-item active">
+							<%= title %>
+						</li>
+					</ul>
+					<h1 class="page-header mb-0">Starter Page</h1>
+				</div>
+				<div class="ms-auto">
+					<a href="#" class="btn btn-theme"><i class="fa fa-plus-circle fa-fw me-1"></i> Create Orders</a>
+				</div>
+			</div>
+			<div class="mb-md-4 mb-3 d-md-flex">
+				<div class="mt-md-0 mt-2"><a href="#" class="text-body text-decoration-none"><i
+							class="fa fa-download fa-fw me-1 text-muted"></i> Export</a></div>
+				<div class="ms-md-4 mt-md-0 mt-2 dropdown-toggle">
+					<a href="#" data-bs-toggle="dropdown" class="text-body text-decoration-none">More Actions</a>
+					<div class="dropdown-menu">
+						<a class="dropdown-item" href="#">Action</a>
+						<a class="dropdown-item" href="#">Another action</a>
+						<a class="dropdown-item" href="#">Something else here</a>
+						<div role="separator" class="dropdown-divider"></div>
+						<a class="dropdown-item" href="#">Separated link</a>
+					</div>
+				</div>
+			</div>
+			<!-- New row content starts here -->
+		</div>
+		<!-- END #content -->
+		<!-- BEGIN btn-scroll-top -->
+		<%- include('partials/footer') %>
