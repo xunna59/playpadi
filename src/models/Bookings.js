@@ -7,6 +7,14 @@ module.exports = (sequelize) => {
             primaryKey: true,
             autoIncrement: true,
         },
+        user_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'users',
+                key: 'id'
+            }
+        },
         court_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -16,20 +24,18 @@ module.exports = (sequelize) => {
                 key: 'id'
             }
         },
+        date: {
+            type: DataTypes.DATEONLY, // Stores date in YYYY-MM-DD format
+            allowNull: false
+        },
         slot: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            comment: 'Booked time slot, e.g., "09:00"'
+            type: DataTypes.STRING, // e.g., "10:30 AM"
+            allowNull: false
         },
-        booked_by: {
-            type: DataTypes.STRING,
-            allowNull: true,
-            comment: 'Identifier for the user or entity that booked the slot'
-        },
-        booking_date: {
-            type: DataTypes.DATE,
+        status: {
+            type: DataTypes.ENUM('confirmed', 'cancelled', 'pending', 'elapsed'),
             allowNull: false,
-            comment: 'Date and time when the booking was made'
+            defaultValue: 'pending'
         }
     }, {
         tableName: 'bookings',

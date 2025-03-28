@@ -60,6 +60,22 @@ module.exports = (sequelize) => {
             allowNull: false,
             defaultValue: true
         },
+        booking_info: {
+            type: DataTypes.JSON,
+            allowNull: true,
+            comment: 'JSON object containing booking details (available_slots and booked_slots)',
+            defaultValue: () => ({
+                available_slots: [],
+                booked_slots: []
+            })
+            // Example structure:
+            // {
+            //   available_slots: ["09:00", "09:30", "10:00"],
+            //   booked_slots: [
+            //      { slot: "09:30", bookedBy: "user123", bookingDate: "2025-04-01T09:30:00.000Z" }
+            //   ]
+            // }
+        },
     }, {
         tableName: 'sports_centers',
         timestamps: true

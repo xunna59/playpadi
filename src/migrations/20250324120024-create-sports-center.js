@@ -63,11 +63,16 @@ module.exports = {
         allowNull: false,
         defaultValue: true
       },
-      created_at: {
+      booking_info: {
+        type: Sequelize.JSON,
+        allowNull: true,
+        comment: 'JSON object containing booking details (available_slots and booked_slots)'
+      },
+      createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
       },
-      updated_at: {
+      updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
       }

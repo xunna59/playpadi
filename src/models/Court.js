@@ -14,26 +14,25 @@ module.exports = (sequelize) => {
         },
         activity: {
             // An ENUM restricts courts to specific activities.
-            type: DataTypes.ENUM('paddle tennis', 'swimming', 'gym'),
+            type: DataTypes.STRING,
             allowNull: false,
             comment: 'The type of activity for which the court is designed'
         },
-        booking_info: {
-            type: DataTypes.JSON,
-            allowNull: true,
-            comment: 'JSON object containing booking details (available_slots and booked_slots)'
-            // Example structure:
-            // {
-            //   available_slots: ["09:00", "09:30", "10:00"],
-            //   booked_slots: [
-            //      { slot: "09:30", bookedBy: "user123", bookingDate: "2025-04-01T09:30:00.000Z" }
-            //   ]
-            // }
-        },
+
         sports_center_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
             comment: 'Foreign key referencing the associated sports center'
+        },
+        booking_info: {
+            type: DataTypes.JSON, // Store booked slots and other booking-related info
+            allowNull: false,
+            defaultValue: { booked_slots: [] } // Default empty array
+        },
+        status: {
+            type: DataTypes.ENUM('available', 'unavailable'),
+            allowNull: false,
+            defaultValue: 'available'
         }
     }, {
         tableName: 'courts',
@@ -46,7 +45,8 @@ module.exports = (sequelize) => {
             foreignKey: 'sports_center_id',
             as: 'sportsCenter'
         });
-        // A Court has many BookingHistory records.
+
+
         Court.hasMany(models.Bookings, {
             foreignKey: 'court_id',
             as: 'bookings'
