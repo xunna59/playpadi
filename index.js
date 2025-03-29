@@ -12,6 +12,7 @@ const methodOverride = require('method-override');
 
 const adminRoutes = require('./src/routes/adminRoutes');
 // const apiRoutes = require('./src/routes/apiRoutes');
+const authRoutes = require('./src/routes/authRoutes');
 
 
 
@@ -63,6 +64,7 @@ app.set('view engine', 'ejs');
 // routes
 
 app.use('/admin', adminRoutes);
+app.use('/auth', authRoutes);
 
 
 
