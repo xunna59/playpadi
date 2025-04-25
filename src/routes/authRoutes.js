@@ -1,12 +1,19 @@
 const express = require('express');
-const passport = require('../config/passport'); // Ensure this file configures your strategies
+const passport = require('../config/passport');
 const UsersController = require('../controllers/usersController');
+const { protect } = require('../middleware/userAuthMiddleware');
+
 
 const router = express.Router();
 
 // Regular auth endpoints
 router.post('/register', UsersController.register);
 router.post('/login', UsersController.login);
+
+router.post('/validate-email', UsersController.checkEmailExists);
+
+
+
 
 // Google OAuth: Initiate authentication
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));

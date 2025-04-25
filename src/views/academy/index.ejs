@@ -13,11 +13,11 @@
                             <%= title %>
                         </li>
                     </ul>
-                    <h1 class="page-header mb-0">Sports Centers</h1>
+                    <h1 class="page-header mb-0">Manage Academy</h1>
                 </div>
                 <div class="ms-auto">
-                    <a href="admin/sports-center/add-sports-center" class="btn btn-theme"><i
-                            class="fa fa-plus-circle fa-fw me-1"></i> Add Sports Center</a>
+                    <button class="btn btn-theme" data-bs-toggle="modal" data-bs-target="#modalCoverExample"><i
+                            class="fa fa-plus-circle fa-fw me-1"></i> Create Class</button>
                 </div>
             </div>
             <% if (success_msg.length> 0) { %> <div class="alert alert-success">
@@ -53,7 +53,7 @@
                                             <div class="flex-fill position-relative">
                                                 <div class="input-group">
                                                     <input type="text" class="form-control ps-35px"
-                                                        placeholder="Search Sports Center">
+                                                        placeholder="Search User">
                                                     <div class="input-group-text position-absolute top-0 bottom-0 bg-none border-0"
                                                         style="z-index: 1020;">
                                                         <i class="fa fa-search opacity-5"></i>
@@ -90,20 +90,19 @@
                                                 <thead>
                                                     <tr>
                                                         <th class="border-top-0 pt-0 pb-2"></th>
-                                                        <th class="border-top-0 pt-0 pb-2">Sports Center Name</th>
-                                                        <th class="border-top-0 pt-0 pb-2">Address</th>
-                                                        <th class="border-top-0 pt-0 pb-2">Total Courts</th>
-                                                        <th class="border-top-0 pt-0 pb-2"> status</th>
-                                                        <th class="border-top-0 pt-0 pb-2">Long/Lat</th>
-                                                        <th class="border-top-0 pt-0 pb-2">Games</th>
+                                                        <th class="border-top-0 pt-0 pb-2">Title</th>
+                                                        <th class="border-top-0 pt-0 pb-2">Sports Center</th>
+                                                        <th class="border-top-0 pt-0 pb-2">Court</th>
+                                                        <th class="border-top-0 pt-0 pb-2"> Activity</th>
+                                                        <th class="border-top-0 pt-0 pb-2">Activity Date</th>
+                                                        <th class="border-top-0 pt-0 pb-2">Subscription status</th>
                                                         <th class="border-top-0 pt-0 pb-2">Date Created</th>
                                                         <th class="border-top-0 pt-0 pb-2">Date Updated</th>
-                                                        <th class="border-top-0 pt-0 pb-2">Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <% if (sportsCenters.length> 0) { %> <%
-                                                            sportsCenters.forEach(sportsCenter=> { %> <tr>
+                                                    <% if (classes.length> 0) { %> <% classes.forEach(academy_class=> {
+                                                            %> <tr>
                                                                 <td class="w-10px align-middle">
                                                                     <div class="form-check">
                                                                         <input type="checkbox" class="form-check-input"
@@ -113,66 +112,43 @@
                                                                     </div>
                                                                 </td>
                                                                 <td class="align-middle">
-                                                                    <%= sportsCenter.sports_center_name %>
+                                                                    <%= academy_class.title %>
                                                                 </td>
                                                                 <td class="align-middle">
-                                                                    <%= sportsCenter.sports_center_address %>
+                                                                    <%= academy_class.sportsCenter.sport_center_name %>
                                                                 </td>
-                                                                <td>8</td>
-                                                                <td class="py-1 align-middle"><span
-                                                                        class="badge bg-teal text-teal-800 bg-opacity-25 px-2 pt-5px pb-5px rounded fs-12px d-inline-flex align-items-center"><i
-                                                                            class="fa fa-circle text-teal fs-9px fa-fw me-5px"></i>
-                                                                        Paid</span>
+                                                                <td>
+                                                                    <%= academy_class.court.court_name %>
+                                                                </td>
+                                                                <td>
+                                                                    <%= academy_class.session_activity %>
                                                                 </td>
                                                                 <td class="align-middle"><span
                                                                         class="badge bg-gray-100 text-black text-opacity-50 px-2 pt-5px pb-5px rounded fs-12px d-inline-flex align-items-center">
-                                                                        <%= sportsCenter.longitude %> / <%=
-                                                                                sportsCenter.latitude %>
+                                                                        <%= academy_class.session_duration %>
                                                                     </span>
                                                                 </td>
-                                                                <td class="align-middle">
-                                                                    <% if
-                                                                        (Array.isArray(sportsCenter.sports_center_games))
-                                                                        { %>
-                                                                        <%
-                                                                            sportsCenter.sports_center_games.forEach(game=>
-                                                                            { %> <span class="badge bg-primary me-1">
-                                                                                <%= game %>
-                                                                            </span>
-                                                                            <% }) %>
-                                                                                <% } else { %> N/A <% } %>
+                                                                <td class="py-1 align-middle">
                                                                 </td>
                                                                 <td class="align-middle">
                                                                     <%= new
-                                                                        Date(sportsCenter.createdAt).toLocaleString('en-GB',
+                                                                        Date(academy_class.created_at).toLocaleString('en-GB',
                                                                         { day: 'numeric' , month: 'short' ,
                                                                         year: 'numeric' , hour: '2-digit' ,
                                                                         minute: '2-digit' , hour12: true }) %>
                                                                 </td>
                                                                 <td class="align-middle">
                                                                     <%= new
-                                                                        Date(sportsCenter.updatedAt).toLocaleString('en-GB',
+                                                                        Date(academy_class.updated_at).toLocaleString('en-GB',
                                                                         { day: 'numeric' , month: 'short' ,
                                                                         year: 'numeric' , hour: '2-digit' ,
                                                                         minute: '2-digit' , hour12: true }) %>
-                                                                </td>
-                                                                <td class="w-10px align-middle">
-                                                                    <div class="d-flex align-items-center gap-2">
-                                                                        <a href="admin/sports-center/edit-sports-center/<%= sportsCenter.id %>"
-                                                                            class="text-primary p-2" title="View">
-                                                                            <i class="fas fa-pen"></i>
-                                                                        </a>
-                                                                        <a href="#" class="text-danger p-2"
-                                                                            title="Delete">
-                                                                            <i class="fas fa-trash-alt"></i>
-                                                                        </a>
-                                                                    </div>
                                                                 </td>
                                                             </tr>
                                                             <% }) %>
                                                                 <% } else { %>
                                                                     <tr>
-                                                                        <td colspan="15">No Sports Center found.</td>
+                                                                        <td colspan="15">No Classes found.</td>
                                                                     </tr>
                                                                     <% } %>
                                                 </tbody>
@@ -182,19 +158,19 @@
                                         <div class="d-md-flex align-items-center">
                                             <!-- Showing X to Y of Z entries -->
                                             <div class="me-md-auto text-md-left text-center mb-2 mb-md-0"> Showing <%=
-                                                    offset + 1 %> to <%= offset + sportsCenters.length %> of <%= count
-                                                            %> entries </div>
+                                                    offset + 1 %> to <%= offset + classes.length %> of <%= count %>
+                                                            entries </div>
                                             <!-- Pagination Controls -->
                                             <ul class="pagination mb-0 justify-content-center">
                                                 <!-- Previous Button -->
                                                 <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
                                                     <a class="page-link"
-                                                        href="admin/sports-center/?page=<%= currentPage - 1 %>">Previous</a>
+                                                        href="admin/academy/?page=<%= currentPage - 1 %>">Previous</a>
                                                 </li>
                                                 <!-- Page Numbers -->
                                                 <% for (let i=1; i <=totalPages; i++) { %>
                                                     <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                                                        <a class="page-link" href="admin/sports-center/?page=<%= i %>">
+                                                        <a class="page-link" href="admin/academy/?page=<%= i %>">
                                                             <%= i %>
                                                         </a>
                                                     </li>
@@ -203,7 +179,7 @@
                                                         <li
                                                             class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
                                                             <a class="page-link"
-                                                                href="admin/sports-center/?page=<%= currentPage + 1 %>">Next</a>
+                                                                href="admin/academy/?page=<%= currentPage + 1 %>">Next</a>
                                                         </li>
                                             </ul>
                                         </div>
@@ -214,4 +190,118 @@
         </div>
         <!-- END #content -->
         <!-- BEGIN btn-scroll-top -->
+        <div class="modal modal-cover fade" id="modalCoverExample">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Create Academy</h3>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-3"> Fill in the details below to create a new academy session. </p>
+                        <form method="POST" action="/admin/academy/create-class" enctype="multipart/form-data">
+                            <div class="row mb-3">
+                                <div class="col-md-6 mb-3">
+                                    <label for="sports_center_id" class="form-label">Sports Center</label>
+                                    <select id="sports_center_id" name="sports_center_id"
+                                        class="form-control form-control-sm" required>
+                                        <option value="">Select Sports Center</option>
+                                        <% sportsCenter.forEach(center=> { %> <option value="<%= center.id %>">
+                                                <%= center.sports_center_name %>
+                                            </option>
+                                            <% }); %>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="court_id" class="form-label">Court</label>
+                                    <select id="court_id" name="court_id" class="form-control form-control-sm" required>
+                                        <option value="">Select Court</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <input type="text" name="title" placeholder="Academy Title"
+                                        class="form-control form-control-sm" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <select name="session_activity" class="form-control form-control-sm" required>
+                                        <option value="">Select Activity</option>
+                                        <option value="paddle">Paddle</option>
+                                        <option value="snooker">Snooker</option>
+                                        <option value="darts">Darts</option>
+                                        <!-- Add more if needed -->
+                                    </select>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <textarea name="description" placeholder="Description" rows="3"
+                                        class="form-control form-control-sm" required></textarea>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <input type="number" step="0.01" name="session_price" placeholder="Session Price"
+                                        class="form-control form-control-sm" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <input type="text" name="session_duration"
+                                        placeholder="Session Duration (e.g. 2 hours)"
+                                        class="form-control form-control-sm" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <input type="number" name="num_of_players" placeholder="Number of Players"
+                                        class="form-control form-control-sm" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <input type="date" name="activity_date" class="form-control form-control-sm"
+                                        required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <input type="date" name="end_registration_date" class="form-control form-control-sm"
+                                        required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <select name="category" class="form-control form-control-sm" required>
+                                        <option value="">Select Category</option>
+                                        <option value="kids">Kids</option>
+                                        <option value="adults">Adults</option>
+                                        <option value="mixed">Mixed</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <select name="academy_type" class="form-control form-control-sm" required>
+                                        <option value="">Select Academy Type</option>
+                                        <option value="private">Private</option>
+                                        <option value="public">Public</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-12">
+                                    <button type="submit" class="btn btn-primary btn-lg btn-block w-100">Submit</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            document.getElementById('sports_center_id').addEventListener('change', function () {
+                const centerId = this.value;
+
+                const courtSelect = document.getElementById('court_id');
+                courtSelect.innerHTML = '<option value="">Loading...</option>';
+
+                fetch(`/api/courts/${centerId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        courtSelect.innerHTML = '<option value="">Select Court</option>';
+                        data.forEach(court => {
+                            const option = document.createElement('option');
+                            option.value = court.id;
+                            option.textContent = court.court_name;
+                            courtSelect.appendChild(option);
+                        });
+                    })
+                    .catch(err => {
+                        courtSelect.innerHTML = '<option value="">Error loading courts</option>';
+                        console.error(err);
+                    });
+            });
+        </script>
         <%- include('../partials/footer') %>

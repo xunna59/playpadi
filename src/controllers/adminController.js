@@ -48,7 +48,7 @@ const adminAuthController = {
 
             const payload = { id: admin.id, email: admin.email, username: admin.username, role: admin.role };
 
-            const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+            const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '12h' });
 
             res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
 

@@ -68,6 +68,11 @@ module.exports = {
         allowNull: true,
         comment: 'JSON object containing booking details (available_slots and booked_slots)'
       },
+      cover_image: {
+        type: Sequelize.TEXT,
+        allowNull: false,
+      },
+
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

@@ -27,10 +27,7 @@ module.exports = (sequelize) => {
             type: DataTypes.STRING,
             allowNull: true,
             unique: true,
-            validate: {
-                isNumeric: true,
-                len: [10, 15], // Phone number should be between 10 to 15 characters
-            },
+
         },
         gender: {
             type: DataTypes.ENUM('male', 'female'),
@@ -59,7 +56,7 @@ module.exports = (sequelize) => {
             allowNull: false,
             defaultValue: 'standard',
         },
-        subsription_status: {
+        subscription_status: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: false
@@ -69,6 +66,11 @@ module.exports = (sequelize) => {
             allowNull: true,
             defaultValue: {} // Stores user preferences dynamically
         },
+        display_picture: {
+            type: DataTypes.TEXT,
+            allowNull: true,
+        },
+
         created_at: {
             type: DataTypes.DATE,
             allowNull: false,

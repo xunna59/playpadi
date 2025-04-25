@@ -24,6 +24,11 @@ module.exports = (sequelize) => {
                 key: 'id'
             }
         },
+        booking_reference: {
+            type: DataTypes.STRING,
+            allowNull: false,
+
+        },
         date: {
             type: DataTypes.DATEONLY, // Stores date in YYYY-MM-DD format
             allowNull: false
@@ -39,7 +44,9 @@ module.exports = (sequelize) => {
         }
     }, {
         tableName: 'bookings',
-        timestamps: true
+        timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: 'updated_at',
     });
 
     Bookings.associate = function (models) {
@@ -47,6 +54,11 @@ module.exports = (sequelize) => {
         Bookings.belongsTo(models.Court, {
             foreignKey: 'court_id',
             as: 'court'
+        });
+
+        Bookings.belongsTo(models.User, {
+            foreignKey: 'user_id',
+            as: 'user'
         });
     };
 

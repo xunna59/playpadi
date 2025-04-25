@@ -6,6 +6,12 @@ const dashboardController = require('../controllers/dashboardController');
 const adminController = require('../controllers/adminController');
 const sportsCenterController = require('../controllers/sportsCenterController');
 const courtController = require('../controllers/courtController');
+const usersController = require('../controllers/usersController');
+const bookingsController = require('../controllers/bookingsController');
+const academyController = require('../controllers/academyController');
+
+const { protect } = require('../middleware/userAuthMiddleware');
+
 
 
 
@@ -27,23 +33,28 @@ router.get('/dashboard', authMiddleware, dashboardController.renderDashboard);
 
 router.get('/sports-center/', authMiddleware, sportsCenterController.renderAllSportsCenter);
 router.get('/sports-center/add-sports-center', authMiddleware, sportsCenterController.renderAddSportsCenter);
+
 router.post('/sports-center/create-sports-center', authMiddleware, sportsCenterController.create);
 
+router.get('/sports-center/edit-sports-center/:id', authMiddleware, sportsCenterController.renderViewSportsCenter);
+router.put('/sports-center/update-sports-center/:id', authMiddleware, sportsCenterController.update);
 
 
-// Get available slots for a sports center
-router.get('/sports-centers/:id/slots', courtController.getCourtSlots);
+router.get('/manage-users/', authMiddleware, usersController.renderManageUsers);
 
 
-// get slots by date as query param e.g sports-centers/1/slots_by_date?date=2025-03-27
-router.get('/sports-centers/:id/slots_by_date', courtController.getSlotsForDate);
+router.post('/sports-centers/create-court/:id', courtController.createCourt);
 
 
-// Get available courts for a selected slot
-// e.g GET /sports-centers/123/courts/10:30 AM
-//e.g GET /sports-centers/123/courts/10:30 AM?date=2025-03-27
+router.get('/bookings/', authMiddleware, bookingsController.renderAllBookings);
 
-router.get('/sports-centers/:sportsCenterId/courts/:slot', courtController.getAvailableCourts);
+
+router.get('/academy/', authMiddleware, academyController.renderAllClasses);
+
+router.post('/academy/create-class', authMiddleware, academyController.createAcademy);
+
+
+
 
 
 

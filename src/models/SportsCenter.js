@@ -76,6 +76,11 @@ module.exports = (sequelize) => {
             //   ]
             // }
         },
+        cover_image: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+        },
+
     }, {
         tableName: 'sports_centers',
         timestamps: true
@@ -87,6 +92,12 @@ module.exports = (sequelize) => {
             foreignKey: 'sports_center_id',
             as: 'courts'
         });
+
+        SportsCenter.hasMany(models.Academy, {
+            foreignKey: 'sports_center_id',
+            as: 'academy'
+        });
+
     };
 
 

@@ -11,7 +11,7 @@ const methodOverride = require('method-override');
 
 
 const adminRoutes = require('./src/routes/adminRoutes');
-// const apiRoutes = require('./src/routes/apiRoutes');
+const apiRoutes = require('./src/routes/apiRoutes');
 const authRoutes = require('./src/routes/authRoutes');
 
 
@@ -36,6 +36,12 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
+
+// // Debugging: Log every request method & URL
+// app.use((req, res, next) => {
+//     console.log(`[${req.method}] ${req.url}`);
+//     next();
+// });
 
 app.use(cookieParser());
 
@@ -65,6 +71,8 @@ app.set('view engine', 'ejs');
 
 app.use('/admin', adminRoutes);
 app.use('/auth', authRoutes);
+app.use('/api', apiRoutes);
+
 
 
 

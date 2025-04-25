@@ -7,27 +7,42 @@ module.exports = (sequelize) => {
             primaryKey: true,
             autoIncrement: true,
         },
-        court_name: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            comment: 'Name or identifier for the court'
-        },
-        activity: {
-            // An ENUM restricts courts to specific activities.
-            type: DataTypes.STRING,
-            allowNull: false,
-            comment: 'The type of activity for which the court is designed'
-        },
-
         sports_center_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            comment: 'Foreign key referencing the associated sports center'
+        },
+        court_name: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        court_location: {
+            type: DataTypes.ENUM('Indoor', 'Outdoor'),
+            allowNull: false,
+        },
+        court_type: {
+            type: DataTypes.STRING, // court, table, board
+            allowNull: false,
+        },
+        activity: {
+            type: DataTypes.STRING, // paddle, snooker, darts
+            allowNull: false,
+        },
+        session_price: {
+            type: DataTypes.DECIMAL(10, 2), // Price field with 2 decimal places
+            allowNull: false,
+        },
+        session_duration: {
+            type: DataTypes.INTEGER, // e.g 60 mins
+            allowNull: false,
+        },
+        court_position: {
+            type: DataTypes.STRING, // left, right, center, n/a
+            allowNull: false,
         },
         booking_info: {
             type: DataTypes.JSON, // Store booked slots and other booking-related info
             allowNull: false,
-            defaultValue: { booked_slots: [] } // Default empty array
+            defaultValue: { booked_slots: [] }
         },
         status: {
             type: DataTypes.ENUM('available', 'unavailable'),
@@ -46,10 +61,14 @@ module.exports = (sequelize) => {
             as: 'sportsCenter'
         });
 
-
         Court.hasMany(models.Bookings, {
             foreignKey: 'court_id',
             as: 'bookings'
+        });
+
+        Court.hasMany(models.Academy, {
+            foreignKey: 'court_id',
+            as: 'academy'
         });
     };
 

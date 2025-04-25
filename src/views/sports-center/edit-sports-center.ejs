@@ -1,0 +1,225 @@
+<%- include('../partials/header') %>
+    <!-- END #header -->
+    <!-- BEGIN #sidebar -->
+    <%- include('../partials/sidebar') %>
+        <!-- END #sidebar -->
+        <!-- BEGIN #content -->
+        <div id="content" class="app-content">
+            <div class="d-flex align-items-center mb-3">
+                <div>
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="javascript:;">Dashboard</a></li>
+                        <li class="breadcrumb-item active">
+                            <%= title %>
+                        </li>
+                    </ol>
+                    <h1 class="page-header mb-0">
+                        <%= sportsCenter.sports_center_name %>
+                    </h1>
+                </div>
+                <div class="ms-auto">
+                    <button class="btn btn-theme" data-bs-toggle="modal" data-bs-target="#modalCoverExample"><i
+                            class="fa fa-plus-circle fa-fw me-1"></i> Add Courts</button>
+                </div>
+            </div>
+            <% if (success_msg.length> 0) { %> <div class="alert alert-success">
+                    <%= success_msg[0] %>
+                </div>
+                <% } %>
+                    <% if (error_msg.length> 0) { %> <div class="alert alert-danger">
+                            <%= error_msg[0] %>
+                        </div>
+                        <% } %>
+                            <!-- <div class="mb-md-3 mb-2 d-flex flex-wrap">
+                <div class="me-4 mb-md-0 mb-2"><a href="#"
+                        class="text-decoration-none text-body d-flex align-items-center"><i
+                            class="fa fa-print me-2 text-body text-opacity-50 my-n1"></i> Print</a></div>
+                <div class="me-4 mb-md-0 mb-2"><a href="#"
+                        class="text-decoration-none text-body d-flex align-items-center"><i
+                            class="fa fa-box me-2 text-body text-opacity-50 my-n1"></i> Restock items</a></div>
+                <div class="me-4 mb-md-0 mb-2"><a href="#"
+                        class="text-decoration-none text-body d-flex align-items-center"><i
+                            class="fa fa-pen me-2 text-body text-opacity-50 my-n1"></i> Edit</a></div>
+            </div> -->
+                            <div class="row gx-4">
+                                <div class="col-xl-8">
+                                    <form method="POST"
+                                        action="/admin/sports-center/update-sports-center/<%= sportsCenter.id %>?_method=PUT">
+                                        <div class="card mb-4">
+                                            <div class="card-header bg-none fw-bold"> Sports Center Information </div>
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Sports Center Name <span
+                                                            class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control" name="sports_center_name"
+                                                        placeholder="Sports Center name"
+                                                        value="<%= sportsCenter.sports_center_name %>" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Address</label>
+                                                    <input type="text" class="form-control" name="sports_center_address"
+                                                        placeholder="Address"
+                                                        value="<%= sportsCenter.sports_center_address %>" required>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-6">
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Longitude</label>
+                                                            <input type="text" class="form-control" name="longitude"
+                                                                value="<%= sportsCenter.longitude %>"
+                                                                placeholder="Longitude" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Latitude</label>
+                                                            <input type="text" class="form-control" name="latitude"
+                                                                value="<%= sportsCenter.latitude %>"
+                                                                placeholder="Latitude" required>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="">
+                                                    <label class="form-label">Sports Center Description <span
+                                                            class="text-danger">*</span></label>
+                                                    <textarea class="form-control" id="summernote" rows="10"
+                                                        name="sports_center_description"
+                                                        required><%= sportsCenter.sports_center_description %></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <center><button class="btn btn-primary" type="submit">Update</button></center>
+                                    </form>
+                                </div>
+                                <div class="col-xl-4">
+                                    <div class="card mb-4">
+                                        <div class="card-header d-flex align-items-center  bg-none fw-semibold"> Courts
+                                            (3) <!-- <a href="#"
+                                class="ms-auto text-decoration-none text-primary fs-13px d-flex align-items-center"><i
+                                    class="fa fa-plus-circle me-2 my-n1"></i> Add Court</a> -->
+                                        </div>
+                                        <div class="card-body">
+                                            <% if (sportsCenter.courts.length> 0) { %> <%
+                                                    sportsCenter.courts.forEach(court=> { %> <div
+                                                        class="row align-items-center">
+                                                        <div class="col-lg-8 d-flex align-items-center">
+                                                            <div
+                                                                class="h-65px w-65px d-flex align-items-center justify-content-center position-relative bg-body rounded p-2">
+                                                                <i class="fa fa-box"></i>
+                                                                <img src="assets/img/product/product-1-thumb.png" alt=""
+                                                                    class="mw-100 mh-100">
+                                                                <!-- <span
+                                                    class="w-20px h-20px p-0 d-flex align-items-center justify-content-center badge bg-theme text-theme-color position-absolute end-0 top-0 fw-bold fs-12px rounded-pill mt-n2 me-n2">
+                                                    <%= court.id %>
+                                                </span> -->
+                                                            </div>
+                                                            <div class="ps-3 flex-1">
+                                                                <div><a href="#" class="text-decoration-none text-body">
+                                                                        <%= court.court_name %>
+                                                                    </a></div>
+                                                                <div class="text-body text-opacity-50 small"> Location:
+                                                                    <%= court.court_location %> | Game: <%=
+                                                                            court.activity %>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-2 m-0 ps-lg-3"></div>
+                                                        <div class="col-lg-2 m-0 text-end">
+                                                            <a href="/admin/court/view/<%= court.id %>"
+                                                                class="text-primary p-2" title="View">
+                                                                <i class="fas fa-pen"></i>
+                                                            </a>
+                                                            <a href="/admin/court/delete/<%= court.id %>"
+                                                                class="text-danger p-2" title="Delete">
+                                                                <i class="fas fa-trash-alt"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    <hr class="opacity-1 my-4">
+                                                    <% }); %>
+                                                        <% } else { %>
+                                                            <div class="text-center text-muted py-4">
+                                                                <p>No courts found for this sports center.</p>
+                                                            </div>
+                                                            <% } %>
+                                        </div>
+                                        <!-- <div class="card-footer bg-none d-flex p-3">
+                            <a href="#" class="btn btn-default fw-semibold fs-13px ms-auto dropdown-toggle">More</a>
+                            <a href="#" class="btn btn-theme fw-semibold fs-13px ms-2">Add Tracking</a>
+                        </div> -->
+                                    </div>
+                                </div>
+                            </div>
+        </div>
+        <div class="modal modal-cover fade" id="modalCoverExample">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Create Court</h3>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-3"> Add a new court to your sports facility. A court represents a specific area or
+                            space where a particular sport or activity takes place (e.g., tennis court, basketball
+                            court, snooker table).</p>
+                        <form method="POST" action="admin/sports-centers/create-court/<%= sportsCenter.id %>">
+                            <div class="row mb-5">
+                                <div class="col-md-12 mb-3">
+                                    <input type="text" id="court_name" name="court_name" placeholder="Court Name"
+                                        class="form-control form-control-sm" required>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <select id="court_location" name="court_location"
+                                        class="form-control form-control-sm" required>
+                                        <option value="">Select Court Location</option>
+                                        <option value="Indoor">Indoor</option>
+                                        <option value="Outdoor">Outdoor</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <select id="court_type" name="court_type" class="form-control form-control-sm"
+                                        required>
+                                        <option value="">Select Court Type</option>
+                                        <option value="court">Court</option>
+                                        <option value="table">Table</option>
+                                        <option value="board">Board</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <select id="activity" name="activity" class="form-control form-control-sm" required>
+                                        <option value="">Select Activity</option>
+                                        <option value="paddle">Paddle</option>
+                                        <option value="snooker">Snooker</option>
+                                        <option value="darts">Darts</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <select id="court_position" name="court_position"
+                                        class="form-control form-control-sm" required>
+                                        <option value="">Select Court Position</option>
+                                        <option value="left">Left</option>
+                                        <option value="right">Right</option>
+                                        <option value="center">Center</option>
+                                        <option value="n/a">N/A</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <input type="number" id="session_duration" name="session_duration"
+                                        placeholder="e.g 30" class="form-control form-control-sm" required>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <input type="number" id="session_price" name="session_price" placeholder="e.g 30"
+                                        class="form-control form-control-sm" required>
+                                </div>
+                                <div class="col-md-12">
+                                    <button type="submit" class="btn btn-primary btn-lg btn-block">Submit</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- END #content -->
+        <!-- BEGIN btn-scroll-top -->
+        <%- include('../partials/footer') %>

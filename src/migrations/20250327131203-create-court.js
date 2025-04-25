@@ -8,47 +8,65 @@ module.exports = {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
-        allowNull: false
-      },
-      court_name: {
-        type: Sequelize.STRING,
         allowNull: false,
-        comment: 'Name or identifier for the court'
       },
-      activity: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        comment: 'The type of activity for which the court is designed'
-      },
-
       sports_center_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'sports_centers', // Ensure this matches the actual table name
+          model: 'sports_centers', // Ensure this matches your SportsCenter table name
           key: 'id'
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
-        comment: 'Foreign key referencing the associated sports center'
+      },
+      court_name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      court_location: {
+        type: Sequelize.ENUM('Indoor', 'Outdoor'),
+        allowNull: false,
+      },
+      court_type: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      activity: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      session_price: {
+        type: Sequelize.DECIMAL(10, 2), // Price field with 2 decimal places
+        allowNull: false,
+      },
+      session_duration: {
+        type: Sequelize.INTEGER, // e.g 60 mins
+        allowNull: false,
+      },
+      court_position: {
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       booking_info: {
-        type: Sequelize.JSON, // Store booked slots and other booking-related info
+        type: Sequelize.JSON,
         allowNull: false,
-        defaultValue: { booked_slots: [] } // Default empty array
+        defaultValue: JSON.stringify({ booked_slots: [] }),
       },
       status: {
         type: Sequelize.ENUM('available', 'unavailable'),
         allowNull: false,
-        defaultValue: 'available'
+        defaultValue: 'available',
       },
       createdAt: {
         type: Sequelize.DATE,
-        allowNull: false
+        allowNull: false,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
       updatedAt: {
         type: Sequelize.DATE,
-        allowNull: false
+        allowNull: false,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
       }
     });
   },

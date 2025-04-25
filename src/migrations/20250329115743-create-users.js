@@ -64,6 +64,10 @@ module.exports = {
         allowNull: true,
         defaultValue: {},
       },
+      display_picture: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
       created_at: {
         type: Sequelize.DATE,
         allowNull: false,

@@ -13,11 +13,7 @@
                             <%= title %>
                         </li>
                     </ul>
-                    <h1 class="page-header mb-0">Sports Centers</h1>
-                </div>
-                <div class="ms-auto">
-                    <a href="admin/sports-center/add-sports-center" class="btn btn-theme"><i
-                            class="fa fa-plus-circle fa-fw me-1"></i> Add Sports Center</a>
+                    <h1 class="page-header mb-0">Manage Bookings</h1>
                 </div>
             </div>
             <% if (success_msg.length> 0) { %> <div class="alert alert-success">
@@ -53,7 +49,7 @@
                                             <div class="flex-fill position-relative">
                                                 <div class="input-group">
                                                     <input type="text" class="form-control ps-35px"
-                                                        placeholder="Search Sports Center">
+                                                        placeholder="Search Booking Reference">
                                                     <div class="input-group-text position-absolute top-0 bottom-0 bg-none border-0"
                                                         style="z-index: 1020;">
                                                         <i class="fa fa-search opacity-5"></i>
@@ -90,20 +86,18 @@
                                                 <thead>
                                                     <tr>
                                                         <th class="border-top-0 pt-0 pb-2"></th>
-                                                        <th class="border-top-0 pt-0 pb-2">Sports Center Name</th>
-                                                        <th class="border-top-0 pt-0 pb-2">Address</th>
-                                                        <th class="border-top-0 pt-0 pb-2">Total Courts</th>
+                                                        <th class="border-top-0 pt-0 pb-2">Booking Reference</th>
+                                                        <th class="border-top-0 pt-0 pb-2">Booked By</th>
+                                                        <th class="border-top-0 pt-0 pb-2">Court</th>
+                                                        <th class="border-top-0 pt-0 pb-2">Slot</th>
                                                         <th class="border-top-0 pt-0 pb-2"> status</th>
-                                                        <th class="border-top-0 pt-0 pb-2">Long/Lat</th>
-                                                        <th class="border-top-0 pt-0 pb-2">Games</th>
                                                         <th class="border-top-0 pt-0 pb-2">Date Created</th>
                                                         <th class="border-top-0 pt-0 pb-2">Date Updated</th>
-                                                        <th class="border-top-0 pt-0 pb-2">Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <% if (sportsCenters.length> 0) { %> <%
-                                                            sportsCenters.forEach(sportsCenter=> { %> <tr>
+                                                    <% if (bookings.length> 0) { %> <% bookings.forEach(booking=> { %>
+                                                            <tr>
                                                                 <td class="w-10px align-middle">
                                                                     <div class="form-check">
                                                                         <input type="checkbox" class="form-check-input"
@@ -113,66 +107,65 @@
                                                                     </div>
                                                                 </td>
                                                                 <td class="align-middle">
-                                                                    <%= sportsCenter.sports_center_name %>
+                                                                    <%= booking.booking_reference %>
                                                                 </td>
                                                                 <td class="align-middle">
-                                                                    <%= sportsCenter.sports_center_address %>
+                                                                    <%= booking.user.first_name %>
+                                                                        <%= booking.user.last_name %>
                                                                 </td>
-                                                                <td>8</td>
-                                                                <td class="py-1 align-middle"><span
+                                                                <td>
+                                                                    <%= booking.court.court_name %>
+                                                                </td>
+                                                                <!-- <td class="py-1 align-middle"><span
                                                                         class="badge bg-teal text-teal-800 bg-opacity-25 px-2 pt-5px pb-5px rounded fs-12px d-inline-flex align-items-center"><i
                                                                             class="fa fa-circle text-teal fs-9px fa-fw me-5px"></i>
-                                                                        Paid</span>
-                                                                </td>
+                                                                        <%= booking.gender ? booking.gender : "N/A" %>
+                                                                    </span>
+                                                                </td> -->
                                                                 <td class="align-middle"><span
                                                                         class="badge bg-gray-100 text-black text-opacity-50 px-2 pt-5px pb-5px rounded fs-12px d-inline-flex align-items-center">
-                                                                        <%= sportsCenter.longitude %> / <%=
-                                                                                sportsCenter.latitude %>
+                                                                        <%= booking.date %> | <%= booking.slot %>
                                                                     </span>
                                                                 </td>
-                                                                <td class="align-middle">
-                                                                    <% if
-                                                                        (Array.isArray(sportsCenter.sports_center_games))
-                                                                        { %>
-                                                                        <%
-                                                                            sportsCenter.sports_center_games.forEach(game=>
-                                                                            { %> <span class="badge bg-primary me-1">
-                                                                                <%= game %>
-                                                                            </span>
-                                                                            <% }) %>
-                                                                                <% } else { %> N/A <% } %>
+                                                                <td class="py-1 align-middle">
+                                                                    <% const statusMap={ 'confirmed' : {
+                                                                        bgClass: 'bg-success' ,
+                                                                        textClass: 'text-success' , label: 'Confirmed'
+                                                                        }, 'cancelled' : { bgClass: 'bg-danger' ,
+                                                                        textClass: 'text-danger' , label: 'Cancelled'
+                                                                        }, 'elapsed' : { bgClass: 'bg-secondary' ,
+                                                                        textClass: 'text-secondary' , label: 'Elapsed'
+                                                                        }, 'pending' : { bgClass: 'bg-warning' ,
+                                                                        textClass: 'text-warning' , label: 'Pending' }
+                                                                        }; const status=statusMap[booking.status] || {
+                                                                        bgClass: 'bg-light' , textClass: 'text-muted' ,
+                                                                        label: 'Unknown' }; %>
+                                                                        <span
+                                                                            class="badge <%= status.bgClass %> text-dark bg-opacity-25 px-2 pt-5px pb-5px rounded fs-12px d-inline-flex align-items-center">
+                                                                            <i
+                                                                                class="fa fa-circle <%= status.textClass %> fs-9px fa-fw me-5px"></i>
+                                                                            <%= status.label %>
+                                                                        </span>
                                                                 </td>
                                                                 <td class="align-middle">
                                                                     <%= new
-                                                                        Date(sportsCenter.createdAt).toLocaleString('en-GB',
+                                                                        Date(booking.created_at).toLocaleString('en-GB',
                                                                         { day: 'numeric' , month: 'short' ,
                                                                         year: 'numeric' , hour: '2-digit' ,
                                                                         minute: '2-digit' , hour12: true }) %>
                                                                 </td>
                                                                 <td class="align-middle">
                                                                     <%= new
-                                                                        Date(sportsCenter.updatedAt).toLocaleString('en-GB',
+                                                                        Date(booking.updated_at).toLocaleString('en-GB',
                                                                         { day: 'numeric' , month: 'short' ,
                                                                         year: 'numeric' , hour: '2-digit' ,
                                                                         minute: '2-digit' , hour12: true }) %>
-                                                                </td>
-                                                                <td class="w-10px align-middle">
-                                                                    <div class="d-flex align-items-center gap-2">
-                                                                        <a href="admin/sports-center/edit-sports-center/<%= sportsCenter.id %>"
-                                                                            class="text-primary p-2" title="View">
-                                                                            <i class="fas fa-pen"></i>
-                                                                        </a>
-                                                                        <a href="#" class="text-danger p-2"
-                                                                            title="Delete">
-                                                                            <i class="fas fa-trash-alt"></i>
-                                                                        </a>
-                                                                    </div>
                                                                 </td>
                                                             </tr>
                                                             <% }) %>
                                                                 <% } else { %>
                                                                     <tr>
-                                                                        <td colspan="15">No Sports Center found.</td>
+                                                                        <td colspan="15">No bookings found.</td>
                                                                     </tr>
                                                                     <% } %>
                                                 </tbody>
@@ -182,19 +175,19 @@
                                         <div class="d-md-flex align-items-center">
                                             <!-- Showing X to Y of Z entries -->
                                             <div class="me-md-auto text-md-left text-center mb-2 mb-md-0"> Showing <%=
-                                                    offset + 1 %> to <%= offset + sportsCenters.length %> of <%= count
-                                                            %> entries </div>
+                                                    offset + 1 %> to <%= offset + bookings.length %> of <%= count %>
+                                                            entries </div>
                                             <!-- Pagination Controls -->
                                             <ul class="pagination mb-0 justify-content-center">
                                                 <!-- Previous Button -->
                                                 <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
                                                     <a class="page-link"
-                                                        href="admin/sports-center/?page=<%= currentPage - 1 %>">Previous</a>
+                                                        href="admin/bookings/?page=<%= currentPage - 1 %>">Previous</a>
                                                 </li>
                                                 <!-- Page Numbers -->
                                                 <% for (let i=1; i <=totalPages; i++) { %>
                                                     <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                                                        <a class="page-link" href="admin/sports-center/?page=<%= i %>">
+                                                        <a class="page-link" href="admin/bookings/?page=<%= i %>">
                                                             <%= i %>
                                                         </a>
                                                     </li>
@@ -203,7 +196,7 @@
                                                         <li
                                                             class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
                                                             <a class="page-link"
-                                                                href="admin/sports-center/?page=<%= currentPage + 1 %>">Next</a>
+                                                                href="admin/bookings/?page=<%= currentPage + 1 %>">Next</a>
                                                         </li>
                                             </ul>
                                         </div>

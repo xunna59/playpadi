@@ -31,6 +31,11 @@ module.exports = {
         onDelete: 'CASCADE',
         comment: 'ID of the court that was booked'
       },
+      booking_reference: {
+        type: Sequelize.STRING,
+        allowNull: false,
+
+      },
       date: {
         type: Sequelize.DATEONLY,
         allowNull: false

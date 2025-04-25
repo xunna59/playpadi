@@ -20,7 +20,7 @@
                         Center</a>
                 </div>
             </div>
-            <form method="POST" action="admin/sports-center/create-sports-center">
+            <form method="POST" action="admin/sports-center/create-sports-center" enctype="multipart/form-data">
                 <div class="row gx-4">
                     <div class="col-xl-8">
                         <div class="card mb-4">
@@ -85,12 +85,47 @@
                                 <input type="hidden" name="sports_center_games" id="gamesInput" required>
                             </div>
                         </div>
+                        <div class="card mb-4">
+                            <div class="card-header bg-none fw-bold d-flex align-items-center">
+                                <div class="flex-1">
+                                    <div>Upload Cover Image</div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <input type="file" class="form-control" id="coverImageInput" name="cover_photo"
+                                    accept="image/*" required>
+                                <div class="mt-3">
+                                    <img id="coverImagePreview" src="#" alt="Image Preview"
+                                        class="img-fluid rounded d-none" style="max-height: 250px;" />
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <center><button class="btn btn-primary" type="submit">Create</button></center>
                 </div>
             </form>
             <!-- New row content starts here -->
         </div>
+        <script>
+            document.getElementById('coverImageInput').addEventListener('change', function (event) {
+                const file = event.target.files[0];
+                const preview = document.getElementById('coverImagePreview');
+
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        preview.src = e.target.result;
+                        preview.classList.remove('d-none');
+                    };
+
+                    reader.readAsDataURL(file);
+                } else {
+                    preview.src = '#';
+                    preview.classList.add('d-none');
+                }
+            });
+        </script>
         <!-- END #content -->
         <!-- BEGIN btn-scroll-top -->
         <%- include('../partials/footer') %>
