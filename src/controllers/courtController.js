@@ -1,36 +1,40 @@
 const { SportsCenter, Court, Bookings } = require('../models');
 
-const moment = require("moment");
+const dayjs = require("dayjs");
 
 const generateTimeSlots = () => {
-    const startHour = 9;  // 9:00 AM
-    const endHour = 19;   // 7:00 PM
-    const interval = 30;  // 30-minute intervals
+    const startHour = 9;   // 9:00 AM
+    const endHour = 19;    // 7:00 PM
+    const interval = 30;   // 30-minute intervals
     const daysToGenerate = 90;  // Next 3 months
     const slots = [];
 
     for (let i = 0; i < daysToGenerate; i++) {
-        const date = moment().add(i, 'days');
-        if (date.day() === 1) continue; // Skip Mondays (Monday = 1 in moment.js)
+        const date = dayjs().add(i, 'day');
+        if (date.day() === 1) continue; // Skip Mondays
+
+        const availableTimes = [];
 
         for (let hour = startHour; hour < endHour; hour++) {
-            const ampmHour = hour > 12 ? hour - 12 : hour;
-            const period = hour >= 12 ? "PM" : "AM";
-
-            slots.push({
-                date: date.format('YYYY-MM-DD'), // Store in YYYY-MM-DD format
-                slot: `${ampmHour}:00 ${period}`
-            });
-
-            slots.push({
-                date: date.format('YYYY-MM-DD'),
-                slot: `${ampmHour}:30 ${period}`
-            });
+            for (let minute = 0; minute < 60; minute += interval) {
+                const time = dayjs().hour(hour).minute(minute);
+                const timeFormatted = time.format('HH:mm'); // 24-hour format like 09:00, 09:30
+                availableTimes.push(timeFormatted);
+            }
         }
+
+        slots.push({
+            weekday: date.format('ddd').toUpperCase(), // 'TUE'
+            day: date.format('DD'),                    // '04'
+            month: date.format('MMM'),                  // 'Feb'
+            date: date.format('YYYY-MM-DD'),            // '2025-02-04'
+            availableTimes: availableTimes
+        });
     }
 
     return slots;
 };
+
 
 function generateReference(length) {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -43,35 +47,101 @@ function generateReference(length) {
 
 
 const courtController = {
-    getCourtSlots: async (req, res, next) => {
+
+
+    getSlots: async (req, res, next) => {
         try {
             const sportsCenterId = req.params.id;
-            const sportsCenter = await SportsCenter.findByPk(sportsCenterId);
-
-            if (!sportsCenter) {
-                return res.status(404).json({ message: 'Sports center not found' });
+            const sports_center = await SportsCenter.findByPk(sportsCenterId);
+            if (!sports_center) {
+                return res.status(404).json({ message: "Sports Center not found" });
             }
 
-            console.log("Booking Info from DB:", sportsCenter.booking_info);
+            // 1) get your per-day template from generateTimeSlots()
+            //    -> [{ weekday, day, month, date, availableTimes: ["09:00","09:30",…] }, …]
+            const days = generateTimeSlots();
 
-            const bookingInfo = sportsCenter.booking_info || { booked_slots: [] };
-            const allTimeSlots = generateTimeSlots();
+            // 2) fetch all actual bookings for this court
+            const bookings = await Bookings.findAll({
+                where: { sports_center_id: sportsCenterId },
+                attributes: ["date", "slot"]
+            });
+            const bookedSlots = new Set(
+                bookings.map(b => `${b.date}#${b.slot}`)   // e.g. "2025-05-11#09:00"
+            );
 
-            // Extract booked slots (ensure it's an array)
-            const bookedSlots = Array.isArray(bookingInfo.booked_slots) ? bookingInfo.booked_slots : [];
+            // 3) for each day, map its availableTimes → times: [{time,status},…]
+            const slots = days.map(dayObj => {
+                const { weekday, day, month, date, availableTimes } = dayObj;
 
-            // Mark available/unavailable slots
-            const formattedSlots = allTimeSlots.map(slotObj => ({
-                slot: slotObj, // Keep { date, slot } format
-                status: bookedSlots.some(b => b.date === slotObj.date && b.slot === slotObj.slot) ? "unavailable" : "available"
-            }));
+                const times = availableTimes.map(time => {
+                    const key = `${date}#${time}`;           // must match how you stored slot in DB
+                    return {
+                        time,
+                        status: bookedSlots.has(key)
+                            ? "unavailable"
+                            : "available"
+                    };
+                });
 
-            return res.json({ formattedSlots });
+                return { weekday, day, month, date, times };
+            });
+
+            // 4) send back the new per-day array
+            return res.json({ slots });
 
         } catch (error) {
             next(error);
         }
     },
+
+
+    getCourtSlots: async (req, res, next) => {
+        try {
+            const courtId = req.params.id;
+            const court = await Court.findByPk(courtId);
+            if (!court) {
+                return res.status(404).json({ message: "Court not found" });
+            }
+
+            // 1) get your per-day template from generateTimeSlots()
+            //    -> [{ weekday, day, month, date, availableTimes: ["09:00","09:30",…] }, …]
+            const days = generateTimeSlots();
+
+            // 2) fetch all actual bookings for this court
+            const bookings = await Bookings.findAll({
+                where: { court_id: courtId },
+                attributes: ["date", "slot"]
+            });
+            const bookedSlots = new Set(
+                bookings.map(b => `${b.date}#${b.slot}`)   // e.g. "2025-05-11#09:00"
+            );
+
+            // 3) for each day, map its availableTimes → times: [{time,status},…]
+            const slots = days.map(dayObj => {
+                const { weekday, day, month, date, availableTimes } = dayObj;
+
+                const times = availableTimes.map(time => {
+                    const key = `${date}#${time}`;           // must match how you stored slot in DB
+                    return {
+                        time,
+                        status: bookedSlots.has(key)
+                            ? "unavailable"
+                            : "available"
+                    };
+                });
+
+                return { weekday, day, month, date, times };
+            });
+
+            // 4) send back the new per-day array
+            return res.json({ slots });
+
+        } catch (error) {
+            next(error);
+        }
+    },
+
 
     getAvailableCourts: async (req, res, next) => {
         try {

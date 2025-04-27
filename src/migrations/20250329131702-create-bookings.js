@@ -29,7 +29,11 @@ module.exports = {
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
-        comment: 'ID of the court that was booked'
+      },
+      sports_center_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+
       },
       booking_reference: {
         type: Sequelize.STRING,

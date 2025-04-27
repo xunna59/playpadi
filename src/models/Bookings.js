@@ -18,9 +18,17 @@ module.exports = (sequelize) => {
         court_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            comment: 'ID of the court that was booked',
+
             references: {
                 model: 'courts',
+                key: 'id'
+            }
+        },
+        sports_center_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'SportsCenter',
                 key: 'id'
             }
         },
@@ -50,6 +58,12 @@ module.exports = (sequelize) => {
     });
 
     Bookings.associate = function (models) {
+
+        Bookings.belongsTo(models.SportsCenter, {
+            foreignKey: 'sports_center_id',
+            as: 'sportsCenter'
+        });
+
         // Each BookingHistory belongs to one Court.
         Bookings.belongsTo(models.Court, {
             foreignKey: 'court_id',

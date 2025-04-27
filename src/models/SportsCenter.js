@@ -80,6 +80,10 @@ module.exports = (sequelize) => {
             type: DataTypes.TEXT,
             allowNull: false,
         },
+        session_price: {
+            type: DataTypes.DECIMAL(10, 2), // Price field with 2 decimal places
+            allowNull: false,
+        },
 
     }, {
         tableName: 'sports_centers',

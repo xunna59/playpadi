@@ -12,7 +12,10 @@ const UsersController = require('../controllers/usersController');
 
 // api end points
 // Get available slots for a sports center
-router.get('/sports-centers/:id/slots', courtController.getCourtSlots);
+router.get('/sports-centers/:id/court_slots', courtController.getCourtSlots);
+
+router.get('/sports-centers/:id/slots', courtController.getSlots);
+
 
 
 // get slots by date as query param e.g sports-centers/1/slots_by_date?date=2025-03-27

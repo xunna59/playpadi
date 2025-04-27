@@ -94,7 +94,8 @@ const sportsCenterController = {
                     latitude,
                     longitude,
                     //     openingHours,
-                    sports_center_description
+                    sports_center_description,
+                    session_price
                 } = req.body;
 
                 const features = JSON.parse(req.body.sports_center_features);
@@ -109,7 +110,8 @@ const sportsCenterController = {
                     sports_center_games: games,
                     //  openingHours,
                     cover_image: `${req.file.filename}`,
-                    sports_center_description
+                    sports_center_description,
+                    session_price
                 });
 
                 req.flash('success_msg', 'Sports Center Created Successfully');
