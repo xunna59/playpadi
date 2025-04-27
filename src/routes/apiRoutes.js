@@ -11,10 +11,22 @@ const UsersController = require('../controllers/usersController');
 
 
 // api end points
-// Get available slots for a sports center
-router.get('/sports-centers/:id/court_slots', courtController.getCourtSlots);
 
-router.get('/sports-centers/:id/slots', courtController.getSlots);
+// Get all sports centers
+
+router.get('/fetch-sports-centers', sportsCenterContrer.apiAllSportsCenters);
+
+router.get('/fetch-sports-center/:id', sportsCenterContrer.apiViewSportsCenters);
+
+
+
+
+// Get available slots for a sports center
+
+router.get('/fetch-slots/:id', courtController.getSlots);
+
+router.get('/fetch-slots/:id/court_slots', courtController.getCourtSlots);
+
 
 
 

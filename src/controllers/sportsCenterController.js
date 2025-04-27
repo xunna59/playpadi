@@ -44,6 +44,8 @@ const sportsCenterController = {
     },
 
 
+
+
     renderAddSportsCenter: async (req, res, next) => {
         try {
             return res.render('sports-center/add-sports-center', {
@@ -186,7 +188,132 @@ const sportsCenterController = {
         } catch (error) {
             res.status(500).json({ message: "Error deleting sports center", error: error.message });
         }
-    }
+    },
+
+
+    // api area
+
+    apiAllSportsCenters: async (req, res, next) => {
+        try {
+            const page = parseInt(req.query.page, 10) || 1;
+            const limit = 5;
+            const offset = (page - 1) * limit;
+
+            const { count, rows: sportsCenters } = await SportsCenter.findAndCountAll({
+                limit,
+                offset,
+                order: [['createdAt', 'DESC']],
+                attributes: [ // ONLY these fields will be selected from DB
+
+                    'sports_center_name',
+                    'sports_center_address',
+
+                    'sports_center_features',
+                    'sports_center_games',
+                    'cover_image',
+                    'session_price',
+                ],
+            });
+
+            const totalPages = Math.ceil(count / limit);
+
+            const formattedCenters = sportsCenters.map(center => {
+                const formattedCenter = { ...center.toJSON() };
+
+                // Parse fields if needed
+                if (typeof formattedCenter.sports_center_games === 'string') {
+                    try {
+                        formattedCenter.sports_center_games = JSON.parse(formattedCenter.sports_center_games);
+                    } catch (err) {
+                        formattedCenter.sports_center_games = [];
+                    }
+                }
+
+                if (typeof formattedCenter.sports_center_features === 'string') {
+                    try {
+                        formattedCenter.sports_center_features = JSON.parse(formattedCenter.sports_center_features);
+                    } catch (err) {
+                        formattedCenter.sports_center_features = [];
+                    }
+                }
+
+                return formattedCenter;
+            });
+
+            return res.status(200).json({
+                message: 'Sports centers retrieved successfully',
+                data: {
+                    sportsCenters: formattedCenters,
+                    pagination: {
+                        totalItems: count,
+                        currentPage: page,
+                        totalPages,
+                        limit,
+                        offset
+                    }
+                }
+            });
+        } catch (error) {
+            next(error);
+        }
+    },
+
+
+    apiViewSportsCenters: async (req, res, next) => {
+        try {
+            const { id } = req.params;
+            const sportsCenter = await SportsCenter.findByPk(id, {
+                include: [{ model: Court, as: 'courts' }]
+            });
+
+            if (!sportsCenter) {
+                return res.status(404).json({ message: "Sports center not found" });
+            }
+
+            const detailedCenter = { ...sportsCenter.toJSON() };
+
+            if (typeof detailedCenter.sports_center_games === 'string') {
+                try {
+                    detailedCenter.sports_center_games = JSON.parse(detailedCenter.sports_center_games);
+                } catch (err) {
+                    detailedCenter.sports_center_games = [];
+                }
+            }
+
+            if (typeof detailedCenter.sports_center_features === 'string') {
+                try {
+                    detailedCenter.sports_center_features = JSON.parse(detailedCenter.sports_center_features);
+                } catch (err) {
+                    detailedCenter.sports_center_features = [];
+                }
+            }
+
+            if (typeof detailedCenter.openingHours === 'string') {
+                try {
+                    detailedCenter.openingHours = JSON.parse(detailedCenter.openingHours);
+                } catch (err) {
+                    detailedCenter.openingHours = {};
+                }
+            }
+
+            if (typeof detailedCenter.booking_info === 'string') {
+                try {
+                    detailedCenter.booking_info = JSON.parse(detailedCenter.booking_info);
+                } catch (err) {
+                    detailedCenter.booking_info = {};
+                }
+            }
+
+            return res.status(200).json({
+                message: 'Sports center retrieved successfully',
+                data: detailedCenter
+            });
+        } catch (error) {
+            next(error);
+        }
+    },
+
+
 
 
 };
