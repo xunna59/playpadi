@@ -53,6 +53,22 @@ module.exports = {
         allowNull: false,
         defaultValue: 'pending'
       },
+      gender_allowed: {
+        type: Sequelize.STRING, // e.g., male, female, mixed 
+        allowNull: false
+      },
+      booking_type: {
+        type: Sequelize.STRING, // e.g., private, public, academy
+        allowNull: false
+      },
+      user_type: {
+        type: Sequelize.STRING, // e.g., User, System
+        allowNull: false
+      },
+      game_type: {
+        type: Sequelize.STRING, // e.g., padle, dart, snooker
+        allowNull: false
+      },
       created_at: {
         type: Sequelize.DATE,
         allowNull: false,

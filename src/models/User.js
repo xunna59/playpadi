@@ -70,6 +70,11 @@ module.exports = (sequelize) => {
             type: DataTypes.TEXT,
             allowNull: true,
         },
+        user_type: {
+            type: DataTypes.STRING, // e.g., 'User', 'Admin', 'System'
+            allowNull: false,
+            defaultValue: 'User',
+        },
 
         created_at: {
             type: DataTypes.DATE,
@@ -90,7 +95,9 @@ module.exports = (sequelize) => {
 
     User.associate = (models) => {
         // User.hasOne(models.Cart, { foreignKey: 'user_id', as: 'cart' }); // User has one Cart
-        User.hasMany(models.Bookings, { foreignKey: 'user_id', as: 'bookings' }); // User has many Orders
+        User.hasMany(models.Bookings, { foreignKey: 'user_id', as: 'bookings' });
+        User.hasMany(models.BookingPlayers, { foreignKey: 'user_id', as: 'bookingplayers' });
+
     };
 
     return User;

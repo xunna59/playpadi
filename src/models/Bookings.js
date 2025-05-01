@@ -28,7 +28,7 @@ module.exports = (sequelize) => {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'SportsCenter',
+                model: 'sports_centers',
                 key: 'id'
             }
         },
@@ -49,7 +49,24 @@ module.exports = (sequelize) => {
             type: DataTypes.ENUM('confirmed', 'cancelled', 'pending', 'elapsed'),
             allowNull: false,
             defaultValue: 'pending'
-        }
+        },
+        gender_allowed: {
+            type: DataTypes.STRING, // e.g., male, female, mixed 
+            allowNull: false
+        },
+        booking_type: {
+            type: DataTypes.STRING, // e.g., private, public, academy
+            allowNull: false
+        },
+        user_type: {
+            type: DataTypes.STRING, // e.g., User, System
+            allowNull: false
+        },
+        game_type: {
+            type: DataTypes.STRING, // e.g., padle, dart, snooker
+            allowNull: false
+        },
+
     }, {
         tableName: 'bookings',
         timestamps: true,

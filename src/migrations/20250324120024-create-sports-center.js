@@ -72,6 +72,10 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: false,
       },
+      session_price: {
+        type: Sequelize.DECIMAL(10, 2), // Price field with 2 decimal places
+        allowNull: false,
+      },
 
       createdAt: {
         allowNull: false,

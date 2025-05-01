@@ -1,4 +1,4 @@
-const { Academy, SportsCenter, Court } = require('../models');
+const { Academy, SportsCenter, Court, YoutubeTutorial } = require('../models');
 const flexibleUpload = require('../middleware/uploadMiddleware')
 
 
@@ -21,6 +21,11 @@ const academyController = {
                 ]
             });
 
+            const youtubeVideos = await YoutubeTutorial.findAll({
+                order: [['created_at', 'DESC']]
+            });
+
+
             const sportsCenter = await SportsCenter.findAll();
             //    const courts = await Court.findAll();
 
@@ -36,6 +41,8 @@ const academyController = {
                 limit,
                 offset,
                 sportsCenter,
+                youtubeVideos,
+                YOUTUBE_API_KEY: process.env.YOUTUBE_KEY
                 //courts
             });
         } catch (error) {
@@ -99,12 +106,68 @@ const academyController = {
                     activity_date,
                     end_registration_date,
                     category,
+                    cover_image: `${req.file.filename}`,
                     academy_type
                 });
 
                 return res.status(201).json({
                     message: 'Academy created successfully',
                     data: newAcademy
+                });
+
+            } catch (err) {
+
+                next(err);
+            }
+
+        });
+
+
+    },
+
+
+
+    uploadYoutubeTutorial: async (req, res, next) => {
+
+        flexibleUpload.single('youtube_cover')(req, res, async (err) => {
+            if (err) {
+                return res.status(400).json({ success: false, message: err.message });
+            }
+            if (!req.file) {
+                return res.status(400).json({ success: false, message: 'Please upload an image' });
+            }
+            try {
+                const {
+                    video_title,
+                    youtube_url,
+                    video_duration,
+                    upload_date,
+
+                } = req.body;
+
+                // Basic validation
+                if (
+                    !video_title ||
+                    !youtube_url ||
+                    !video_duration ||
+                    !upload_date
+                ) {
+                    return res.status(400).json({ message: 'Required fields are missing' });
+                }
+
+                // Create new academy record
+                const newVideo = await YoutubeTutorial.create({
+                    video_title,
+                    youtube_url,
+                    video_duration,
+                    upload_date,
+                    cover_image: `${req.file.filename}`,
+
+                });
+
+                return res.status(201).json({
+                    message: 'Youtbube Video Uploaded successfully',
+                    data: newVideo
                 });
 
             } catch (err) {

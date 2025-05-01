@@ -53,6 +53,9 @@ router.get('/academy/', authMiddleware, academyController.renderAllClasses);
 
 router.post('/academy/create-class', authMiddleware, academyController.createAcademy);
 
+router.post('/academy/upload-video', authMiddleware, academyController.uploadYoutubeTutorial);
+
+
 
 
 

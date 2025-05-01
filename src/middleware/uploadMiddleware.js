@@ -16,6 +16,8 @@ const storage = multer.diskStorage({
             folderName = 'display_img';
         } else if (file.fieldname === 'cover_photo') {
             folderName = 'cover_photo';
+        } else if (file.fieldname === 'youtube_cover') {
+            folderName = 'youtube';
         } else {
             folderName = 'others'; // Optional fallback folder
         }

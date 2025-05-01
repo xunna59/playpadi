@@ -68,6 +68,11 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: true,
       },
+      user_type: {
+        type: Sequelize.STRING, // e.g., 'User', 'Admin', 'System'
+        allowNull: false,
+        defaultValue: 'User',
+      },
       created_at: {
         type: Sequelize.DATE,
         allowNull: false,

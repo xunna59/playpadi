@@ -16,8 +16,12 @@
                     <h1 class="page-header mb-0">Manage Academy</h1>
                 </div>
                 <div class="ms-auto">
-                    <button class="btn btn-theme" data-bs-toggle="modal" data-bs-target="#modalCoverExample"><i
+                    <button class="btn btn-sm btn-theme" data-bs-toggle="modal" data-bs-target="#modalCoverExample"><i
                             class="fa fa-plus-circle fa-fw me-1"></i> Create Class</button>
+                    <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#youtubeModal"><i
+                            class="fa fa-upload fa-fw me-1"></i> Upload Tutorial</button>
+                    <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#modalCoverExample"><i
+                            class="fa fa-user fa-fw me-1"></i> Add Coach</button>
                 </div>
             </div>
             <% if (success_msg.length> 0) { %> <div class="alert alert-success">
@@ -29,23 +33,23 @@
                         </div>
                         <% } %>
                             <div class="card">
-                                <!-- <ul class="nav nav-tabs nav-tabs-v2 px-4">
+                                <ul class="nav nav-tabs nav-tabs-v2 px-4">
                                     <li class="nav-item me-3"><a href="#allTab" class="nav-link active px-2"
-                                            data-bs-toggle="tab">All</a></li>
-                                    <li class="nav-item me-3"><a href="#publishedTab" class="nav-link px-2"
-                                            data-bs-toggle="tab">Unfulfilled</a>
+                                            data-bs-toggle="tab">Classes</a></li>
+                                    <li class="nav-item me-3"><a href="#youtubeTutorial" class="nav-link px-2"
+                                            data-bs-toggle="tab">Youtube Tutorials</a>
                                     </li>
                                     <li class="nav-item me-3"><a href="#expiredTab" class="nav-link px-2"
-                                            data-bs-toggle="tab">Unpaid</a></li>
-                                    <li class="nav-item me-3"><a href="#deletedTab" class="nav-link px-2"
+                                            data-bs-toggle="tab">Coaches</a></li>
+                                    <!-- <li class="nav-item me-3"><a href="#deletedTab" class="nav-link px-2"
                                             data-bs-toggle="tab">Open</a>
                                     </li>
                                     <li class="nav-item me-3"><a href="#deletedTab" class="nav-link px-2"
                                             data-bs-toggle="tab">Closed</a></li>
                                     <li class="nav-item me-3"><a href="#deletedTab" class="nav-link px-2"
                                             data-bs-toggle="tab">Local delivery</a>
-                                    </li>
-                                </ul> -->
+                                    </li> -->
+                                </ul>
                                 <div class="tab-content p-4">
                                     <div class="tab-pane fade show active" id="allTab">
                                         <!-- BEGIN input-group -->
@@ -60,31 +64,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <!-- <button class="btn btn-default dropdown-toggle rounded-0" type="button"
-                                                data-bs-toggle="dropdown"><span class="d-none d-md-inline">Payment
-                                                    Status</span><span class="d-inline d-md-none"><i
-                                                        class="fa fa-credit-card"></i></span> &nbsp;</button>
-                                            <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#">Action</a>
-                                                <a class="dropdown-item" href="#">Another action</a>
-                                                <a class="dropdown-item" href="#">Something else here</a>
-                                                <div role="separator" class="dropdown-divider"></div>
-                                                <a class="dropdown-item" href="#">Separated link</a>
-                                            </div>
-                                            <button class="btn btn-default dropdown-toggle" type="button"
-                                                data-bs-toggle="dropdown"><span class="d-none d-md-inline">Fulfillment
-                                                    status</span><span class="d-inline d-md-none"><i
-                                                        class="fa fa-check"></i></span></button>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a class="dropdown-item" href="#">Action</a>
-                                                <a class="dropdown-item" href="#">Another action</a>
-                                                <a class="dropdown-item" href="#">Something else here</a>
-                                                <div role="separator" class="dropdown-divider"></div>
-                                                <a class="dropdown-item" href="#">Separated link</a>
-                                            </div> -->
                                         </div>
-                                        <!-- END input-group -->
-                                        <!-- BEGIN table -->
                                         <div class="table-responsive">
                                             <table class="table table-hover text-nowrap">
                                                 <thead>
@@ -184,6 +164,82 @@
                                             </ul>
                                         </div>
                                     </div>
+                                    <div class="tab-pane fade show" id="youtubeTutorial">
+                                        <!-- BEGIN input-group -->
+                                        <div class="input-group mb-4">
+                                            <div class="flex-fill position-relative">
+                                                <!-- <div class="input-group">
+                                                    <input type="text" class="form-control ps-35px"
+                                                        placeholder="Search User">
+                                                    <div class="input-group-text position-absolute top-0 bottom-0 bg-none border-0"
+                                                        style="z-index: 1020;">
+                                                        <i class="fa fa-search opacity-5"></i>
+                                                    </div>
+                                                </div> -->
+                                            </div>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-hover text-nowrap">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="border-top-0 pt-0 pb-2"></th>
+                                                        <th class="border-top-0 pt-0 pb-2">Video Title</th>
+                                                        <th class="border-top-0 pt-0 pb-2">Youtube URL</th>
+                                                        <th class="border-top-0 pt-0 pb-2">Video Duration</th>
+                                                        <th class="border-top-0 pt-0 pb-2"> Youtube Upload Date</th>
+                                                        <th class="border-top-0 pt-0 pb-2">Date Created</th>
+                                                        <th class="border-top-0 pt-0 pb-2">Date Updated</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <% if (youtubeVideos.length> 0) { %> <%
+                                                            youtubeVideos.forEach(youtubeVideo=> { %> <tr>
+                                                                <td class="w-10px align-middle">
+                                                                    <div class="form-check">
+                                                                        <input type="checkbox" class="form-check-input"
+                                                                            id="product1">
+                                                                        <label class="form-check-label"
+                                                                            for="product1"></label>
+                                                                    </div>
+                                                                </td>
+                                                                <td class="align-middle">
+                                                                    <%= youtubeVideo.video_title %>
+                                                                </td>
+                                                                <td class="align-middle">
+                                                                    <%= youtubeVideo.youtube_url %>
+                                                                </td>
+                                                                <td>
+                                                                    <%= youtubeVideo.video_duration %>
+                                                                </td>
+                                                                <td>
+                                                                    <%= youtubeVideo.upload_date %>
+                                                                </td>
+                                                                <td class="align-middle">
+                                                                    <%= new
+                                                                        Date(youtubeVideo.created_at).toLocaleString('en-GB',
+                                                                        { day: 'numeric' , month: 'short' ,
+                                                                        year: 'numeric' , hour: '2-digit' ,
+                                                                        minute: '2-digit' , hour12: true }) %>
+                                                                </td>
+                                                                <td class="align-middle">
+                                                                    <%= new
+                                                                        Date(youtubeVideo.updated_at).toLocaleString('en-GB',
+                                                                        { day: 'numeric' , month: 'short' ,
+                                                                        year: 'numeric' , hour: '2-digit' ,
+                                                                        minute: '2-digit' , hour12: true }) %>
+                                                                </td>
+                                                            </tr>
+                                                            <% }) %>
+                                                                <% } else { %>
+                                                                    <tr>
+                                                                        <td colspan="15">No Youtube Video found.</td>
+                                                                    </tr>
+                                                                    <% } %>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <!-- END table -->
+                                    </div>
                                 </div>
                             </div>
                             <!-- New row content starts here -->
@@ -271,15 +327,126 @@
                                         <option value="public">Public</option>
                                     </select>
                                 </div>
+                                <div class="col-md-6 mb-3">
+                                    <input type="file" class="form-control" id="coverImageInput" name="cover_photo"
+                                        accept="image/*" required>
+                                </div>
                                 <div class="col-md-12">
                                     <button type="submit" class="btn btn-primary btn-lg btn-block w-100">Submit</button>
                                 </div>
                             </div>
                         </form>
+                        <center>
+                            <div class="mt-3">
+                                <img id="coverImagePreview" src="#" alt="Image Preview" class="img-fluid rounded d-none"
+                                    style="max-height: 250px;" />
+                            </div>
+                        </center>
                     </div>
                 </div>
             </div>
         </div>
+        <!-- Modal -->
+        <div class="modal modal-cover fade" id="youtubeModal">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Upload Youtube Video</h3>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-3">Paste a YouTube video link to auto-fill session info.</p>
+                        <form method="POST" action="/admin/academy/upload-video" enctype="multipart/form-data">
+                            <div class="row mb-3">
+                                <!-- URL Input: Always Visible -->
+                                <div class="col-md-12 mb-3">
+                                    <input type="text" id="youtubeUrl" name="youtube_url"
+                                        placeholder="YouTube Video URL" class="form-control form-control-sm" required>
+                                </div>
+                                <!-- Hidden Fields: Shown after link is parsed -->
+                                <div id="videoDetails" class="d-none">
+                                    <div class="col-md-12 mb-3">
+                                        <input type="text" id="videoTitle" name="video_title"
+                                            class="form-control form-control-sm" readonly>
+                                    </div>
+                                    <div class="col-md-12 mb-3">
+                                        <input type="text" id="videoDuration" name="video_duration"
+                                            class="form-control form-control-sm" readonly>
+                                    </div>
+                                    <div class="col-md-12 mb-3">
+                                        <input type="text" id="uploadDate" name="upload_date"
+                                            class="form-control form-control-sm" readonly>
+                                    </div>
+                                    <div class="col-md-12 mb-3">
+                                        <input type="file" class="form-control" id="coverImageInput"
+                                            name="youtube_cover" accept="image/*" required>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <button type="submit"
+                                            class="btn btn-primary btn-lg btn-block w-100">Submit</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        <!-- <center>
+                            <div class="mt-3">
+                                <img id="coverImagePreview" src="#" alt="Image Preview" class="img-fluid rounded d-none"
+                                    style="max-height: 250px;" />
+                            </div>
+                        </center> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            const apiKey = '<%= YOUTUBE_API_KEY %>';
+
+            function getYouTubeVideoId(url) {
+                const regex = /(?:youtube\.com.*(?:\/|v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+                const match = url.match(regex);
+                return match ? match[1] : null;
+            }
+
+            function formatDuration(isoDuration) {
+                // Converts ISO 8601 duration (e.g., PT1H2M10S) to hh:mm:ss
+                const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
+                const [, h = 0, m = 0, s = 0] = isoDuration.match(regex).map(x => parseInt(x) || 0);
+                return [h, m, s].map(unit => String(unit).padStart(2, '0')).join(':');
+            }
+
+            async function fetchVideoData(videoId) {
+                const endpoint = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${videoId}&key=${apiKey}`;
+                const response = await fetch(endpoint);
+                const data = await response.json();
+                return data.items && data.items[0] ? data.items[0] : null;
+            }
+
+            document.getElementById('youtubeUrl').addEventListener('input', async (e) => {
+                const url = e.target.value;
+                const videoId = getYouTubeVideoId(url);
+
+                if (videoId) {
+                    const videoData = await fetchVideoData(videoId);
+                    if (videoData) {
+                        const snippet = videoData.snippet;
+                        const duration = formatDuration(videoData.contentDetails.duration);
+
+                        // Fill the fields
+                        document.getElementById('videoTitle').value = snippet.title;
+                        document.getElementById('videoDuration').value = duration;
+                        document.getElementById('uploadDate').value = new Date(snippet.publishedAt).toLocaleDateString();
+
+                        const thumbnail = snippet.thumbnails?.medium?.url || snippet.thumbnails?.default?.url;
+                        const img = document.getElementById('coverImagePreview');
+                        img.src = thumbnail;
+                        img.classList.remove('d-none');
+
+                        // Reveal the hidden section
+                        document.getElementById('videoDetails').classList.remove('d-none');
+                    }
+                }
+            });
+        </script>
         <script>
             document.getElementById('sports_center_id').addEventListener('change', function () {
                 const centerId = this.value;
@@ -303,5 +470,43 @@
                         console.error(err);
                     });
             });
+
+            document.getElementById('coverImageInput').addEventListener('change', function (event) {
+                const file = event.target.files[0];
+                const preview = document.getElementById('coverImagePreview');
+
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        preview.src = e.target.result;
+                        preview.classList.remove('d-none');
+                    };
+
+                    reader.readAsDataURL(file);
+                } else {
+                    preview.src = '#';
+                    preview.classList.add('d-none');
+                }
+            });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         </script>
         <%- include('../partials/footer') %>

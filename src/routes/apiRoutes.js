@@ -29,6 +29,13 @@ router.get('/fetch-slots/:id/court_slots', courtController.getCourtSlots);
 
 
 
+router.post(
+    '/create-booking/:sports_center_id/:court_id',
+    protect,
+    bookingsController.apiCreateBooking
+);
+
+
 
 // get slots by date as query param e.g sports-centers/1/slots_by_date?date=2025-03-27
 router.get('/sports-centers/:id/slots_by_date', courtController.getSlotsForDate);

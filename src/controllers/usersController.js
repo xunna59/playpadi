@@ -54,7 +54,7 @@ const UsersController = {
             }
 
             const hashedPassword = await bcrypt.hash(password, 10);
-            const newUser = await User.create({
+            const user = await User.create({
                 first_name,
                 last_name,
                 email,
@@ -62,7 +62,24 @@ const UsersController = {
                 password: hashedPassword
             });
 
-            res.status(201).json(newUser);
+            const payload = { id: user.id, email: user.email, user_type: 'User' };
+            const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
+
+
+            res.status(201).json({
+                success: true,
+                message: "User created successfully",
+                // user: {
+                //     firstname: user.first_name,
+                //     lastname: user.last_name,
+                //     phone_number: user.phone,
+                //     email: user.email,
+
+                // },
+                token
+
+            });
+
         } catch (error) {
             res.status(500).json({ message: 'Error registering user', error });
         }
@@ -79,12 +96,12 @@ const UsersController = {
             if (!isMatch) return res.status(401).json({ message: 'Invalid Sign In credentials' });
 
             const token = jwt.sign(
-                { id: user.id, email: user.email },
+                { id: user.id, email: user.email, user_type: 'User' },
                 process.env.JWT_SECRET,
                 { expiresIn: '1d' }
             );
 
-            res.status(200).json({ message: 'Login successful', token });
+            res.status(200).json({ message: 'Login successful', token, });
         } catch (error) {
             res.status(500).json({ message: 'Error logging in', error });
         }

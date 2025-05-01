@@ -19,9 +19,7 @@ const sportsCenterController = {
 
             const totalPages = Math.ceil(count / limit);
 
-            // Convert JSON strings to arrays if needed
             const formattedCenters = sportsCenters.map(center => {
-                // If it's a string, parse it
                 if (typeof center.sports_center_games === 'string') {
                     center.sports_center_games = JSON.parse(center.sports_center_games);
                 }
@@ -77,7 +75,6 @@ const sportsCenterController = {
         }
     },
 
-    // Create a new sports center
     create: async (req, res) => {
 
 
@@ -125,9 +122,6 @@ const sportsCenterController = {
 
 
         });
-
-
-
 
     },
 
@@ -205,6 +199,7 @@ const sportsCenterController = {
                 order: [['createdAt', 'DESC']],
                 attributes: [ // ONLY these fields will be selected from DB
 
+                    'id',
                     'sports_center_name',
                     'sports_center_address',
 
