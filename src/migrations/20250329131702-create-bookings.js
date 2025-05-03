@@ -69,6 +69,10 @@ module.exports = {
         type: Sequelize.STRING, // e.g., padle, dart, snooker
         allowNull: false
       },
+      total_players: {
+        type: Sequelize.INTEGER, // 4 for padel, 2 for snooker and dart
+        allowNull: false
+      },
       created_at: {
         type: Sequelize.DATE,
         allowNull: false,

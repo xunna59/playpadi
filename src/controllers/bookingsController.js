@@ -78,10 +78,22 @@ const bookingsController = {
                 game_type
             } = req.body;
 
-            const { id: user_id } = req.user;
+            const missingFields = [];
 
-            const user_type = req.user.user_type;
+            if (!date) missingFields.push('date');
+            if (!slot) missingFields.push('slot');
+            if (!gender_allowed) missingFields.push('gender_allowed');
+            if (!booking_type) missingFields.push('booking_type');
+            if (!game_type) missingFields.push('game_type');
 
+            if (missingFields.length > 0) {
+                return res.status(400).json({
+                    error: 'Validation Error',
+                    message: `The following fields are required: ${missingFields.join(', ')}`
+                });
+            }
+
+            const { id: user_id, user_type } = req.user;
             const { court_id, sports_center_id } = req.params;
 
             const court = await Court.findByPk(court_id);
@@ -110,6 +122,34 @@ const bookingsController = {
 
             const booking_reference = generateBookingReference();
 
+            let total_players;
+
+            const normalizedGameType = game_type.toLowerCase();
+
+            const gameTypePlayerMap = {
+                padel: 4,
+                snooker: 2,
+                dart: 2
+            };
+
+            if (!gameTypePlayerMap[normalizedGameType]) {
+                return res.status(400).json({
+                    message: `Unsupported game_type '${game_type}'.`
+                });
+            }
+
+            switch (booking_type.toLowerCase()) {
+                case 'public':
+                case 'private':
+                case 'academy':
+                    total_players = gameTypePlayerMap[normalizedGameType];
+                    break;
+                default:
+                    return res.status(400).json({
+                        message: `Invalid booking_type '${booking_type}'. Must be 'public', 'private', or 'academy'.`
+                    });
+            }
+
             const booking = await Bookings.create({
                 user_id,
                 court_id,
@@ -120,20 +160,30 @@ const bookingsController = {
                 gender_allowed,
                 booking_type,
                 user_type,
-                game_type
+                game_type,
+                total_players
             });
 
-            await BookingPlayers.create({
-                user_id,
-                bookings_id: booking.id
-            });
+            // only add to booking players if it is an open match
+
+            if (booking_type.toLowerCase() === 'public') {
+
+                await BookingPlayers.create({
+                    user_id,
+                    bookings_id: booking.id
+                });
+            }
+
 
             return res.status(201).json({ message: 'Booking created successfully', booking });
+
         } catch (error) {
             console.error(error);
             next(error);
         }
     },
+
+
 
 
 
@@ -154,6 +204,118 @@ const bookingsController = {
             next(error);
         }
     },
+
+    getPublicBookings: async (req, res) => {
+        try {
+            const publicBookings = await Bookings.findAll({
+                where: { booking_type: 'public' },
+                include: [
+                    {
+                        model: BookingPlayers,
+                        as: 'players',
+                        include: [
+                            {
+                                model: User,
+                                as: 'user',
+                                attributes: ['first_name', 'points', 'display_picture']
+                            }
+                        ]
+                    }
+                ],
+                order: [['created_at', 'DESC']]
+            });
+
+            const formattedBookings = publicBookings.map(booking => {
+                let players = booking.players.map(p => ({
+                    name: p.user?.first_name || '',
+                    rating: p.user?.rating || '0.00',
+                    avatarUrl: p.user?.avatarUrl || null
+                }));
+
+                const placeholdersToAdd = booking.total_players - players.length;
+
+                for (let i = 0; i < placeholdersToAdd; i++) {
+                    players.push({
+                        name: 'Available',
+                        rating: null,
+                        avatarUrl: null
+                    });
+                }
+
+                return {
+                    ...booking.toJSON(),
+                    players
+                };
+            });
+
+
+            return res.status(200).json({
+                message: 'Public bookings retrieved successfully',
+                data: formattedBookings
+            });
+
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Server error', error });
+        }
+    },
+
+
+
+    joinPublicBookings: async (req, res) => {
+        try {
+            const { bookingId } = req.params;
+            const userId = req.user.id;
+
+            const booking = await Bookings.findOne({
+                where: {
+                    id: bookingId,
+                    booking_type: 'public'
+                }
+            });
+
+            if (!booking) {
+                return res.status(404).json({ message: 'Open Match not found' });
+            }
+
+            const alreadyJoined = await BookingPlayers.findOne({
+                where: {
+                    user_id: userId,
+                    bookings_id: bookingId
+                }
+            });
+
+            if (alreadyJoined) {
+                return res.status(400).json({ message: 'You have already joined this match' });
+            }
+
+            const currentPlayerCount = await BookingPlayers.count({
+                where: {
+                    bookings_id: bookingId
+                }
+            });
+
+            if (currentPlayerCount >= booking.total_players) {
+                return res.status(400).json({ message: 'Maximum Number of players have been reached for this match.' });
+            }
+
+            const newPlayer = await BookingPlayers.create({
+                user_id: userId,
+                bookings_id: bookingId
+            });
+
+            return res.status(201).json({
+                message: 'Successfully joined the Match',
+                player: newPlayer
+            });
+
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Server error', error });
+        }
+    }
+
+
 
 
 

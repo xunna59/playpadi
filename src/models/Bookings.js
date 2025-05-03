@@ -66,6 +66,10 @@ module.exports = (sequelize) => {
             type: DataTypes.STRING, // e.g., padle, dart, snooker
             allowNull: false
         },
+        total_players: {
+            type: DataTypes.INTEGER, // 4 for padel, 2 for snooker and dart
+            allowNull: false
+        },
 
     }, {
         tableName: 'bookings',
@@ -91,6 +95,12 @@ module.exports = (sequelize) => {
             foreignKey: 'user_id',
             as: 'user'
         });
+
+        Bookings.hasMany(models.BookingPlayers, {
+            foreignKey: 'bookings_id',
+            as: 'players'
+        });
+
     };
 
     return Bookings;

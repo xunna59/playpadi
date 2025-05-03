@@ -35,6 +35,20 @@ router.post(
     bookingsController.apiCreateBooking
 );
 
+router.get(
+    '/fetch-bookings/public',
+    protect,
+    bookingsController.getPublicBookings
+);
+
+
+router.post(
+    '/join/open-match/:bookingId',
+    protect,
+    bookingsController.joinPublicBookings
+);
+
+
 
 
 // get slots by date as query param e.g sports-centers/1/slots_by_date?date=2025-03-27

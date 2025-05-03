@@ -17,8 +17,8 @@ const generateTimeSlots = () => {
 
         for (let hour = startHour; hour < endHour; hour++) {
             for (let minute = 0; minute < 60; minute += interval) {
-                const time = dayjs().hour(hour).minute(minute);
-                const timeFormatted = time.format('HH:mm'); // 24-hour format like 09:00, 09:30
+                const time = date.hour(hour).minute(minute);
+                const timeFormatted = time.format('h:mm A'); // 12-hour format with AM/PM
                 availableTimes.push(timeFormatted);
             }
         }
@@ -26,8 +26,8 @@ const generateTimeSlots = () => {
         slots.push({
             weekday: date.format('ddd').toUpperCase(), // 'TUE'
             day: date.format('DD'),                    // '04'
-            month: date.format('MMM'),                  // 'Feb'
-            date: date.format('YYYY-MM-DD'),            // '2025-02-04'
+            month: date.format('MMM'),                 // 'Feb'
+            date: date.format('YYYY-MM-DD'),           // '2025-02-04'
             availableTimes: availableTimes
         });
     }
@@ -305,38 +305,7 @@ const courtController = {
             });
 
 
-            //     // Safely parse the booking_info field
-            // let bookingInfo = { booked_slots: [] };
 
-            // try {
-            //     // If court.booking_info exists, parse it
-            //     if (court.booking_info) {
-            //         bookingInfo = JSON.parse(court.booking_info);
-            //     }
-            // } catch (error) {
-            //     console.error('Error parsing booking_info:', error);
-            //     return res.status(500).json({ message: "Error parsing booking information" });
-            // }
-
-            // // Ensure `booked_slots` is an array
-            // if (!Array.isArray(bookingInfo.booked_slots)) {
-            //     bookingInfo.booked_slots = [];
-            // }
-
-            // // Check if the slot is already booked
-            // const isAlreadyBooked = bookingInfo.booked_slots.some(
-            //     (b) => b.date === date && b.slot === slot
-            // );
-
-            // if (isAlreadyBooked) {
-            //     return res.status(400).json({ message: "Slot is already booked." });
-            // }
-
-            // // Add the new booking
-            // bookingInfo.booked_slots.push({ date, slot });
-
-            // // Convert back to a string before saving
-            // await court.update({ booking_info: JSON.stringify(bookingInfo) });
 
             return res.status(201).json({
                 message: "Court booked successfully",
