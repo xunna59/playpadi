@@ -7,6 +7,7 @@ const courtController = require('../controllers/courtController');
 const bookingsController = require('../controllers/bookingsController');
 const { protect } = require('../middleware/userAuthMiddleware');
 const UsersController = require('../controllers/usersController');
+const academyController = require('../controllers/academyController');
 
 
 
@@ -17,6 +18,9 @@ const UsersController = require('../controllers/usersController');
 router.get('/fetch-sports-centers', sportsCenterContrer.apiAllSportsCenters);
 
 router.get('/fetch-sports-center/:id', sportsCenterContrer.apiViewSportsCenters);
+
+router.get('/academy/fetch-youtube-tutorials', academyController.getAllYoutubeVideos);
+router.get('/academy/fetch-classes', academyController.getAllAcademies);
 
 
 

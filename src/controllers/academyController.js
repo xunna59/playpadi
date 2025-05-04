@@ -201,6 +201,17 @@ const academyController = {
         }
     },
 
+    getAllYoutubeVideos: async (req, res, next) => {
+        try {
+            const youtubeVideos = await YoutubeTutorial.findAll({
+                order: [['created_at', 'DESC']]
+            });
+            return res.status(200).json(youtubeVideos);
+        } catch (err) {
+            next(err);
+        }
+    },
+
     updateAcademy: async (req, res, next) => {
         try {
             const academy = await Academy.findByPk(req.params.id);

@@ -53,6 +53,12 @@ const UsersController = {
                 return res.status(400).json({ message: 'User already exists' });
             }
 
+            const existingphone = await User.findOne({ where: { phone } });
+
+            if (existingphone) {
+                return res.status(409).json({ message: 'An account already exists with this Phone Number.' });
+            }
+
             const hashedPassword = await bcrypt.hash(password, 10);
             const user = await User.create({
                 first_name,
@@ -197,6 +203,7 @@ const UsersController = {
                 dob,
                 bio,
                 preferences,
+                points,
                 display_picture
             } = req.body;
 
@@ -212,6 +219,7 @@ const UsersController = {
             user.gender = gender ?? user.gender;
             user.dob = dob ?? user.dob;
             user.bio = bio ?? user.bio;
+            user.points = points ?? user.points;
             user.preferences = preferences ? JSON.stringify(preferences) : user.preferences;
             user.display_picture = display_picture ?? user.display_picture;
 
