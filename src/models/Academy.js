@@ -23,6 +23,15 @@ module.exports = (sequelize) => {
                 key: 'id'
             }
         },
+
+        coach_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'coach',
+                key: 'id'
+            }
+        },
         title: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -92,6 +101,11 @@ module.exports = (sequelize) => {
             as: 'court'
         });
 
+
+        Academy.belongsTo(models.Coach, {
+            foreignKey: 'coach_id',
+            as: 'coach'
+        });
 
     };
 

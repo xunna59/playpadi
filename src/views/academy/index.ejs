@@ -20,7 +20,7 @@
                             class="fa fa-plus-circle fa-fw me-1"></i> Create Class</button>
                     <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#youtubeModal"><i
                             class="fa fa-upload fa-fw me-1"></i> Upload Tutorial</button>
-                    <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#modalCoverExample"><i
+                    <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#coachModal"><i
                             class="fa fa-user fa-fw me-1"></i> Add Coach</button>
                 </div>
             </div>
@@ -39,7 +39,7 @@
                                     <li class="nav-item me-3"><a href="#youtubeTutorial" class="nav-link px-2"
                                             data-bs-toggle="tab">Youtube Tutorials</a>
                                     </li>
-                                    <li class="nav-item me-3"><a href="#expiredTab" class="nav-link px-2"
+                                    <li class="nav-item me-3"><a href="#coachTab" class="nav-link px-2"
                                             data-bs-toggle="tab">Coaches</a></li>
                                     <!-- <li class="nav-item me-3"><a href="#deletedTab" class="nav-link px-2"
                                             data-bs-toggle="tab">Open</a>
@@ -240,6 +240,97 @@
                                         </div>
                                         <!-- END table -->
                                     </div>
+                                    <div class="tab-pane fade show" id="coachTab">
+                                        <!-- BEGIN input-group -->
+                                        <div class="input-group mb-4">
+                                            <div class="flex-fill position-relative">
+                                                <!-- <div class="input-group">
+                                                                                        <input type="text" class="form-control ps-35px"
+                                                                                            placeholder="Search User">
+                                                                                        <div class="input-group-text position-absolute top-0 bottom-0 bg-none border-0"
+                                                                                            style="z-index: 1020;">
+                                                                                            <i class="fa fa-search opacity-5"></i>
+                                                                                        </div>
+                                                                                    </div> -->
+                                            </div>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-hover text-nowrap">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="border-top-0 pt-0 pb-2"></th>
+                                                        <th class="border-top-0 pt-0 pb-2">First Name</th>
+                                                        <th class="border-top-0 pt-0 pb-2">Last Name</th>
+                                                        <th class="border-top-0 pt-0 pb-2">Email</th>
+                                                        <th class="border-top-0 pt-0 pb-2">Phone</th>
+                                                        <th class="border-top-0 pt-0 pb-2">Gender</th>
+                                                        <th class="border-top-0 pt-0 pb-2">Address</th>
+                                                        <!-- <th class="border-top-0 pt-0 pb-2">Display Picture</th> -->
+                                                        <th class="border-top-0 pt-0 pb-2">Date Created</th>
+                                                        <th class="border-top-0 pt-0 pb-2">Date Updated</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <% if (coaches.length> 0) { %> <% coaches.forEach(coach=> { %> <tr>
+                                                                <td class="w-10px align-middle">
+                                                                    <div class="form-check">
+                                                                        <input type="checkbox" class="form-check-input"
+                                                                            id="coach-<%= coach.id %>">
+                                                                        <label class="form-check-label"
+                                                                            for="coach-<%= coach.id %>"></label>
+                                                                    </div>
+                                                                </td>
+                                                                <td class="align-middle">
+                                                                    <%= coach.first_name %>
+                                                                </td>
+                                                                <td class="align-middle">
+                                                                    <%= coach.last_name %>
+                                                                </td>
+                                                                <td class="align-middle">
+                                                                    <%= coach.email %>
+                                                                </td>
+                                                                <td class="align-middle">
+                                                                    <%= coach.phone || 'N/A' %>
+                                                                </td>
+                                                                <td class="align-middle">
+                                                                    <%= coach.gender || 'N/A' %>
+                                                                </td>
+                                                                <td class="align-middle">
+                                                                    <%= coach.address || 'N/A' %>
+                                                                </td>
+                                                                <!-- <td class="align-middle">
+                                                                    <% if (coach.display_picture) { %>
+                                                                        <img src="<%= coach.display_picture %>"
+                                                                            alt="Display Picture" width="40" height="40"
+                                                                            style="object-fit: cover; border-radius: 50%;">
+                                                                        <% } else { %> No image <% } %>
+                                                                </td> -->
+                                                                <td class="align-middle">
+                                                                    <%= new
+                                                                        Date(coach.created_at).toLocaleString('en-GB', {
+                                                                        day: 'numeric' , month: 'short' ,
+                                                                        year: 'numeric' , hour: '2-digit' ,
+                                                                        minute: '2-digit' , hour12: true }) %>
+                                                                </td>
+                                                                <td class="align-middle">
+                                                                    <%= new
+                                                                        Date(coach.updated_at).toLocaleString('en-GB', {
+                                                                        day: 'numeric' , month: 'short' ,
+                                                                        year: 'numeric' , hour: '2-digit' ,
+                                                                        minute: '2-digit' , hour12: true }) %>
+                                                                </td>
+                                                            </tr>
+                                                            <% }) %>
+                                                                <% } else { %>
+                                                                    <tr>
+                                                                        <td colspan="10">No coach found.</td>
+                                                                    </tr>
+                                                                    <% } %>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <!-- END table -->
+                                    </div>
                                 </div>
                             </div>
                             <!-- New row content starts here -->
@@ -272,6 +363,18 @@
                                     <label for="court_id" class="form-label">Court</label>
                                     <select id="court_id" name="court_id" class="form-control form-control-sm" required>
                                         <option value="">Select Court</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <label for="coach" class="form-label">Select Coach</label>
+                                    <select id="sports_center_id" name="sports_center_id"
+                                        class="form-control form-control-sm" required>
+                                        <option value="">Select coach</option>
+                                        <% coaches.forEach(coach=> { %> <option value="<%= coach.id %>">
+                                                <%= coach.first_name %>
+                                                    <%= coach.last_name %>
+                                            </option>
+                                            <% }); %>
                                     </select>
                                 </div>
                                 <div class="col-md-6 mb-3">
@@ -394,6 +497,63 @@
                                     style="max-height: 250px;" />
                             </div>
                         </center> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal modal-cover fade" id="coachModal">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Create Coach</h3>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-3"> Fill in the details below to create a new academy session. </p>
+                        <form method="POST" action="/admin/academy/create-coach" enctype="multipart/form-data">
+                            <div class="row mb-3">
+                                <div class="col-md-6 mb-3">
+                                    <label for="first_name" class="form-label">First Name</label>
+                                    <input type="text" name="first_name" id="first_name"
+                                        class="form-control form-control-sm" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="last_name" class="form-label">Last Name</label>
+                                    <input type="text" name="last_name" id="last_name"
+                                        class="form-control form-control-sm" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" name="email" id="email" class="form-control form-control-sm"
+                                        required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="phone" class="form-label">Phone</label>
+                                    <input type="text" name="phone" id="phone" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="gender" class="form-label">Gender</label>
+                                    <select name="gender" id="gender" class="form-control form-control-sm">
+                                        <option value="">Select Gender</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="display_picture" class="form-label">Display Picture</label>
+                                    <input type="file" name="display_picture" id="display_picture"
+                                        class="form-control form-control-sm" accept="image/*">
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <label for="address" class="form-label">Address</label>
+                                    <textarea name="address" id="address" class="form-control form-control-sm"
+                                        rows="3"></textarea>
+                                </div>
+                                <div class="col-md-12">
+                                    <button type="submit" class="btn btn-primary btn-lg btn-block w-100">Submit</button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>

@@ -1,4 +1,4 @@
-const { Academy, SportsCenter, Court, YoutubeTutorial } = require('../models');
+const { Academy, SportsCenter, Court, YoutubeTutorial, Coach } = require('../models');
 const flexibleUpload = require('../middleware/uploadMiddleware')
 
 
@@ -25,6 +25,8 @@ const academyController = {
                 order: [['created_at', 'DESC']]
             });
 
+            const coaches = await Coach.findAll();
+
 
             const sportsCenter = await SportsCenter.findAll();
             //    const courts = await Court.findAll();
@@ -42,6 +44,7 @@ const academyController = {
                 offset,
                 sportsCenter,
                 youtubeVideos,
+                coaches,
                 YOUTUBE_API_KEY: process.env.YOUTUBE_KEY
                 //courts
             });
@@ -66,6 +69,7 @@ const academyController = {
                 const {
                     sports_center_id,
                     court_id,
+                    coach_id,
                     title,
                     description,
                     session_activity,
@@ -82,6 +86,7 @@ const academyController = {
                 if (
                     !sports_center_id ||
                     !court_id ||
+                    !coach_id ||
                     !title ||
                     !description ||
                     !session_activity ||
@@ -97,6 +102,7 @@ const academyController = {
                 const newAcademy = await Academy.create({
                     sports_center_id,
                     court_id,
+                    coach_id,
                     title,
                     description,
                     session_activity,
@@ -183,7 +189,21 @@ const academyController = {
     getAllAcademies: async (req, res, next) => {
         try {
             const academies = await Academy.findAll();
-            return res.status(200).json(academies);
+            return res.status(200).json({ message: 'Classes retrieved successfully', data: academies });
+        } catch (err) {
+            next(err);
+        }
+    },
+
+    getAllYoutubeVideos: async (req, res, next) => {
+        try {
+            const youtubeVideos = await YoutubeTutorial.findAll({
+                order: [['created_at', 'DESC']]
+            });
+            return res.status(200).json({
+                message: 'Youtbube Video Retrieved successfully',
+                data: youtubeVideos
+            });
         } catch (err) {
             next(err);
         }
@@ -196,17 +216,6 @@ const academyController = {
                 return res.status(404).json({ message: 'Academy not found' });
             }
             return res.status(200).json(academy);
-        } catch (err) {
-            next(err);
-        }
-    },
-
-    getAllYoutubeVideos: async (req, res, next) => {
-        try {
-            const youtubeVideos = await YoutubeTutorial.findAll({
-                order: [['created_at', 'DESC']]
-            });
-            return res.status(200).json(youtubeVideos);
         } catch (err) {
             next(err);
         }
@@ -237,6 +246,83 @@ const academyController = {
             return res.status(200).json({ message: 'Academy deleted successfully' });
         } catch (err) {
             next(err);
+        }
+    },
+
+
+    createCoach: async (req, res) => {
+
+        flexibleUpload.single('display_picture')(req, res, async (err) => {
+            if (err) {
+                return res.status(400).json({ success: false, message: err.message });
+            }
+            if (!req.file) {
+                return res.status(400).json({ success: false, message: 'Please upload an image' });
+            }
+
+            try {
+                const coach = await Coach.create(req.body);
+                return res.status(201).json(coach);
+            } catch (error) {
+                return res.status(400).json({ error: error.message });
+            }
+
+        });
+
+
+    },
+
+    // Get all coaches
+    getAllCoaches: async (req, res) => {
+        try {
+            const coaches = await Coach.findAll();
+            return res.status(200).json(coaches);
+        } catch (error) {
+            return res.status(500).json({ error: error.message });
+        }
+    },
+
+    // Get a single coach by ID
+    getCoachById: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const coach = await Coach.findByPk(id);
+            if (!coach) {
+                return res.status(404).json({ error: 'Coach not found' });
+            }
+            return res.status(200).json(coach);
+        } catch (error) {
+            return res.status(500).json({ error: error.message });
+        }
+    },
+
+    // Update a coach by ID
+    updateCoach: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const coach = await Coach.findByPk(id);
+            if (!coach) {
+                return res.status(404).json({ error: 'Coach not found' });
+            }
+            await coach.update(req.body);
+            return res.status(200).json(coach);
+        } catch (error) {
+            return res.status(400).json({ error: error.message });
+        }
+    },
+
+    // Delete a coach by ID
+    deleteCoach: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const coach = await Coach.findByPk(id);
+            if (!coach) {
+                return res.status(404).json({ error: 'Coach not found' });
+            }
+            await coach.destroy();
+            return res.status(204).send();
+        } catch (error) {
+            return res.status(500).json({ error: error.message });
         }
     }
 };

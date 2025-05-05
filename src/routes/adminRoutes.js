@@ -10,6 +10,7 @@ const usersController = require('../controllers/usersController');
 const bookingsController = require('../controllers/bookingsController');
 const academyController = require('../controllers/academyController');
 
+
 const { protect } = require('../middleware/userAuthMiddleware');
 
 
@@ -55,6 +56,7 @@ router.post('/academy/create-class', authMiddleware, academyController.createAca
 
 router.post('/academy/upload-video', authMiddleware, academyController.uploadYoutubeTutorial);
 
+router.post('/academy/create-coach', authMiddleware, academyController.createCoach);
 
 
 

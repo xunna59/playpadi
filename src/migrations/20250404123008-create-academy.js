@@ -29,6 +29,14 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
+      coach_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'coach',
+          key: 'id'
+        }
+      },
       title: {
         type: Sequelize.STRING,
         allowNull: false

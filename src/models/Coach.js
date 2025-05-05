@@ -63,6 +63,11 @@ module.exports = (sequelize) => {
     Coach.associate = (models) => {
         // Coach.hasMany(models.Bookings, { foreignKey: 'user_id', as: 'bookings' });
 
+        Coach.hasMany(models.Academy, {
+            foreignKey: 'coach_id',
+            as: 'academies'
+        });
+
     };
 
     return Coach;
