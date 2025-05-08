@@ -216,10 +216,10 @@ const courtController = {
 
             const sports_center_id = req.params.id;
 
-            const { court_name, court_location, court_type, activity, court_position, session_duration, session_price } = req.body;
+            const { court_name, court_location, court_type, activity, court_position, court_price_duration } = req.body;
 
             // Validate required fields
-            if (!court_name || !court_location || !court_type || !activity || !court_position || !session_duration || !session_price) {
+            if (!court_name || !court_location || !court_type || !activity || !court_position) {
                 return res.status(400).json({ message: "All fields are required" });
             }
 
@@ -228,6 +228,8 @@ const courtController = {
             if (!sportsCenter) {
                 return res.status(404).json({ message: 'Sports center not found' });
             }
+
+            //      const court_price_duration = JSON.parse(req.body.court_price_duration);
 
             // Validate court_location
             const validLocations = ['Indoor', 'Outdoor'];
@@ -243,8 +245,7 @@ const courtController = {
                 activity,
                 court_position,
                 sports_center_id,
-                session_duration,
-                session_price
+                court_data: court_price_duration
             });
 
             req.flash('success_msg', 'Court Created Successfully');

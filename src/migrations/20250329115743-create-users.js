@@ -65,7 +65,7 @@ module.exports = {
         defaultValue: {},
       },
       display_picture: {
-        type: Sequelize.TEXT,
+        type: Sequelize.JSON,
         allowNull: true,
       },
       user_type: {

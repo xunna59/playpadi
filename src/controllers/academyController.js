@@ -186,14 +186,31 @@ const academyController = {
 
     },
 
-    getAllAcademies: async (req, res, next) => {
-        try {
-            const academies = await Academy.findAll();
-            return res.status(200).json({ message: 'Classes retrieved successfully', data: academies });
-        } catch (err) {
-            next(err);
-        }
-    },
+ getAllAcademies: async (req, res, next) => {
+    try {
+        const academies = await Academy.findAll({
+            include: [
+                {
+                    model: Coach,
+                    as: 'coach' // make sure the alias matches your model setup
+                },
+                {
+                    model: SportsCenter,
+                    as: 'sportsCenter',
+                    attributes: ['id', 'sports_center_name', 'sports_center_address'] // select only the fields you need
+                }
+            ]
+        });
+
+        return res.status(200).json({
+            message: 'Classes retrieved successfully',
+            data: academies
+        });
+    } catch (err) {
+        next(err);
+    }
+},
+
 
     getAllYoutubeVideos: async (req, res, next) => {
         try {

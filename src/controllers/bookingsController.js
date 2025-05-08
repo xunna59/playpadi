@@ -205,60 +205,78 @@ const bookingsController = {
         }
     },
 
-    getPublicBookings: async (req, res) => {
-        try {
-            const publicBookings = await Bookings.findAll({
-                where: { booking_type: 'public' },
-                include: [
-                    {
-                        model: BookingPlayers,
-                        as: 'players',
-                        include: [
-                            {
-                                model: User,
-                                as: 'user',
-                                attributes: ['first_name', 'points', 'display_picture']
-                            }
-                        ]
-                    }
-                ],
-                order: [['created_at', 'DESC']]
-            });
-
-            const formattedBookings = publicBookings.map(booking => {
-                let players = booking.players.map(p => ({
-                    name: p.user?.first_name || '',
-                    rating: p.user?.rating || '0.00',
-                    avatarUrl: p.user?.avatarUrl || null
-                }));
-
-                const placeholdersToAdd = booking.total_players - players.length;
-
-                for (let i = 0; i < placeholdersToAdd; i++) {
-                    players.push({
-                        name: 'Available',
-                        rating: null,
-                        avatarUrl: null
-                    });
+getPublicBookings: async (req, res) => {
+    try {
+        const publicBookings = await Bookings.findAll({
+            where: { booking_type: 'public' },
+            include: [
+                {
+                    model: BookingPlayers,
+                    as: 'players',
+                    include: [
+                        {
+                            model: User,
+                            as: 'user',
+                            attributes: ['first_name', 'points', 'display_picture']
+                        }
+                    ]
+                },
+                {
+                    model: Court,
+                    as: 'court',
+                    attributes: ['court_name', 'session_price', 'session_duration'],
+                    include: [
+                        {
+                            model: SportsCenter,
+                            as: 'sportsCenter',
+                            attributes: ['sports_center_name', 'cover_image']
+                        }
+                    ]
                 }
+            ],
+            order: [['created_at', 'DESC']]
+        });
 
-                return {
-                    ...booking.toJSON(),
-                    players
-                };
-            });
+        const formattedBookings = publicBookings.map(booking => {
+            const bookingData = booking.toJSON();
+            const players = bookingData.players.map(p => ({
+                name: p.user?.first_name || '',
+                rating: p.user?.points || 0.0,
+                avatarUrl: p.user?.display_picture || null
+            }));
 
+            const placeholdersToAdd = bookingData.total_players - players.length;
+            for (let i = 0; i < placeholdersToAdd; i++) {
+                players.push({
+                    name: 'Available',
+                    rating: null,
+                    avatarUrl: null
+                });
+            }
 
-            return res.status(200).json({
-                message: 'Public bookings retrieved successfully',
-                data: formattedBookings
-            });
+            return {
+                ...bookingData,
+                players,
+                court: undefined, // remove nested object
+                courtName: booking.court?.court_name || 'Unknown Court',
+                sessionPrice: parseFloat(booking.court?.session_price) || 0.0,
+                sessionDuration: booking.court?.session_duration || 'Unknown',
+                sportsCenterName: booking.court?.sportsCenter?.sports_center_name || 'Unknown Center',
+                cover_image: booking.court?.sportsCenter?.cover_image || 'image.png'
+            };
+        });
 
-        } catch (error) {
-            console.error(error);
-            return res.status(500).json({ message: 'Server error', error });
-        }
-    },
+        return res.status(200).json({
+            message: 'Public bookings retrieved successfully',
+            data: formattedBookings
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Server error', error });
+    }
+},
+
 
 
 

@@ -27,13 +27,17 @@ module.exports = (sequelize) => {
             type: DataTypes.STRING, // paddle, snooker, darts
             allowNull: false,
         },
-        session_price: {
-            type: DataTypes.DECIMAL(10, 2), // Price field with 2 decimal places
-            allowNull: false,
-        },
-        session_duration: {
-            type: DataTypes.INTEGER, // e.g 60 mins
-            allowNull: false,
+        // session_price: {
+        //     type: DataTypes.DECIMAL(10, 2), // Price field with 2 decimal places
+        //     allowNull: false,
+        // },
+        // session_duration: {
+        //     type: DataTypes.INTEGER, // e.g 60 mins
+        //     allowNull: false,
+        // },
+        court_data: {
+            type: DataTypes.JSON,
+            allowNull: false
         },
         court_position: {
             type: DataTypes.STRING, // left, right, center, n/a

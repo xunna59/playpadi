@@ -36,13 +36,17 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      session_price: {
-        type: Sequelize.DECIMAL(10, 2), // Price field with 2 decimal places
-        allowNull: false,
-      },
-      session_duration: {
-        type: Sequelize.INTEGER, // e.g 60 mins
-        allowNull: false,
+      // session_price: {
+      //     type: DataTypes.DECIMAL(10, 2), // Price field with 2 decimal places
+      //     allowNull: false,
+      // },
+      // session_duration: {
+      //     type: DataTypes.INTEGER, // e.g 60 mins
+      //     allowNull: false,
+      // },
+      court_data: {
+        type: Sequelize.JSON,
+        allowNull: false
       },
       court_position: {
         type: Sequelize.STRING,

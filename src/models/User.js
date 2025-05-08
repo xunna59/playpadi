@@ -67,7 +67,7 @@ module.exports = (sequelize) => {
             defaultValue: {} // Stores user preferences dynamically
         },
         display_picture: {
-            type: DataTypes.TEXT,
+            type: DataTypes.JSON,
             allowNull: true,
         },
         user_type: {
@@ -97,6 +97,7 @@ module.exports = (sequelize) => {
         // User.hasOne(models.Cart, { foreignKey: 'user_id', as: 'cart' }); // User has one Cart
         User.hasMany(models.Bookings, { foreignKey: 'user_id', as: 'bookings' });
         User.hasMany(models.BookingPlayers, { foreignKey: 'user_id', as: 'bookingplayers' });
+        User.hasMany(models.Notifications, { foreignKey: 'user_id', as: 'notifications' });
 
     };
 

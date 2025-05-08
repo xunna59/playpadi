@@ -204,14 +204,12 @@
                                     </select>
                                 </div>
                                 <div class="col-md-12 mb-3">
-                                    <input type="number" id="session_duration" name="session_duration"
-                                        placeholder="Session Duration e.g 30" class="form-control form-control-sm"
-                                        required>
-                                </div>
-                                <div class="col-md-12 mb-3">
-                                    <input type="number" id="session_price" name="session_price"
-                                        placeholder=" Session Price e.g 30000" class="form-control form-control-sm"
-                                        required>
+                                    <label><strong>Court Price Duration</strong></label>
+                                    <div id="price-duration-wrapper">
+                                        <!-- Will be filled dynamically -->
+                                    </div>
+                                    <button type="button" id="add-price-duration"
+                                        class="btn btn-secondary btn-sm mt-2">+ Add Another</button>
                                 </div>
                                 <div class="col-md-12">
                                     <button type="submit" class="btn btn-primary btn-lg btn-block">Submit</button>
@@ -224,4 +222,40 @@
         </div>
         <!-- END #content -->
         <!-- BEGIN btn-scroll-top -->
+        <script>
+            let index = 0;
+
+            function createEntry(i) {
+                return `
+          <div class="row price-duration-entry mb-2" data-index="${i}">
+            <div class="col-md-5">
+              <input type="number" name="court_price_duration[${i}][price]" class="form-control form-control-sm" placeholder="Price" required />
+            </div>
+            <div class="col-md-5">
+              <input type="number" name="court_price_duration[${i}][duration]" class="form-control form-control-sm" placeholder="Duration (e.g. 30)" required />
+            </div>
+            <div class="col-md-2">
+              <button type="button" class="btn btn-danger btn-sm remove-entry">X</button>
+            </div>
+          </div>
+        `;
+            }
+
+            document.getElementById('add-price-duration').addEventListener('click', function () {
+                const wrapper = document.getElementById('price-duration-wrapper');
+                wrapper.insertAdjacentHTML('beforeend', createEntry(index));
+                index++;
+            });
+
+            document.addEventListener('click', function (e) {
+                if (e.target.classList.contains('remove-entry')) {
+                    const entry = e.target.closest('.price-duration-entry');
+                    entry.remove();
+                }
+            });
+
+            // Add initial entry
+            document.getElementById('price-duration-wrapper').insertAdjacentHTML('beforeend', createEntry(index));
+            index++;
+        </script>
         <%- include('../partials/footer') %>
