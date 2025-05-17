@@ -1,4 +1,4 @@
-const { Academy, SportsCenter, Court, YoutubeTutorial, Coach } = require('../models');
+const { Academy, SportsCenter, Court, YoutubeTutorial, Coach, AcademyStudents } = require('../models');
 const flexibleUpload = require('../middleware/uploadMiddleware')
 
 
@@ -186,30 +186,88 @@ const academyController = {
 
     },
 
- getAllAcademies: async (req, res, next) => {
-    try {
-        const academies = await Academy.findAll({
-            include: [
-                {
-                    model: Coach,
-                    as: 'coach' // make sure the alias matches your model setup
-                },
-                {
-                    model: SportsCenter,
-                    as: 'sportsCenter',
-                    attributes: ['id', 'sports_center_name', 'sports_center_address'] // select only the fields you need
-                }
-            ]
-        });
+    getAllAcademies: async (req, res, next) => {
+        try {
+            const userId = req.user?.id;
 
-        return res.status(200).json({
-            message: 'Classes retrieved successfully',
-            data: academies
-        });
-    } catch (err) {
-        next(err);
-    }
-},
+            const academies = await Academy.findAll({
+                where: {
+                    availability_status: true
+                },
+                include: [
+                    {
+                        model: Coach,
+                        as: 'coach',
+                        attributes: ['id', 'first_name', 'last_name']
+                    },
+                    {
+                        model: SportsCenter,
+                        as: 'sportsCenter',
+                        attributes: ['id', 'sports_center_name', 'sports_center_address']
+                    },
+                    {
+                        model: AcademyStudents,
+                        as: 'academy',
+                        include: [
+                            {
+                                model: User,
+                                as: 'user',
+                                attributes: ['first_name', 'points', 'display_picture']
+                            }
+                        ]
+                    }
+                ],
+                order: [['createdAt', 'DESC']]
+            });
+
+            const data = await Promise.all(
+                academies.map(async academy => {
+                    // Check joinedStatus
+                    let joinedStatus = false;
+                    if (userId) {
+                        const alreadyJoined = await AcademyStudents.findOne({
+                            where: {
+                                user_id: userId,
+                                academy_id: academy.id
+                            }
+                        });
+                        joinedStatus = !!alreadyJoined;
+                    }
+
+                    // Sanitize display_picture for each student
+                    if (academy.academy && Array.isArray(academy.academy)) {
+                        academy.academy.forEach(student => {
+                            const dp = student.user?.display_picture;
+                            if (typeof dp === 'string') {
+                                let avatar = dp.trim();
+                                if (
+                                    (avatar.startsWith('"') && avatar.endsWith('"')) ||
+                                    (avatar.startsWith("'") && avatar.endsWith("'"))
+                                ) {
+                                    avatar = avatar.substring(1, avatar.length - 1);
+                                }
+                                student.user.display_picture = avatar;
+                            }
+                        });
+                    }
+
+                    // Add joinedStatus to response
+                    const academyData = academy.toJSON();
+                    academyData.joinedStatus = joinedStatus;
+                    return academyData;
+                })
+            );
+
+            return res.status(200).json({
+                message: 'Academies retrieved successfully',
+                data
+            });
+        } catch (err) {
+            console.error('getAllAcademies error:', err);
+            next(err);
+        }
+    },
+
 
 
     getAllYoutubeVideos: async (req, res, next) => {
@@ -228,15 +286,70 @@ const academyController = {
 
     getAcademyById: async (req, res, next) => {
         try {
-            const academy = await Academy.findByPk(req.params.id);
+            const userId = req.user.id;
+            const academy = await Academy.findByPk(req.params.id, {
+                include: [
+                    {
+                        model: Coach,
+                        as: 'coach' // make sure the alias matches your model setup
+                    },
+                    {
+                        model: SportsCenter,
+                        as: 'sportsCenter',
+                        attributes: ['id', 'sports_center_name', 'sports_center_address'] // select only the fields you need
+                    },
+                    {
+                        model: AcademyStudents,
+                        as: 'academy', // Alias from Academy.hasMany
+                        include: [
+                            {
+                                model: User,
+                                as: 'user', // Alias from AcademyStudents.belongsTo
+                                attributes: ['first_name', 'points', 'display_picture']
+                            }
+                        ]
+                    }
+                ]
+            });
+
             if (!academy) {
                 return res.status(404).json({ message: 'Academy not found' });
             }
+
+            // Check if current user already joined this booking
+            let joinedStatus = false;
+            if (userId) {
+                const alreadyJoined = await AcademyStudents.findOne({
+                    where: {
+                        user_id: userId,
+                        academy_id: academy.id
+                    }
+                });
+                joinedStatus = !!alreadyJoined;
+            }
+
+            if (academy.academy && Array.isArray(academy.academy)) {
+                academy.academy.forEach(student => {
+                    if (student.user && typeof student.user.display_picture === 'string') {
+                        let avatar = student.user.display_picture.trim();
+                        if (
+                            (avatar.startsWith('"') && avatar.endsWith('"')) ||
+                            (avatar.startsWith("'") && avatar.endsWith("'"))
+                        ) {
+                            avatar = avatar.substring(1, avatar.length - 1);
+                        }
+                        student.user.display_picture = avatar;
+                    }
+                });
+            }
+
             return res.status(200).json(academy);
         } catch (err) {
             next(err);
         }
     },
+
+
 
     updateAcademy: async (req, res, next) => {
         try {
@@ -341,7 +454,61 @@ const academyController = {
         } catch (error) {
             return res.status(500).json({ error: error.message });
         }
+    },
+
+    joinAcademy: async (req, res) => {
+        try {
+            const { academyId } = req.params;
+            const userId = req.user.id;
+
+            const academy = await Academy.findByPk(academyId);
+
+            if (!academy) {
+                return res.status(404).json({ message: 'Academy not found' });
+            }
+
+            const alreadyJoined = await AcademyStudents.findOne({
+                where: {
+                    user_id: userId,
+                    academy_id: academyId
+                }
+            });
+
+            if (alreadyJoined) {
+                return res.status(400).json({ message: 'You have already joined this academy' });
+            }
+
+            // Optional: Limit number of students if your Academy model has something like `num_of_players`
+            // const currentStudentCount = await AcademyStudents.count({
+            //     where: { academy_id: academyId }
+            // });
+
+            // if (academy.num_of_players && currentStudentCount >= academy.max_students) {
+            //     return res.status(400).json({ message: 'Academy has reached its student limit' });
+            // }
+
+            const newStudent = await AcademyStudents.create({
+                user_id: userId,
+                academy_id: academyId
+            });
+
+            await UserActivityController.log({
+                user_id: userId,
+                activity_type: 'class',
+                description: `You Joined ${academy.title} class`
+            }, req);
+
+            return res.status(201).json({
+                message: 'Successfully joined the Academy',
+                student: newStudent
+            });
+
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Server error', error });
+        }
     }
+
 };
 
 module.exports = academyController;

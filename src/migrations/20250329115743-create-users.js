@@ -59,11 +59,23 @@ module.exports = {
         allowNull: false,
         defaultValue: false,
       },
-      preferences: {
-        type: Sequelize.JSON,
-        allowNull: true,
-        defaultValue: {},
-      },
+     preferences: {
+  type: Sequelize.JSON,
+  allowNull: true,
+  defaultValue: () => ({
+    best_hand: 'not set',
+    court_position: 'not set',
+    match_type: 'not set',
+    play_time: 'not set'
+  })
+},
+interests: {
+  type: Sequelize.JSON,
+  allowNull: true,
+  defaultValue: () => ({
+    player_interests: 'not set'
+  })
+},
       display_picture: {
         type: Sequelize.JSON,
         allowNull: true,

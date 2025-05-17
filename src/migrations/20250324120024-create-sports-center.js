@@ -20,6 +20,14 @@ module.exports = {
         allowNull: false,
         comment: 'Full address text for mobile map preview'
       },
+      website: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      phone: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       latitude: {
         type: Sequelize.DOUBLE,
         allowNull: true,

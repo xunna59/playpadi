@@ -90,6 +90,8 @@ const sportsCenterController = {
                 const {
                     sports_center_name,
                     sports_center_address,
+                    website,
+                    phone,
                     latitude,
                     longitude,
                     //     openingHours,
@@ -103,6 +105,8 @@ const sportsCenterController = {
                 const sportsCenter = await SportsCenter.create({
                     sports_center_name,
                     sports_center_address,
+                    website,
+                    phone,
                     latitude,
                     longitude,
                     sports_center_features: features,
@@ -186,7 +190,6 @@ const sportsCenterController = {
 
 
     // api area
-
     apiAllSportsCenters: async (req, res, next) => {
         try {
             const page = parseInt(req.query.page, 10) || 1;
@@ -265,39 +268,34 @@ const sportsCenterController = {
                 return res.status(404).json({ message: "Sports center not found" });
             }
 
+            const total_courts = await Court.count({ where: { sports_center_id: id } });
+
+
             const detailedCenter = { ...sportsCenter.toJSON() };
 
-            if (typeof detailedCenter.sports_center_games === 'string') {
+            const parseField = (field, fallback) => {
                 try {
-                    detailedCenter.sports_center_games = JSON.parse(detailedCenter.sports_center_games);
-                } catch (err) {
-                    detailedCenter.sports_center_games = [];
+                    return typeof field === 'string' ? JSON.parse(field) : field;
+                } catch {
+                    return fallback;
                 }
+            };
+
+            detailedCenter.sports_center_games = parseField(detailedCenter.sports_center_games, []);
+            detailedCenter.sports_center_features = parseField(detailedCenter.sports_center_features, []);
+            detailedCenter.openingHours = parseField(detailedCenter.openingHours, {});
+            detailedCenter.booking_info = parseField(detailedCenter.booking_info, {});
+
+            // Parse court_data and booking_info inside courts
+            if (Array.isArray(detailedCenter.courts)) {
+                detailedCenter.courts = detailedCenter.courts.map(court => ({
+                    ...court,
+                    court_data: parseField(court.court_data, []),
+                    booking_info: parseField(court.booking_info, {})
+                }));
             }
 
-            if (typeof detailedCenter.sports_center_features === 'string') {
-                try {
-                    detailedCenter.sports_center_features = JSON.parse(detailedCenter.sports_center_features);
-                } catch (err) {
-                    detailedCenter.sports_center_features = [];
-                }
-            }
-
-            if (typeof detailedCenter.openingHours === 'string') {
-                try {
-                    detailedCenter.openingHours = JSON.parse(detailedCenter.openingHours);
-                } catch (err) {
-                    detailedCenter.openingHours = {};
-                }
-            }
-
-            if (typeof detailedCenter.booking_info === 'string') {
-                try {
-                    detailedCenter.booking_info = JSON.parse(detailedCenter.booking_info);
-                } catch (err) {
-                    detailedCenter.booking_info = {};
-                }
-            }
+            detailedCenter.total_courts = total_courts;
 
             return res.status(200).json({
                 message: 'Sports center retrieved successfully',
@@ -307,6 +305,7 @@ const sportsCenterController = {
             next(error);
         }
     },
+
 
 
 

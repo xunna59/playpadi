@@ -1,4 +1,6 @@
 const { Bookings, Court, User, SportsCenter, BookingPlayers } = require('../models');
+const UserActivityController = require('./userActivityController');
+
 
 function generateBookingReference() {
     const prefix = 'BK';
@@ -75,7 +77,9 @@ const bookingsController = {
                 slot,
                 gender_allowed,
                 booking_type,
-                game_type
+                game_type,
+                session_price,
+                session_duration
             } = req.body;
 
             const missingFields = [];
@@ -85,6 +89,8 @@ const bookingsController = {
             if (!gender_allowed) missingFields.push('gender_allowed');
             if (!booking_type) missingFields.push('booking_type');
             if (!game_type) missingFields.push('game_type');
+            if (!session_price) missingFields.push('session_price');
+            if (!session_duration) missingFields.push('session_duration');
 
             if (missingFields.length > 0) {
                 return res.status(400).json({
@@ -161,7 +167,9 @@ const bookingsController = {
                 booking_type,
                 user_type,
                 game_type,
-                total_players
+                total_players,
+                session_price,
+                session_duration
             });
 
             // only add to booking players if it is an open match
@@ -172,7 +180,23 @@ const bookingsController = {
                     user_id,
                     bookings_id: booking.id
                 });
+
+                await UserActivityController.log({
+                    user_id: user_id,
+                    activity_type: 'match',
+                    description: 'You Created a new Open Match'
+                }, req);
+            } else {
+
+                await UserActivityController.log({
+                    user_id: user_id,
+                    activity_type: 'match',
+                    description: 'You Created a new Private Match'
+                }, req);
+
             }
+
+
 
 
             return res.status(201).json({ message: 'Booking created successfully', booking });
@@ -205,77 +229,104 @@ const bookingsController = {
         }
     },
 
-getPublicBookings: async (req, res) => {
-    try {
-        const publicBookings = await Bookings.findAll({
-            where: { booking_type: 'public' },
-            include: [
-                {
-                    model: BookingPlayers,
-                    as: 'players',
-                    include: [
-                        {
-                            model: User,
-                            as: 'user',
-                            attributes: ['first_name', 'points', 'display_picture']
-                        }
-                    ]
-                },
-                {
-                    model: Court,
-                    as: 'court',
-                    attributes: ['court_name', 'session_price', 'session_duration'],
-                    include: [
-                        {
-                            model: SportsCenter,
-                            as: 'sportsCenter',
-                            attributes: ['sports_center_name', 'cover_image']
-                        }
-                    ]
-                }
-            ],
-            order: [['created_at', 'DESC']]
-        });
+    getPublicBookings: async (req, res) => {
+        try {
+            const userId = req.user.id; // adapt depending on how you get the authenticated user ID
 
-        const formattedBookings = publicBookings.map(booking => {
-            const bookingData = booking.toJSON();
-            const players = bookingData.players.map(p => ({
-                name: p.user?.first_name || '',
-                rating: p.user?.points || 0.0,
-                avatarUrl: p.user?.display_picture || null
+            const publicBookings = await Bookings.findAll({
+                where: { booking_type: 'public' },
+                include: [
+                    {
+                        model: BookingPlayers,
+                        as: 'players',
+                        include: [
+                            {
+                                model: User,
+                                as: 'user',
+                                attributes: ['first_name', 'points', 'display_picture']
+                            }
+                        ]
+                    },
+                    {
+                        model: Court,
+                        as: 'court',
+                        attributes: ['court_name'],
+                        include: [
+                            {
+                                model: SportsCenter,
+                                as: 'sportsCenter',
+                                attributes: ['sports_center_name', 'cover_image']
+                            }
+                        ]
+                    }
+                ],
+                order: [['created_at', 'DESC']]
+            });
+
+            const formattedBookings = await Promise.all(publicBookings.map(async booking => {
+                const bookingData = booking.toJSON();
+
+                // Check if current user already joined this booking
+                let joinedStatus = false;
+                if (userId) {
+                    const alreadyJoined = await BookingPlayers.findOne({
+                        where: {
+                            user_id: userId,
+                            bookings_id: bookingData.id
+                        }
+                    });
+                    joinedStatus = !!alreadyJoined;
+                }
+
+                const players = bookingData.players.map(p => {
+                    let avatar = p.user?.display_picture || null;
+
+                    if (avatar) {
+                        avatar = avatar.trim();
+                        if ((avatar.startsWith('"') && avatar.endsWith('"')) || (avatar.startsWith("'") && avatar.endsWith("'"))) {
+                            avatar = avatar.substring(1, avatar.length - 1);
+                        }
+                    }
+
+                    return {
+                        name: p.user?.first_name || '',
+                        rating: p.user?.points || 0.0,
+                        avatarUrl: avatar
+                    };
+                });
+
+                const placeholdersToAdd = bookingData.total_players - players.length;
+                for (let i = 0; i < placeholdersToAdd; i++) {
+                    players.push({
+                        name: 'Available',
+                        rating: null,
+                        avatarUrl: null
+                    });
+                }
+
+                return {
+                    ...bookingData,
+                    players,
+                    court: undefined,
+                    courtName: booking.court?.court_name || 'Unknown Court',
+                    sportsCenterName: booking.court?.sportsCenter?.sports_center_name || 'Unknown Center',
+                    cover_image: booking.court?.sportsCenter?.cover_image || 'image.png',
+                    joinedStatus
+                };
             }));
 
-            const placeholdersToAdd = bookingData.total_players - players.length;
-            for (let i = 0; i < placeholdersToAdd; i++) {
-                players.push({
-                    name: 'Available',
-                    rating: null,
-                    avatarUrl: null
-                });
-            }
+            return res.status(200).json({
+                message: 'Public bookings retrieved successfully',
+                data: formattedBookings
+            });
 
-            return {
-                ...bookingData,
-                players,
-                court: undefined, // remove nested object
-                courtName: booking.court?.court_name || 'Unknown Court',
-                sessionPrice: parseFloat(booking.court?.session_price) || 0.0,
-                sessionDuration: booking.court?.session_duration || 'Unknown',
-                sportsCenterName: booking.court?.sportsCenter?.sports_center_name || 'Unknown Center',
-                cover_image: booking.court?.sportsCenter?.cover_image || 'image.png'
-            };
-        });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Server error', error });
+        }
+    },
 
-        return res.status(200).json({
-            message: 'Public bookings retrieved successfully',
-            data: formattedBookings
-        });
 
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: 'Server error', error });
-    }
-},
 
 
 
@@ -321,6 +372,12 @@ getPublicBookings: async (req, res) => {
                 user_id: userId,
                 bookings_id: bookingId
             });
+
+            await UserActivityController.log({
+                user_id: userId,
+                activity_type: 'match',
+                description: 'You Joined an Open Match'
+            }, req);
 
             return res.status(201).json({
                 message: 'Successfully joined the Match',

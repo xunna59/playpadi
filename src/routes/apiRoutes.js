@@ -8,6 +8,8 @@ const bookingsController = require('../controllers/bookingsController');
 const { protect } = require('../middleware/userAuthMiddleware');
 const UsersController = require('../controllers/usersController');
 const academyController = require('../controllers/academyController');
+const faqController = require('../controllers/faqController');
+
 
 
 
@@ -20,7 +22,8 @@ router.get('/fetch-sports-centers', sportsCenterContrer.apiAllSportsCenters);
 router.get('/fetch-sports-center/:id', sportsCenterContrer.apiViewSportsCenters);
 
 router.get('/academy/fetch-youtube-tutorials', academyController.getAllYoutubeVideos);
-router.get('/academy/fetch-classes', academyController.getAllAcademies);
+router.get('/academy/fetch-classes', protect, academyController.getAllAcademies);
+router.get('/academy/fetch-classes/:id', protect, academyController.getAcademyById);
 
 
 
@@ -76,6 +79,25 @@ router.get('/courts/:sportsCenterId', courtController.getCourtsBySportsCenter);
 router.get('/fetch-profile', protect, UsersController.getProfile);
 
 router.put('/update-profile', protect, UsersController.updateProfile);
+
+
+
+// faq endpoint
+
+router.post('/create-faq',
+
+    [
+        body('question').notEmpty().withMessage('FAQ Question is required.'),
+        body('answer').notEmpty().withMessage('FAQ Asnswer is required.'),
+
+    ],
+    faqController.createFaq
+
+);
+router.get('/get-all-faqs', faqController.getAllFaqs);
+router.get('/get-faq/:id', faqController.getFaqById);
+router.put('/update-faq/:id', faqController.updateFaq);
+router.delete('/delete-faq/:id', faqController.deleteFaq);
 
 
 

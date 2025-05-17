@@ -81,6 +81,12 @@ module.exports = (sequelize) => {
             allowNull: false,
         },
 
+        availability_status: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true
+        },
+
 
     }, {
         tableName: 'academy',
@@ -105,6 +111,11 @@ module.exports = (sequelize) => {
         Academy.belongsTo(models.Coach, {
             foreignKey: 'coach_id',
             as: 'coach'
+        });
+
+        Academy.hasMany(models.AcademyStudents, {
+            foreignKey: 'academy_id',
+            as: 'academy_students'
         });
 
     };

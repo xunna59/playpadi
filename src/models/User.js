@@ -64,8 +64,22 @@ module.exports = (sequelize) => {
         preferences: {
             type: DataTypes.JSON,
             allowNull: true,
-            defaultValue: {} // Stores user preferences dynamically
+            defaultValue: () => ({
+                best_hand: 'not set',
+                court_position: 'not set',
+                match_type: 'not set',
+                play_time: 'not set'
+            })
         },
+        interests: {
+            type: DataTypes.JSON,
+            allowNull: true,
+            defaultValue: () => ({
+                player_interests: 'not set'
+            })
+        },
+
+
         display_picture: {
             type: DataTypes.JSON,
             allowNull: true,
@@ -98,7 +112,7 @@ module.exports = (sequelize) => {
         User.hasMany(models.Bookings, { foreignKey: 'user_id', as: 'bookings' });
         User.hasMany(models.BookingPlayers, { foreignKey: 'user_id', as: 'bookingplayers' });
         User.hasMany(models.Notifications, { foreignKey: 'user_id', as: 'notifications' });
-
+        User.hasMany(models.AcademyStudents, { foreignKey: 'user_id', as: 'academy_students' });
     };
 
     return User;
