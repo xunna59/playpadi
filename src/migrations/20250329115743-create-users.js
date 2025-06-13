@@ -59,23 +59,23 @@ module.exports = {
         allowNull: false,
         defaultValue: false,
       },
-     preferences: {
-  type: Sequelize.JSON,
-  allowNull: true,
-  defaultValue: () => ({
-    best_hand: 'not set',
-    court_position: 'not set',
-    match_type: 'not set',
-    play_time: 'not set'
-  })
-},
-interests: {
-  type: Sequelize.JSON,
-  allowNull: true,
-  defaultValue: () => ({
-    player_interests: 'not set'
-  })
-},
+      preferences: {
+        type: Sequelize.JSON,
+        allowNull: true,
+        defaultValue: () => ({
+          best_hand: 'not set',
+          court_position: 'not set',
+          match_type: 'not set',
+          play_time: 'not set'
+        })
+      },
+      interests: {
+        type: Sequelize.JSON,
+        allowNull: true,
+        defaultValue: () => ({
+          player_interests: 'not set'
+        })
+      },
       display_picture: {
         type: Sequelize.JSON,
         allowNull: true,
@@ -84,6 +84,11 @@ interests: {
         type: Sequelize.STRING, // e.g., 'User', 'Admin', 'System'
         allowNull: false,
         defaultValue: 'User',
+      },
+      fcm_token: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+
       },
       created_at: {
         type: Sequelize.DATE,

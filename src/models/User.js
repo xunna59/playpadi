@@ -90,6 +90,12 @@ module.exports = (sequelize) => {
             defaultValue: 'User',
         },
 
+        fcm_token: {
+            type: DataTypes.TEXT,
+            allowNull: true,
+
+        },
+
         created_at: {
             type: DataTypes.DATE,
             allowNull: false,
@@ -111,8 +117,18 @@ module.exports = (sequelize) => {
         // User.hasOne(models.Cart, { foreignKey: 'user_id', as: 'cart' }); // User has one Cart
         User.hasMany(models.Bookings, { foreignKey: 'user_id', as: 'bookings' });
         User.hasMany(models.BookingPlayers, { foreignKey: 'user_id', as: 'bookingplayers' });
-        User.hasMany(models.Notifications, { foreignKey: 'user_id', as: 'notifications' });
+        //    User.hasMany(models.Notifications, { foreignKey: 'user_id', as: 'notifications' });
         User.hasMany(models.AcademyStudents, { foreignKey: 'user_id', as: 'academy_students' });
+        User.hasMany(models.FavouriteSportsCenter, {
+            foreignKey: 'user_id',
+            as: 'userFavouriteSportsCenter',
+        });
+        User.belongsToMany(models.Notification, {
+            through: models.UserNotification,
+            foreignKey: 'user_id',
+            as: 'notifications',
+        });
+
     };
 
     return User;

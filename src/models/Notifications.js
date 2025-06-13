@@ -1,32 +1,29 @@
 const { Sequelize, DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-    const Notifications = sequelize.define('Notifications', {
+    const Notification = sequelize.define('Notification', {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        user_id: {
-            type: DataTypes.INTEGER,
+        type: {
+            type: DataTypes.ENUM('personal', 'general'),
             allowNull: false,
-            references: {
-                model: 'users',
-                key: 'id'
-            }
+            defaultValue: 'personal',
         },
-
         title: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-
         description: {
             type: DataTypes.TEXT,
             allowNull: false,
         },
-
-
+        data: {
+            type: DataTypes.JSON,
+            allowNull: true,
+        },
     }, {
         tableName: 'notifications',
         timestamps: true,
@@ -34,15 +31,13 @@ module.exports = (sequelize) => {
         updatedAt: 'updated_at',
     });
 
-    Notifications.associate = function (models) {
-
-
-
-        Notifications.belongsTo(models.User, {
-            foreignKey: 'user_id',
-            as: 'user'
+    Notification.associate = (models) => {
+        Notification.belongsToMany(models.User, {
+            through: models.UserNotification,
+            foreignKey: 'notification_id',
+            as: 'recipients',
         });
     };
 
-    return Notifications;
+    return Notification;
 };

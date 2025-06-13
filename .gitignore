@@ -1,5 +1,6 @@
 # Dependency directories
 node_modules/
+private/
 
 # Optional: Logs and debugging files
 logs/

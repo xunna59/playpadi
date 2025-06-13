@@ -1,5 +1,7 @@
 const { Bookings, Court, User, SportsCenter, BookingPlayers } = require('../models');
 const UserActivityController = require('./userActivityController');
+const { Op } = require('sequelize');
+
 
 
 function generateBookingReference() {
@@ -231,9 +233,15 @@ const bookingsController = {
 
     getPublicBookings: async (req, res) => {
         try {
-            const userId = req.user.id; // adapt depending on how you get the authenticated user ID
+            const userId = req.user.id;
 
-            const publicBookings = await Bookings.findAll({
+            // Get page & limit from query or use defaults
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 20;
+            const offset = (page - 1) * limit;
+
+            // Fetch all public bookings
+            const allPublicBookings = await Bookings.findAll({
                 where: { booking_type: 'public' },
                 include: [
                     {
@@ -263,28 +271,43 @@ const bookingsController = {
                 order: [['created_at', 'DESC']]
             });
 
-            const formattedBookings = await Promise.all(publicBookings.map(async booking => {
+            // Filter out bookings where date and slot have already passed
+            const now = new Date();
+            const upcomingBookings = allPublicBookings.filter(booking => {
+                try {
+                    const date = booking.date; // 'YYYY-MM-DD'
+                    const time = booking.slot; // '10:00 AM'
+                    const dateTimeString = `${date} ${time}`;
+                    const bookingDateTime = new Date(dateTimeString);
+                    return bookingDateTime > now;
+                } catch (e) {
+                    return false;
+                }
+            });
+
+            // Paginate manually
+            const paginatedBookings = upcomingBookings.slice(offset, offset + limit);
+            const hasMore = offset + limit < upcomingBookings.length;
+
+            // Format results
+            const formattedBookings = await Promise.all(paginatedBookings.map(async booking => {
                 const bookingData = booking.toJSON();
 
-                // Check if current user already joined this booking
-                let joinedStatus = false;
-                if (userId) {
-                    const alreadyJoined = await BookingPlayers.findOne({
-                        where: {
-                            user_id: userId,
-                            bookings_id: bookingData.id
-                        }
-                    });
-                    joinedStatus = !!alreadyJoined;
-                }
+                // Check if user already joined
+                const alreadyJoined = await BookingPlayers.findOne({
+                    where: {
+                        user_id: userId,
+                        bookings_id: bookingData.id
+                    }
+                });
 
                 const players = bookingData.players.map(p => {
                     let avatar = p.user?.display_picture || null;
 
-                    if (avatar) {
+                    if (avatar && typeof avatar === 'string') {
                         avatar = avatar.trim();
-                        if ((avatar.startsWith('"') && avatar.endsWith('"')) || (avatar.startsWith("'") && avatar.endsWith("'"))) {
-                            avatar = avatar.substring(1, avatar.length - 1);
+                        if (avatar.startsWith('"') && avatar.endsWith('"')) {
+                            avatar = avatar.slice(1, -1);
                         }
                     }
 
@@ -294,6 +317,7 @@ const bookingsController = {
                         avatarUrl: avatar
                     };
                 });
+
 
                 const placeholdersToAdd = bookingData.total_players - players.length;
                 for (let i = 0; i < placeholdersToAdd; i++) {
@@ -311,13 +335,14 @@ const bookingsController = {
                     courtName: booking.court?.court_name || 'Unknown Court',
                     sportsCenterName: booking.court?.sportsCenter?.sports_center_name || 'Unknown Center',
                     cover_image: booking.court?.sportsCenter?.cover_image || 'image.png',
-                    joinedStatus
+                    joinedStatus: !!alreadyJoined
                 };
             }));
 
             return res.status(200).json({
                 message: 'Public bookings retrieved successfully',
-                data: formattedBookings
+                data: formattedBookings,
+                hasMore
             });
 
         } catch (error) {
@@ -325,6 +350,7 @@ const bookingsController = {
             return res.status(500).json({ message: 'Server error', error });
         }
     },
+
 
 
 

@@ -115,6 +115,11 @@ module.exports = (sequelize) => {
             as: 'sportsCenter'
         });
 
+        SportsCenter.hasMany(models.FavouriteSportsCenter, {
+            foreignKey: 'sports_center_id',
+            as: 'savedSportsCenter',
+        });
+
     };
 
 

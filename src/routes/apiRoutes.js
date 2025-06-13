@@ -9,6 +9,7 @@ const { protect } = require('../middleware/userAuthMiddleware');
 const UsersController = require('../controllers/usersController');
 const academyController = require('../controllers/academyController');
 const faqController = require('../controllers/faqController');
+const notificationController = require('../controllers/notificationController');
 
 
 
@@ -25,6 +26,7 @@ router.get('/academy/fetch-youtube-tutorials', academyController.getAllYoutubeVi
 router.get('/academy/fetch-classes', protect, academyController.getAllAcademies);
 router.get('/academy/fetch-classes/:id', protect, academyController.getAcademyById);
 
+router.post('/academy/join-class/:academyId', protect, academyController.joinAcademy);
 
 
 
@@ -73,12 +75,30 @@ router.post("/book-court/:courtId", param('courtId').isInt().withMessage('Court 
 
 router.get('/courts/:sportsCenterId', courtController.getCourtsBySportsCenter);
 
+router.post('/sports-center/add-favourite', protect, UsersController.addToFavouriteSportsCenter);
+router.delete('/sports-center/remove-favourite/:sportsCenterId', protect, UsersController.removeFromSavedSportsCenter);
+
+
+
 
 // user routes
 
 router.get('/fetch-profile', protect, UsersController.getProfile);
 
 router.put('/update-profile', protect, UsersController.updateProfile);
+router.put('/update-dp', protect, UsersController.update_dp);
+router.put('/update-fcm-token', protect, UsersController.updateFCMToken);
+router.get('/get-fcm-token', protect, UsersController.getFCMToken);
+
+
+router.post('/notify-user', UsersController.notifyUser);
+router.post('/notify-all-users', UsersController.notifyAllUsers);
+
+router.post('/notifications/general', notificationController.createGeneralNotification);
+router.post('/notifications/personal', notificationController.sendPersonalNotification);
+router.get('/notifications', protect, notificationController.getAllNotifications);
+router.put('/notifications/mark-as-read/:notificationId', protect, notificationController.markAsRead);
+
 
 
 
@@ -100,6 +120,7 @@ router.put('/update-faq/:id', faqController.updateFaq);
 router.delete('/delete-faq/:id', faqController.deleteFaq);
 
 
+router.get('/fetch-users', UsersController.renderManageUsersJson);
 
 
 module.exports = router;

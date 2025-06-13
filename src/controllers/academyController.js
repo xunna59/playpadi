@@ -1,5 +1,6 @@
-const { Academy, SportsCenter, Court, YoutubeTutorial, Coach, AcademyStudents } = require('../models');
-const flexibleUpload = require('../middleware/uploadMiddleware')
+const { Academy, SportsCenter, Court, YoutubeTutorial, Coach, AcademyStudents, User } = require('../models');
+const flexibleUpload = require('../middleware/uploadMiddleware');
+const UserActivityController = require('./userActivityController');
 
 
 const academyController = {
@@ -186,88 +187,171 @@ const academyController = {
 
     },
 
-    getAllAcademies: async (req, res, next) => {
-        try {
-            const userId = req.user?.id;
+    // getAllAcademies: async (req, res, next) => {
+    //     try {
+    //         const userId = req.user.id;
 
-            const academies = await Academy.findAll({
-                where: {
-                    availability_status: true
+    //         const academies = await Academy.findAll({
+    //              where: {
+    //             availability_status: true
+    //         },
+    //             include: [
+    //                 {
+    //                     model: Coach,
+    //                     as: 'coach',
+    //                     attributes: ['id', 'first_name', 'last_name', 'display_picture']
+    //                 },
+    //                 {
+    //                     model: SportsCenter,
+    //                     as: 'sportsCenter',
+    //                     attributes: ['id', 'sports_center_name', 'sports_center_address']
+    //                 },
+    //                 {
+    //                     model: AcademyStudents,
+    //                     as: 'academy_students',
+    //                     include: [
+    //                         {
+    //                             model: User,
+    //                             as: 'user',
+    //                             attributes: ['first_name', 'points', 'display_picture']
+    //                         }
+    //                     ]
+    //                 }
+    //             ],
+    //             order: [['created_at', 'DESC']]
+    //         });
+
+    //         const data = await Promise.all(
+    //             academies.map(async academy => {
+    //                 // Check joinedStatus
+    //                 let joinedStatus = false;
+    //                 if (userId) {
+    //                     const alreadyJoined = await AcademyStudents.findOne({
+    //                         where: {
+    //                             user_id: userId,
+    //                             academy_id: academy.id
+    //                         }
+    //                     });
+    //                     joinedStatus = !!alreadyJoined;
+    //                 }
+
+    //                 // Sanitize display_picture for each student
+    //                 if (academy.academy && Array.isArray(academy.academy)) {
+    //                     academy.academy.forEach(student => {
+    //                         const dp = student.user?.display_picture;
+    //                         if (typeof dp === 'string') {
+    //                             let avatar = dp.trim();
+    //                             if (
+    //                                 (avatar.startsWith('"') && avatar.endsWith('"')) ||
+    //                                 (avatar.startsWith("'") && avatar.endsWith("'"))
+    //                             ) {
+    //                                 avatar = avatar.substring(1, avatar.length - 1);
+    //                             }
+    //                             student.user.display_picture = avatar;
+    //                         }
+    //                     });
+    //                 }
+
+    //                 // Add joinedStatus to response
+    //                 const academyData = academy.toJSON();
+    //                 academyData.joinedStatus = joinedStatus;
+    //                 return academyData;
+    //             })
+    //         );
+
+    //         return res.status(200).json({
+    //             message: 'Academies retrieved successfully',
+    //             data
+    //         });
+    //     } catch (err) {
+    //         console.error('getAllAcademies error:', err);
+    //         next(err);
+    //     }
+    // },
+
+getAllAcademies: async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+
+        const academies = await Academy.findAll({
+            where: {
+                availability_status: true
+            },
+            include: [
+                {
+                    model: Coach,
+                    as: 'coach',
+                    attributes: ['id', 'first_name', 'last_name', 'display_picture']
                 },
-                include: [
-                    {
-                        model: Coach,
-                        as: 'coach',
-                        attributes: ['id', 'first_name', 'last_name']
-                    },
-                    {
-                        model: SportsCenter,
-                        as: 'sportsCenter',
-                        attributes: ['id', 'sports_center_name', 'sports_center_address']
-                    },
-                    {
-                        model: AcademyStudents,
-                        as: 'academy',
-                        include: [
-                            {
-                                model: User,
-                                as: 'user',
-                                attributes: ['first_name', 'points', 'display_picture']
-                            }
-                        ]
-                    }
-                ],
-                order: [['createdAt', 'DESC']]
-            });
+                {
+                    model: SportsCenter,
+                    as: 'sportsCenter',
+                    attributes: ['id', 'sports_center_name', 'sports_center_address']
+                },
+                {
+                    model: AcademyStudents,
+                    as: 'academy_students',
+                    include: [
+                        {
+                            model: User,
+                            as: 'user',
+                            attributes: ['first_name', 'points', 'display_picture']
+                        }
+                    ]
+                }
+            ],
+            order: [['created_at', 'DESC']]
+        });
 
-            const data = await Promise.all(
-                academies.map(async academy => {
-                    // Check joinedStatus
-                    let joinedStatus = false;
-                    if (userId) {
-                        const alreadyJoined = await AcademyStudents.findOne({
-                            where: {
-                                user_id: userId,
-                                academy_id: academy.id
-                            }
-                        });
-                        joinedStatus = !!alreadyJoined;
-                    }
+        const data = await Promise.all(
+            academies.map(async academy => {
+                let joinedStatus = false;
 
-                    // Sanitize display_picture for each student
-                    if (academy.academy && Array.isArray(academy.academy)) {
-                        academy.academy.forEach(student => {
-                            const dp = student.user?.display_picture;
-                            if (typeof dp === 'string') {
-                                let avatar = dp.trim();
-                                if (
-                                    (avatar.startsWith('"') && avatar.endsWith('"')) ||
-                                    (avatar.startsWith("'") && avatar.endsWith("'"))
-                                ) {
-                                    avatar = avatar.substring(1, avatar.length - 1);
-                                }
-                                student.user.display_picture = avatar;
-                            }
-                        });
+                if (userId) {
+                    const alreadyJoined = await AcademyStudents.findOne({
+                        where: {
+                            user_id: userId,
+                            academy_id: academy.id
+                        }
+                    });
+                    joinedStatus = !!alreadyJoined;
+                }
+
+                const academyData = academy.toJSON();
+
+                // Transform academy_students to desired flat structure
+                academyData.academy_students = (academyData.academy_students || []).map(student => {
+                    let avatar = student.user?.display_picture || '';
+                    if (typeof avatar === 'string') {
+                        avatar = avatar.trim();
+                        if (
+                            (avatar.startsWith('"') && avatar.endsWith('"')) ||
+                            (avatar.startsWith("'") && avatar.endsWith("'"))
+                        ) {
+                            avatar = avatar.slice(1, -1);
+                        }
                     }
 
-                    // Add joinedStatus to response
-                    const academyData = academy.toJSON();
-                    academyData.joinedStatus = joinedStatus;
-                    return academyData;
-                })
-            );
+                    return {
+                        name: student.user?.first_name || 'Unknown',
+                        image: avatar || 'https://i.pravatar.cc/150'
+                    };
+                });
 
-            return res.status(200).json({
-                message: 'Academies retrieved successfully',
-                data
-            });
-        } catch (err) {
-            console.error('getAllAcademies error:', err);
-            next(err);
-        }
-    },
+                academyData.joinedStatus = joinedStatus;
+                return academyData;
+            })
+        );
 
+        return res.status(200).json({
+            message: 'Academies retrieved successfully',
+            data
+        });
+    } catch (err) {
+        console.error('getAllAcademies error:', err);
+        next(err);
+    }
+},
 
 
     getAllYoutubeVideos: async (req, res, next) => {

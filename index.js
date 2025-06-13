@@ -9,7 +9,7 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const methodOverride = require('method-override');
 
-
+const healthRoutes = require('./src/routes/healthRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
 const apiRoutes = require('./src/routes/apiRoutes');
 const authRoutes = require('./src/routes/authRoutes');
@@ -34,7 +34,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({limit: '10mb', extended: true }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(methodOverride('_method'));
 
 // // Debugging: Log every request method & URL
@@ -68,7 +68,7 @@ app.set('view engine', 'ejs');
 
 
 // routes
-
+app.use('/health', healthRoutes);
 app.use('/admin', adminRoutes);
 app.use('/auth', authRoutes);
 app.use('/api', apiRoutes);
