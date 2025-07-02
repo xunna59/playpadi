@@ -32,9 +32,9 @@ router.post('/academy/join-class/:academyId', protect, academyController.joinAca
 
 // Get available slots for a sports center
 
-router.get('/fetch-slots/:id', courtController.getSlots);
+router.get('/fetch-slots/:id', protect, courtController.getSlots);
 
-router.get('/fetch-slots/:id/court_slots', courtController.getCourtSlots);
+router.get('/fetch-slots/:id/court_slots', protect, courtController.getCourtSlots);
 
 
 

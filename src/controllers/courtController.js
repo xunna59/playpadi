@@ -2,11 +2,11 @@ const { SportsCenter, Court, Bookings } = require('../models');
 
 const dayjs = require("dayjs");
 
-const generateTimeSlots = () => {
+const generateTimeSlots = (daysToGenerate) => {
     const startHour = 9;   // 9:00 AM
     const endHour = 19;    // 7:00 PM
     const interval = 30;   // 30-minute intervals
-    const daysToGenerate = 90;  // Next 3 months
+    //  const daysToGenerate = 90;  // Next 3 months
     const slots = [];
 
     for (let i = 0; i < daysToGenerate; i++) {
@@ -57,9 +57,20 @@ const courtController = {
                 return res.status(404).json({ message: "Sports Center not found" });
             }
 
-            // 1) get your per-day template from generateTimeSlots()
-            //    -> [{ weekday, day, month, date, availableTimes: ["09:00","09:30",…] }, …]
-            const days = generateTimeSlots();
+            const userId = req.user.id;
+            const user = await User.findByPk(userId); // Make sure you fetch user details
+
+            let daysToGenerate = 7; // Default to standard (1 week)
+
+            const accountType = (user.account_type || '').toLowerCase();
+
+            if (accountType === 'premium') {
+                daysToGenerate = 90; // 3 months for premium
+            } else if (accountType === 'standard') {
+                daysToGenerate = 30; // 1 month for standard
+            }
+
+            const days = generateTimeSlots(daysToGenerate);
 
             // 2) fetch all actual bookings for this court
             const bookings = await Bookings.findAll({
@@ -104,9 +115,20 @@ const courtController = {
                 return res.status(404).json({ message: "Court not found" });
             }
 
-            // 1) get your per-day template from generateTimeSlots()
-            //    -> [{ weekday, day, month, date, availableTimes: ["09:00","09:30",…] }, …]
-            const days = generateTimeSlots();
+            const userId = req.user.id;
+            const user = await User.findByPk(userId); // Make sure you fetch user details
+
+            let daysToGenerate = 7; // Default to standard (1 week)
+
+            const accountType = (user.account_type || '').toLowerCase();
+
+            if (accountType === 'premium') {
+                daysToGenerate = 90; // 3 months for premium
+            } else if (accountType === 'standard') {
+                daysToGenerate = 30; // 1 month for standard
+            }
+
+            const days = generateTimeSlots(daysToGenerate);
 
             // 2) fetch all actual bookings for this court
             const bookings = await Bookings.findAll({
@@ -176,7 +198,6 @@ const courtController = {
     },
 
 
-    // 🆕 Get all slots for a specific date
     getSlotsForDate: async (req, res, next) => {
         try {
             const sportsCenterId = req.params.id;
@@ -192,11 +213,10 @@ const courtController = {
                 return res.status(404).json({ message: 'Sports center not found' });
             }
 
-            // Ensure booking_info exists and booked_slots is always an array
             const bookingInfo = sportsCenter.booking_info || {};
             const bookedSlots = Array.isArray(bookingInfo.booked_slots) ? bookingInfo.booked_slots : [];
 
-            const allTimeSlots = generateTimeSlots(date); // Ensure function name matches
+            const allTimeSlots = generateTimeSlots(date);
 
             const formattedSlots = allTimeSlots.map(slot => ({
                 date,
@@ -257,6 +277,7 @@ const courtController = {
             next(error);
         }
     },
+
 
     bookCourt: async (req, res, next) => {
         try {
