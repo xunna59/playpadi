@@ -137,7 +137,7 @@ const bookingsController = {
             const gameTypePlayerMap = {
                 padel: 4,
                 snooker: 2,
-                dart: 2
+                darts: 2
             };
 
             if (!gameTypePlayerMap[normalizedGameType]) {

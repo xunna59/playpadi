@@ -131,7 +131,7 @@ const UsersController = {
   // Regular user login
   login: async (req, res) => {
     try {
-      const { email, password } = req.body;
+      const { email, password, device_type, device_name } = req.body;
       const user = await User.findOne({ where: { email } });
       if (!user) return res.status(404).json({ message: 'Invalid Sign In credentials' });
 
@@ -147,7 +147,8 @@ const UsersController = {
       await UserActivityController.log({
         user_id: user.id,
         activity_type: 'login',
-        description: 'You Recently Logged into your Account.'
+        description: 'You Recently Logged into your Account.',
+         device: `${device_type || 'Unknown'} - ${device_name || 'Unknown Device'}`
       }, req);
 
       return res.status(200).json({ message: 'Login successful', token, });
@@ -239,29 +240,43 @@ const UsersController = {
       }
 
       // Parse and default preferences
-      try {
-        sanitizedUser.preferences = JSON.parse(sanitizedUser.preferences || '{}');
-      } catch (err) {
-        sanitizedUser.preferences = {};
+    const safeParse = (input, defaultVal = {}) => {
+  try {
+    if (!input) return defaultVal;
+
+    let parsed = input;
+
+    if (typeof parsed === 'string') {
+      parsed = JSON.parse(parsed);
+      if (typeof parsed === 'string') {
+        parsed = JSON.parse(parsed); // handle double-stringified
       }
+    }
 
-      sanitizedUser.preferences = {
-        best_hand: sanitizedUser.preferences.best_hand ?? 'not set',
-        court_position: sanitizedUser.preferences.court_position ?? 'not set',
-        match_type: sanitizedUser.preferences.match_type ?? 'not set',
-        play_time: sanitizedUser.preferences.play_time ?? 'not set'
-      };
+    return typeof parsed === 'object' && parsed !== null ? parsed : defaultVal;
+  } catch (err) {
+    console.error('Safe parse failed:', err);
+    return defaultVal;
+  }
+};
 
-      // Parse and default interests
-      try {
-        sanitizedUser.interests = JSON.parse(sanitizedUser.interests || '{}');
-      } catch (err) {
-        sanitizedUser.interests = {};
-      }
+// Use safe parser for preferences
+const parsedPrefs = safeParse(sanitizedUser.preferences);
+sanitizedUser.preferences = {
+  best_hand: parsedPrefs.best_hand ?? 'not set',
+  court_position: parsedPrefs.court_position ?? 'not set',
+  match_type: parsedPrefs.match_type ?? 'not set',
+  play_time: parsedPrefs.play_time ?? 'not set'
+};
 
-      sanitizedUser.interests = {
-        player_interests: sanitizedUser.interests.player_interests ?? 'not set'
-      };
+// Use safe parser for interests
+const parsedInterests = safeParse(sanitizedUser.interests);
+sanitizedUser.interests = {
+  player_interests: parsedInterests.player_interests ?? 'not set'
+};
+
+
+     
 
       sanitizedUser.total_matches_played = total_matches_played;
 
@@ -276,110 +291,111 @@ const UsersController = {
 
 
   updateProfile: async (req, res) => {
-    try {
-      const userId = req.user.id;
-      const {
-        first_name,
-        last_name,
-        phone,
-        gender,
-        dob,
-        bio,
-        preferences,
-        interests,
-        points,
-        // display_picture
-      } = req.body;
+  try {
+    const userId = req.user.id;
+    const {
+      first_name,
+      last_name,
+      phone,
+      gender,
+      dob,
+      bio,
+      preferences,
+      interests,
+      points,
+      // display_picture
+    } = req.body;
 
-      const user = await User.findByPk(userId);
+    const user = await User.findByPk(userId);
 
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-
-      // Basic updates
-      user.first_name = first_name ?? user.first_name;
-      user.last_name = last_name ?? user.last_name;
-      user.phone = phone ?? user.phone;
-      user.gender = gender ?? user.gender;
-      user.dob = dob ?? user.dob;
-      user.bio = bio ?? user.bio;
-      user.points = points ?? user.points;
-      //  user.display_picture = display_picture ?? user.display_picture;
-
-      // Merge preferences (TEXT field stored as JSON string)
-      if (preferences) {
-        let currentPrefs = {};
-        try {
-          currentPrefs = JSON.parse(user.preferences || '{}');
-        } catch (err) {
-          console.error('Invalid existing preferences JSON:', err);
-        }
-
-        const mergedPrefs = {
-          ...currentPrefs,
-          ...preferences
-        };
-
-        user.preferences = JSON.stringify(mergedPrefs);
-      }
-
-      // Merge interests (TEXT field stored as JSON string)
-      if (interests) {
-        let currentInterests = {};
-        try {
-          currentInterests = JSON.parse(user.interests || '{}');
-        } catch (err) {
-          console.error('Invalid existing interests JSON:', err);
-        }
-
-        const mergedInterests = {
-          ...currentInterests,
-          ...interests
-        };
-
-        user.interests = JSON.stringify(mergedInterests);
-      }
-
-      await user.save();
-
-      const { password, id, created_at, updated_at, ...sanitizedUser } = user.toJSON();
-
-      // Parse preferences and apply defaults
-      try {
-        sanitizedUser.preferences = JSON.parse(sanitizedUser.preferences || '{}');
-      } catch (err) {
-        sanitizedUser.preferences = {};
-      }
-
-      sanitizedUser.preferences = {
-        best_hand: sanitizedUser.preferences.best_hand ?? 'not set',
-        court_position: sanitizedUser.preferences.court_position ?? 'not set',
-        match_type: sanitizedUser.preferences.match_type ?? 'not set',
-        play_time: sanitizedUser.preferences.play_time ?? 'not set'
-      };
-
-      // Parse interests and apply defaults
-      try {
-        sanitizedUser.interests = JSON.parse(sanitizedUser.interests || '{}');
-      } catch (err) {
-        sanitizedUser.interests = {};
-      }
-
-      sanitizedUser.interests = {
-        player_interests: sanitizedUser.interests.player_interests ?? 'not set'
-      };
-
-      return res.status(200).json({
-        message: 'Profile updated successfully',
-        user: sanitizedUser
-      });
-
-    } catch (error) {
-      console.error('Update profile error:', error);
-      return res.status(500).json({ message: 'Error updating profile', error });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
-  },
+
+    // Apply basic profile updates
+    user.first_name = first_name ?? user.first_name;
+    user.last_name = last_name ?? user.last_name;
+    user.phone = phone ?? user.phone;
+    user.gender = gender ?? user.gender;
+    user.dob = dob ?? user.dob;
+    user.bio = bio ?? user.bio;
+    user.points = points ?? user.points;
+
+    // Safe JSON parser for raw, stringified, or double-stringified JSON
+    const safeParse = (input, defaultVal = {}) => {
+      try {
+        if (!input) return defaultVal;
+
+        let parsed = input;
+
+        if (typeof input === 'string') {
+          parsed = JSON.parse(input);
+          if (typeof parsed === 'string') {
+            parsed = JSON.parse(parsed); // double-stringified
+          }
+        }
+
+        return typeof parsed === 'object' && parsed !== null ? parsed : defaultVal;
+      } catch (err) {
+        console.error('Failed to safely parse input:', input, err);
+        return defaultVal;
+      }
+    };
+
+    // Debug logs (optional)
+    console.log('RAW preferences:', preferences);
+    console.log('RAW interests:', interests);
+
+    // Merge preferences
+    const currentPrefs = safeParse(user.preferences, {});
+    const newPrefs = safeParse(preferences, {});
+    const mergedPrefs = { ...currentPrefs, ...newPrefs };
+    user.preferences = JSON.stringify(mergedPrefs);
+
+    // Merge interests
+    const currentInterests = safeParse(user.interests, {});
+    const newInterests = safeParse(interests, {});
+    const mergedInterests = { ...currentInterests, ...newInterests };
+    user.interests = JSON.stringify(mergedInterests);
+
+    // Save updated user
+    await user.save();
+
+    // Sanitize user object
+    const {
+      password,
+      id,
+      created_at,
+      updated_at,
+      ...sanitizedUser
+    } = user.toJSON();
+
+    // Parse and apply default values to preferences
+    const parsedPrefs = safeParse(sanitizedUser.preferences, {});
+    sanitizedUser.preferences = {
+      best_hand: parsedPrefs.best_hand ?? 'not set',
+      court_position: parsedPrefs.court_position ?? 'not set',
+      match_type: parsedPrefs.match_type ?? 'not set',
+      play_time: parsedPrefs.play_time ?? 'not set'
+    };
+
+    // Parse and apply default values to interests
+    const parsedInterests = safeParse(sanitizedUser.interests, {});
+    sanitizedUser.interests = {
+      player_interests: parsedInterests.player_interests ?? 'not set'
+    };
+
+    return res.status(200).json({
+      message: 'Profile updated successfully',
+      user: sanitizedUser
+    });
+
+  } catch (error) {
+    console.error('Update profile error:', error);
+    return res.status(500).json({ message: 'Error updating profile', error });
+  }
+},
+
 
 
   update_dp: async (req, res) => {
