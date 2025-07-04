@@ -10,6 +10,7 @@ const UsersController = require('../controllers/usersController');
 const academyController = require('../controllers/academyController');
 const faqController = require('../controllers/faqController');
 const notificationController = require('../controllers/notificationController');
+const paymentController = require('../controllers/paymentController');
 
 
 
@@ -20,7 +21,7 @@ const notificationController = require('../controllers/notificationController');
 
 router.get('/fetch-sports-centers', sportsCenterContrer.apiAllSportsCenters);
 
-router.get('/fetch-sports-center/:id', sportsCenterContrer.apiViewSportsCenters);
+router.get('/fetch-sports-center/:id', protect, sportsCenterContrer.apiViewSportsCenters);
 
 router.get('/academy/fetch-youtube-tutorials', academyController.getAllYoutubeVideos);
 router.get('/academy/fetch-classes', protect, academyController.getAllAcademies);
@@ -121,6 +122,12 @@ router.delete('/delete-faq/:id', faqController.deleteFaq);
 
 
 router.get('/fetch-users', UsersController.renderManageUsersJson);
+
+
+// payments
+
+router.get('/paystack/verify/:reference', protect, paymentController.verifyPayment);
+
 
 
 module.exports = router;

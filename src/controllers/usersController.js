@@ -567,6 +567,17 @@ sanitizedUser.interests = {
         return res.status(404).json({ error: 'Sports Center not found.' });
       }
 
+        const savedCenter = await FavouriteSportsCenter.findOne({
+        where: {
+          user_id: userId,
+          sports_center_id: sports_center_id,
+        },
+      });
+
+      if (savedCenter) {
+        return res.status(404).json({ success: false, message: 'Sports Center already exist in Favourite List' });
+      }
+
       // Add to saved 
       const savedSportsCenter = await FavouriteSportsCenter.create({
         user_id: userId,
@@ -655,7 +666,7 @@ sanitizedUser.interests = {
   removeFromSavedSportsCenter: async (req, res) => {
     try {
       const userId = req.user.id;
-      const sportsCenterId = req.params.id;
+      const sportsCenterId = req.params.sportsCenterId;
 
       // Validate input
       if (!sportsCenterId) {

@@ -1,4 +1,4 @@
-const { SportsCenter, Court } = require('../models');
+const { SportsCenter, Court, FavouriteSportsCenter } = require('../models');
 
 const flexibleUpload = require('../middleware/uploadMiddleware')
 
@@ -255,10 +255,11 @@ const sportsCenterController = {
             next(error);
         }
     },
-
+ 
 
     apiViewSportsCenters: async (req, res, next) => {
         try {
+             const userId = req.user.id;
             const { id } = req.params;
             const sportsCenter = await SportsCenter.findByPk(id, {
                 include: [{ model: Court, as: 'courts' }]
@@ -269,6 +270,19 @@ const sportsCenterController = {
             }
 
             const total_courts = await Court.count({ where: { sports_center_id: id } });
+
+            let isSaved = false;
+
+             const savedCenter = await FavouriteSportsCenter.findOne({
+        where: {
+          user_id: userId,
+          sports_center_id: id,
+        },
+      });
+
+             isSaved = !!savedCenter;
+
+           
 
 
             const detailedCenter = { ...sportsCenter.toJSON() };
@@ -296,10 +310,12 @@ const sportsCenterController = {
             }
 
             detailedCenter.total_courts = total_courts;
+            detailedCenter.isSaved = isSaved;
 
             return res.status(200).json({
                 message: 'Sports center retrieved successfully',
-                data: detailedCenter
+                data: detailedCenter,
+
             });
         } catch (error) {
             next(error);

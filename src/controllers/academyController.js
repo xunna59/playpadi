@@ -286,7 +286,7 @@ getAllAcademies: async (req, res, next) => {
                 {
                     model: SportsCenter,
                     as: 'sportsCenter',
-                    attributes: ['id', 'sports_center_name', 'sports_center_address']
+                    attributes: ['id', 'sports_center_name', 'sports_center_address', 'cover_image']
                 },
                 {
                     model: AcademyStudents,
@@ -319,6 +319,19 @@ getAllAcademies: async (req, res, next) => {
 
                 const academyData = academy.toJSON();
 
+                if (typeof academyData.sportsCenter?.cover_image === 'string') {
+    let image = academyData.sportsCenter.cover_image.trim();
+
+    if (
+        (image.startsWith('"') && image.endsWith('"')) ||
+        (image.startsWith("'") && image.endsWith("'"))
+    ) {
+        image = image.slice(1, -1);
+    }
+
+    academyData.sportsCenter.cover_image = image;
+}
+
                 // Transform academy_students to desired flat structure
                 academyData.academy_students = (academyData.academy_students || []).map(student => {
                     let avatar = student.user?.display_picture || '';
@@ -338,6 +351,7 @@ getAllAcademies: async (req, res, next) => {
                     };
                 });
 
+                academyData.total_students = academyData.academy_students.length;
                 academyData.joinedStatus = joinedStatus;
                 return academyData;
             })
