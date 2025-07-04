@@ -1,10 +1,43 @@
 const axios = require('axios');
 const crypto = require('crypto');
-const { User } = require('../models');
+const { User, PaymentAuthorizationToken } = require('../models');
+const { validationResult } = require('express-validator');
+
 
 
 
 const PAYSTACK_BASE_URL = 'https://api.paystack.co';
+
+const saveAuthorizationToken = async ({
+    userId,
+    token,
+    last_four,
+    cardType,
+    expMonth,
+    expYear,
+}) => {
+    try {
+        await PaymentAuthorizationToken.upsert(
+            {
+                user_id: userId,
+                token,
+                last_four,
+                cardType,
+                expMonth,
+                expYear,
+            },
+            {
+                where: { user_id: userId },
+            }
+        );
+        return true;
+    } catch (error) {
+        console.error('Error saving authorization token:', error);
+        return false;
+    }
+};
+
+
 
 
 const paymentController = {
@@ -78,6 +111,53 @@ const paymentController = {
         }
     },
 
+
+    chargePayment: async (req, res, next) => {
+
+        try {
+            const userId = req.user.id;
+            const email = req.user.email;
+            const { amount } = req.body;
+
+            // Fetch the authorization token for the user
+            const tokenRecord = await PaymentAuthorizationToken.findOne({
+                where: { user_id: userId },
+            });
+
+            if (!tokenRecord) {
+                return res.status(404).json({ error: 'No saved payment method found' });
+            }
+
+            const { token: authorization_code } = tokenRecord;
+
+            // Proceed to charge the stored card
+            const response = await axios.post(
+                `${PAYSTACK_BASE_URL}/transaction/charge_authorization`,
+                {
+                    email,
+                    amount,
+                    authorization_code,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            const data = response.data.data;
+            res.status(200).json(data);
+        } catch (error) {
+            console.error(error.response?.data || error.message);
+            res.status(500).json({ error: 'Fast charge failed' });
+        }
+    },
+
+
+
+
+
     // Verify Payment
     verifyPayment: async (req, res, next) => {
         const errors = validationResult(req);
@@ -124,16 +204,20 @@ const paymentController = {
                 const expYear = authorization.exp_year;
 
                 // Save reusableToken to DB (with userId)
-                // await saveAuthorizationToken({
-                //     userId: req.user.id,
-                //     token: reusableToken,
-                //     last4,
-                //     cardType,
-                //     expMonth,
-                //     expYear,
-                // });
+                const saved = await saveAuthorizationToken({
+                    userId: req.user.id,
+                    token: reusableToken,
+                    last_four: last4,
+                    cardType,
+                    expMonth,
+                    expYear,
+                });
 
-                res.json({ status: "success", reusableToken });
+                if (!saved) {
+                    return res.status(500).json({ success: false, message: 'Failed to store card details' });
+                }
+
+                return res.json({ status: "success", reusableToken });
             }
 
         } catch (error) {
@@ -146,7 +230,7 @@ const paymentController = {
     handleWebhook: async (req, res, next) => {
         try {
             // Fetch the Paystack secret key from the database
-            const PAYSTACK_SECRET_KEY = await getPaystackSecretKey();
+            const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;;
 
             const secret = PAYSTACK_SECRET_KEY; // Use the secret key for signature validation
             const hash = crypto.createHmac('sha512', secret).update(JSON.stringify(req.body)).digest('hex');
@@ -175,6 +259,31 @@ const paymentController = {
             next(error);
         }
     },
+
+    getSavedCards: async (req, res, next) => {
+        try {
+            const userId = req.user.id;
+
+            const cards = await PaymentAuthorizationToken.findAll({
+                where: { user_id: userId },
+                attributes: ['id', 'last4', 'cardType', 'expMonth', 'expYear', 'created_at'],
+                order: [['created_at', 'DESC']],
+            });
+
+            res.status(200).json({
+                success: true,
+                count: cards.length,
+                cards,
+            });
+        } catch (error) {
+            console.error('Error fetching saved cards:', error);
+            res.status(500).json({ success: false, message: 'Unable to retrieve cards' });
+        }
+    }
+
+
+
+
 };
 
 module.exports = paymentController;

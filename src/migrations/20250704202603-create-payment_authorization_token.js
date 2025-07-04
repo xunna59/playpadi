@@ -12,7 +12,8 @@ module.exports = {
       },
       user_id: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: false,
+        unique: true,
       },
       token: {
         type: Sequelize.STRING,

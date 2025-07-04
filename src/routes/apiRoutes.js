@@ -127,6 +127,8 @@ router.get('/fetch-users', UsersController.renderManageUsersJson);
 // payments
 
 router.get('/paystack/verify/:reference', protect, paymentController.verifyPayment);
+router.post('/paystack/charge/token', protect, paymentController.chargePayment);
+router.get('/user/saved-cards', protect, paymentController.getSavedCards);
 
 
 
