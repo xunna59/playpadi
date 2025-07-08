@@ -11,6 +11,7 @@ const academyController = require('../controllers/academyController');
 const faqController = require('../controllers/faqController');
 const notificationController = require('../controllers/notificationController');
 const paymentController = require('../controllers/paymentController');
+const transactionController = require('../controllers/transactionController');
 
 
 
@@ -80,6 +81,11 @@ router.post('/sports-center/add-favourite', protect, UsersController.addToFavour
 router.delete('/sports-center/remove-favourite/:sportsCenterId', protect, UsersController.removeFromSavedSportsCenter);
 
 
+// Cancel a booking (by owner)
+router.post('/bookings/:bookingId/cancel', protect, bookingsController.apiCancelBooking);
+
+// Leave a public booking
+router.post('/bookings/:bookingId/leave', protect, bookingsController.apiLeavePublicBooking);
 
 
 // user routes
@@ -99,6 +105,8 @@ router.post('/notifications/general', notificationController.createGeneralNotifi
 router.post('/notifications/personal', notificationController.sendPersonalNotification);
 router.get('/notifications', protect, notificationController.getAllNotifications);
 router.put('/notifications/mark-as-read/:notificationId', protect, notificationController.markAsRead);
+
+router.get('/fetch-activities', protect, UsersController.getUserActivities);
 
 
 
@@ -124,11 +132,17 @@ router.delete('/delete-faq/:id', faqController.deleteFaq);
 router.get('/fetch-users', UsersController.renderManageUsersJson);
 
 
+router.get('/user/fetch-transactions', protect, transactionController.getUserTransactions);
+
+
+
 // payments
 
-router.get('/paystack/verify/:reference', protect, paymentController.verifyPayment);
+router.get('/paystack/verify', paymentController.verifyPayment);
 router.post('/paystack/charge/token', protect, paymentController.chargePayment);
 router.get('/user/saved-cards', protect, paymentController.getSavedCards);
+router.post('/paystack/initialize', protect, paymentController.initializePayment);
+
 
 
 

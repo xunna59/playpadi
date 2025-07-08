@@ -64,6 +64,22 @@
                                                 <div class="row">
                                                     <div class="col-lg-6">
                                                         <div class="mb-3">
+                                                            <label class="form-label">Website</label>
+                                                            <input type="text" class="form-control" name="website"
+                                                                placeholder="Website" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Phone Number</label>
+                                                            <input type="text" class="form-control" name="phone"
+                                                                placeholder="Phone Number" required>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-6">
+                                                        <div class="mb-3">
                                                             <label class="form-label">Longitude</label>
                                                             <input type="text" class="form-control" name="longitude"
                                                                 value="<%= sportsCenter.longitude %>"
@@ -88,7 +104,28 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <center><button class="btn btn-primary" type="submit">Update</button></center>
+                                        <div class="card mb-4">
+                                            <div class="card-header bg-none fw-bold d-flex align-items-center">
+                                                <div class="flex-1">
+                                                    <div>Update Cover Image</div>
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <input type="file" class="form-control" id="coverImageInput"
+                                                    name="cover_photo" accept="image/*" required>
+                                                <center>
+                                                    <div class="mt-3">
+                                                        <img id="coverImagePreview"
+                                                            src="/cover_photo/<%= sportsCenter.cover_image %>"
+                                                            alt="Image Preview"
+                                                            class="img-fluid rounded <%= sportsCenter.cover_image ? '' : 'd-none' %>"
+                                                            style="max-height: 250px;" />
+                                                    </div>
+                                                </center>
+                                            </div>
+                                        </div>
+                                        <center><button class="btn btn-primary" type="submit">Save Changes</button>
+                                        </center>
                                     </form>
                                 </div>
                                 <div class="col-xl-4">
@@ -257,5 +294,25 @@
             // Add initial entry
             document.getElementById('price-duration-wrapper').insertAdjacentHTML('beforeend', createEntry(index));
             index++;
+        </script>
+        <script>
+            document.getElementById('coverImageInput').addEventListener('change', function (event) {
+                const file = event.target.files[0];
+                const preview = document.getElementById('coverImagePreview');
+
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        preview.src = e.target.result;
+                        preview.classList.remove('d-none');
+                    };
+
+                    reader.readAsDataURL(file);
+                } else {
+                    preview.src = '#';
+                    preview.classList.add('d-none');
+                }
+            });
         </script>
         <%- include('../partials/footer') %>

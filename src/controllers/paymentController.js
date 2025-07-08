@@ -1,6 +1,6 @@
 const axios = require('axios');
 const crypto = require('crypto');
-const { User, PaymentAuthorizationToken } = require('../models');
+const { User, PaymentAuthorizationToken, Transaction } = require('../models');
 const { validationResult } = require('express-validator');
 
 
@@ -41,13 +41,12 @@ const saveAuthorizationToken = async ({
 
 
 const paymentController = {
-
     initializePayment: async (req, res, next) => {
-
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({
-                success: false, errors: errors.array().map(err => ({
+                success: false,
+                errors: errors.array().map(err => ({
                     msg: err.msg,
                     key: err.path,
                 })),
@@ -57,29 +56,29 @@ const paymentController = {
         try {
             const userId = req.user.id;
 
-
             const user = await User.findByPk(userId);
             if (!user) {
-                return res.status(404).json({ success: false, error: 'authentication required' });
+                return res
+                    .status(404)
+                    .json({ success: false, error: 'authentication required' });
             }
 
+            const { amount, purpose } = req.body;
 
+            if (!amount || isNaN(amount) || amount <= 0) {
+                return res
+                    .status(400)
+                    .json({ success: false, error: 'Valid amount is required' });
+            }
 
             const email = user.email;
-
-
-            const amount = 100;
-
-
-            const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY
-
+            const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
+            const PAYSTACK_BASE_URL = 'https://api.paystack.co';
 
             const amountInKobo = Math.round(amount * 100);
-
-            const callbackUrl = `${process.env.CLIENT_URL}/payment/paystack/verify`;
+            const callbackUrl = `${process.env.CLIENT_URL}/api/paystack/verify`;
 
             const response = await axios.post(
-
                 `${PAYSTACK_BASE_URL}/transaction/initialize`,
                 {
                     email,
@@ -93,33 +92,41 @@ const paymentController = {
                 }
             );
 
-            // await Transaction.create({
-            //     invoice_id: invoice.id, // Store the invoice ID for reference
-            //     method: 'e-deposit',
-            //     reference: response.data.data.reference,
-            //     amount,
-            //     transaction_status: 'pending',
-            //     transaction_type: payment_reason,
-            // });
+
+            const { reference, authorization_url, access_code } = response.data.data;
+
+
+            await Transaction.create({
+                user_id: userId,
+                reference,
+                amount,
+                status: 'pending',
+                purpose,
+                method: 'paystack',
+                currency: 'NGN',
+            });
+
 
             res.status(200).json({
                 success: true,
-                authorization_url: response.data.data.authorization_url,
+                authorization_url,
+                access_code,
+                reference,
             });
         } catch (error) {
+            console.error(error);
             next(error);
         }
     },
 
 
-    chargePayment: async (req, res, next) => {
 
+    chargePayment: async (req, res, next) => {
         try {
             const userId = req.user.id;
             const email = req.user.email;
-            const { amount } = req.body;
+            const { amount, purpose } = req.body;
 
-            // Fetch the authorization token for the user
             const tokenRecord = await PaymentAuthorizationToken.findOne({
                 where: { user_id: userId },
             });
@@ -130,12 +137,11 @@ const paymentController = {
 
             const { token: authorization_code } = tokenRecord;
 
-            // Proceed to charge the stored card
             const response = await axios.post(
                 `${PAYSTACK_BASE_URL}/transaction/charge_authorization`,
                 {
                     email,
-                    amount,
+                    amount: Math.round(amount * 100), // convert to kobo
                     authorization_code,
                 },
                 {
@@ -147,12 +153,25 @@ const paymentController = {
             );
 
             const data = response.data.data;
-            res.status(200).json(data);
+
+
+            await Transaction.create({
+                user_id: userId,
+                reference: data.reference,
+                amount,
+                status: data.status || 'pending',
+                purpose: purpose || 'Card charge',
+                method: 'paystack',
+                currency: data.currency || 'NGN',
+            });
+
+            res.status(200).json({ success: true, data });
         } catch (error) {
             console.error(error.response?.data || error.message);
             res.status(500).json({ error: 'Fast charge failed' });
         }
     },
+
 
 
 
@@ -171,18 +190,16 @@ const paymentController = {
                 })),
             });
         }
+
         try {
-            //  const { reference } = req.query;
-            const { reference } = req.params;
+            const { reference } = req.query;
 
             if (!reference) {
                 return res.status(400).json({ success: false, message: 'Reference is required' });
             }
 
-            // Fetch the Paystack secret key from the database
             const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
 
-            // Proceed with verifying the payment using the reference
             const response = await axios.get(
                 `${PAYSTACK_BASE_URL}/transaction/verify/${reference}`,
                 {
@@ -194,18 +211,31 @@ const paymentController = {
 
             const data = response.data.data;
 
-            if (data.status === "success") {
-                const authorization = data.authorization;
+            // ✅ Update transaction record
+            const transaction = await Transaction.findOne({ where: { reference } });
 
-                const reusableToken = authorization.authorization_code; // e.g. AUTH_8dfhjjdt
+            if (!transaction) {
+                return res.status(404).json({ success: false, message: 'Transaction not found' });
+            }
+
+            if (data.status === "success") {
+                const email = data.customer.email;
+
+                const user = await User.findOne({ where: { email } });
+                if (!user) {
+                    return res.status(404).json({ success: false, message: 'User not found' });
+                }
+
+                const authorization = data.authorization;
+                const reusableToken = authorization.authorization_code;
                 const last4 = authorization.last4;
                 const cardType = authorization.card_type;
                 const expMonth = authorization.exp_month;
                 const expYear = authorization.exp_year;
 
-                // Save reusableToken to DB (with userId)
+                // Save reusable token
                 const saved = await saveAuthorizationToken({
-                    userId: req.user.id,
+                    userId: user.id,
                     token: reusableToken,
                     last_four: last4,
                     cardType,
@@ -217,13 +247,29 @@ const paymentController = {
                     return res.status(500).json({ success: false, message: 'Failed to store card details' });
                 }
 
-                return res.json({ status: "success", reusableToken });
-            }
 
+                await transaction.update({ status: data.status });
+
+                return res.json({
+                    success: true,
+                    message: 'Payment verified and card token saved.',
+                    reusableToken,
+                });
+
+            } else {
+
+                await transaction.update({ status: 'failed' });
+
+                return res.status(400).json({
+                    success: false,
+                    message: 'Payment verification failed.',
+                });
+            }
         } catch (error) {
             next(error);
         }
     },
+
 
 
     // Handle Webhook
@@ -266,7 +312,7 @@ const paymentController = {
 
             const cards = await PaymentAuthorizationToken.findAll({
                 where: { user_id: userId },
-                attributes: ['id', 'last4', 'cardType', 'expMonth', 'expYear', 'created_at'],
+                attributes: ['id', 'last_four', 'cardType', 'expMonth', 'expYear', 'created_at'],
                 order: [['created_at', 'DESC']],
             });
 

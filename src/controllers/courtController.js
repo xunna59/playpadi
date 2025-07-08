@@ -1,4 +1,4 @@
-const { SportsCenter, Court, Bookings } = require('../models');
+const { SportsCenter, Court, Bookings, User } = require('../models');
 
 const dayjs = require("dayjs");
 

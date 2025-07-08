@@ -157,19 +157,33 @@ const sportsCenterController = {
 
     // Update a sports center
     update: async (req, res) => {
-        try {
-            const { id } = req.params;
-            const updated = await SportsCenter.update(req.body, { where: { id } });
 
-            if (!updated) {
-                return res.status(404).json({ message: "Sports center not found or no changes made" });
+
+
+
+
+        flexibleUpload.single('cover_photo')(req, res, async (err) => {
+            if (err) {
+                return res.status(400).json({ success: false, message: err.message });
             }
-            req.flash('success_msg', 'Sports Center Updated Successfully');
-            return res.redirect('/admin/sports-center/');
-            //    res.status(200).json({ message: "Sports center updated successfully" });
-        } catch (error) {
-            res.status(500).json({ message: "Error updating sports center", error: error.message });
-        }
+            if (!req.file) {
+                return res.status(400).json({ success: false, message: 'Please upload an image' });
+            }
+
+            try {
+                const { id } = req.params;
+                const updated = await SportsCenter.update(req.body, { where: { id } });
+
+                if (!updated) {
+                    return res.status(404).json({ message: "Sports center not found or no changes made" });
+                }
+                req.flash('success_msg', 'Sports Center Updated Successfully');
+                return res.redirect('/admin/sports-center/');
+                //    res.status(200).json({ message: "Sports center updated successfully" });
+            } catch (error) {
+                res.status(500).json({ message: "Error updating sports center", error: error.message });
+            }
+        });
     },
 
     // Delete a sports center
@@ -255,11 +269,11 @@ const sportsCenterController = {
             next(error);
         }
     },
- 
+
 
     apiViewSportsCenters: async (req, res, next) => {
         try {
-             const userId = req.user.id;
+            const userId = req.user.id;
             const { id } = req.params;
             const sportsCenter = await SportsCenter.findByPk(id, {
                 include: [{ model: Court, as: 'courts' }]
@@ -273,16 +287,16 @@ const sportsCenterController = {
 
             let isSaved = false;
 
-             const savedCenter = await FavouriteSportsCenter.findOne({
-        where: {
-          user_id: userId,
-          sports_center_id: id,
-        },
-      });
+            const savedCenter = await FavouriteSportsCenter.findOne({
+                where: {
+                    user_id: userId,
+                    sports_center_id: id,
+                },
+            });
 
-             isSaved = !!savedCenter;
+            isSaved = !!savedCenter;
 
-           
+
 
 
             const detailedCenter = { ...sportsCenter.toJSON() };

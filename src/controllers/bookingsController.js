@@ -1,6 +1,26 @@
-const { Bookings, Court, User, SportsCenter, BookingPlayers } = require('../models');
+const { Bookings, Court, User, SportsCenter, BookingPlayers, Refunds } = require('../models');
 const UserActivityController = require('./userActivityController');
 const { Op } = require('sequelize');
+const dayjs = require('dayjs');
+const customParseFormat = require('dayjs/plugin/customParseFormat');
+dayjs.extend(customParseFormat);
+
+function isRefundEligible(booking) {
+    const matchDateTime = dayjs(`${booking.date} ${booking.slot}`, 'YYYY-MM-DD hh:mm A');
+    const bookingTime = dayjs(booking.created_at);
+    const now = dayjs();
+
+    const daysBeforeMatch = matchDateTime.diff(bookingTime, 'day');
+
+    if (daysBeforeMatch >= 7) {
+        const latestCancelTime = matchDateTime.subtract(72, 'hour');
+        return now.isBefore(latestCancelTime);
+    } else {
+        const latestCancelTime = matchDateTime.subtract(24, 'hour');
+        return now.isBefore(latestCancelTime);
+    }
+}
+
 
 
 
@@ -414,7 +434,132 @@ const bookingsController = {
             console.error(error);
             return res.status(500).json({ message: 'Server error', error });
         }
+    },
+
+
+    apiCancelBooking: async (req, res) => {
+        try {
+            const { bookingId } = req.params;
+            const userId = req.user.id;
+
+            const booking = await Bookings.findOne({ where: { id: bookingId, user_id: userId } });
+
+            if (!booking) {
+                return res.status(404).json({ message: 'Booking not found' });
+            }
+
+            if (booking.status === 'cancelled') {
+                return res.status(400).json({ message: 'Booking already cancelled' });
+            }
+
+            const refundEligible = isRefundEligible(booking);
+
+            booking.status = 'cancelled';
+            await booking.save();
+
+            await Refunds.create({
+                user_id: req.user.id,
+                booking_id: booking.id,
+                eligible: refundEligible,
+                refund_amount: refundEligible ? booking.session_price : 0,
+                reason: refundEligible
+                    ? 'Cancelled within eligible window'
+                    : 'Cancelled after refund deadline',
+                status: 'pending'
+            });
+
+
+            return res.status(200).json({
+                message: 'Booking cancelled successfully',
+                refund: refundEligible,
+                refundNote: refundEligible
+                    ? 'You are eligible for a full refund.'
+                    : 'You cancelled too late for a refund.'
+            });
+
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Server error', error });
+        }
+    },
+
+    apiLeavePublicBooking: async (req, res) => {
+        try {
+            const { bookingId } = req.params;
+            const userId = req.user.id;
+
+            const booking = await Bookings.findOne({
+                where: { id: bookingId, booking_type: 'public' }
+            });
+
+            if (!booking) {
+                return res.status(404).json({ message: 'Match not found' });
+            }
+
+            const playerEntry = await BookingPlayers.findOne({
+                where: {
+                    bookings_id: bookingId,
+                    user_id: userId
+                }
+            });
+
+            if (!playerEntry) {
+                return res.status(404).json({ message: 'You are not part of this match' });
+            }
+
+            // Calculate refund eligibility
+            const refundEligible = isRefundEligible(booking);
+
+            // Define game type player distribution
+            const gameTypePlayerMap = {
+                padel: 4,
+                snooker: 2,
+                darts: 2
+            };
+
+            const normalizedGameType = booking.game_type.toLowerCase();
+            const totalPlayers = gameTypePlayerMap[normalizedGameType] || 1;
+            const perPlayerRefund = parseFloat(booking.session_price) / totalPlayers;
+
+            // Remove player from match
+            await playerEntry.destroy();
+
+            // Record refund entry
+            await Refunds.create({
+                user_id: userId,
+                booking_id: booking.id,
+                eligible: refundEligible,
+                refund_amount: refundEligible ? perPlayerRefund.toFixed(2) : 0,
+                reason: refundEligible
+                    ? 'Left within eligible window'
+                    : 'Left after refund deadline',
+                status: 'pending'
+            });
+
+            // Log activity
+            await UserActivityController.log({
+                user_id: userId,
+                activity_type: 'match',
+                description: 'You left a public match'
+            }, req);
+
+            return res.status(200).json({
+                message: 'You have successfully left the match',
+                refund: refundEligible,
+                refundAmount: refundEligible ? perPlayerRefund.toFixed(2) : 0,
+                refundNote: refundEligible
+                    ? 'You are eligible for a refund.'
+                    : 'You left too late for a refund.'
+            });
+
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Server error', error });
+        }
     }
+
+
+
 
 
 
