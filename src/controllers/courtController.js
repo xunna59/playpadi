@@ -1,4 +1,5 @@
 const { SportsCenter, Court, Bookings, User } = require('../models');
+const { Op, fn, col, where } = require('sequelize');
 
 const dayjs = require("dayjs");
 const utc = require('dayjs/plugin/utc');
@@ -6,6 +7,14 @@ const timezone = require('dayjs/plugin/timezone');
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
+
+const safeParseJSON = (str, fallback = []) => {
+    try {
+        return JSON.parse(str);
+    } catch {
+        return fallback;
+    }
+};
 
 const generateTimeSlots = (daysToGenerate) => {
     const startHour = 9;    // 9:00 AM
@@ -49,6 +58,27 @@ const generateTimeSlots = (daysToGenerate) => {
     return slots;
 };
 
+const generateBlockedSlots = (bookings) => {
+    const blockedSet = new Set();
+
+    bookings.forEach(booking => {
+        const { date, slot, court_id, session_duration } = booking;
+
+        const startTime = dayjs(`${date} ${slot}`, 'YYYY-MM-DD h:mm A');
+        const dur = parseInt(session_duration || '30'); // Default to 30 if missing
+        const intervals = dur / 30;
+
+        for (let i = 0; i < intervals; i++) {
+            const timeKey = startTime.add(i * 30, 'minute').format('h:mm A');
+            const key = `${date}#${timeKey}#${court_id}`;
+            blockedSet.add(key);
+        }
+    });
+
+    return blockedSet;
+};
+
+
 
 
 function generateReference(length) {
@@ -67,59 +97,102 @@ const courtController = {
     getSlots: async (req, res, next) => {
         try {
             const sportsCenterId = req.params.id;
+            const gameType = req.query.game_type; // e.g. 'paddle', 'tennis', etc.
+
             const sports_center = await SportsCenter.findByPk(sportsCenterId);
             if (!sports_center) {
                 return res.status(404).json({ message: "Sports Center not found" });
             }
 
             const userId = req.user.id;
-            const user = await User.findByPk(userId); // Make sure you fetch user details
+            const user = await User.findByPk(userId);
 
-            let daysToGenerate = 7; // Default to standard (1 week)
-
+            let daysToGenerate = 7;
             const accountType = (user.account_type || '').toLowerCase();
-
             if (accountType === 'premium') {
-                daysToGenerate = 90; // 3 months for premium
+                daysToGenerate = 90;
             } else if (accountType === 'standard') {
-                daysToGenerate = 30; // 1 month for standard
+                daysToGenerate = 30;
             }
 
             const days = generateTimeSlots(daysToGenerate);
 
-            // 2) fetch all actual bookings for this court
+            // Fetch courts filtered by sports_center_id and optional game_type
+            const courtWhere = { sports_center_id: sportsCenterId };
+            if (gameType) {
+                courtWhere[Op.and] = [
+                    where(fn('LOWER', col('activity')), gameType.toLowerCase())
+                ];
+            }
+
+            const courts = await Court.findAll({
+                where: courtWhere
+            });
+
+            // Fetch bookings
             const bookings = await Bookings.findAll({
                 where: { sports_center_id: sportsCenterId },
-                attributes: ["date", "slot"]
+                attributes: ["date", "slot", "court_id", "session_duration"]
             });
-            const bookedSlots = new Set(
-                bookings.map(b => `${b.date}#${b.slot}`)   // e.g. "2025-05-11#09:00"
-            );
 
-            // 3) for each day, map its availableTimes → times: [{time,status},…]
+            // const bookedSet = new Set(
+            //     bookings.map(b => `${b.date}#${b.slot}#${b.court_id}`)
+            // );
+
+            const bookedSet = generateBlockedSlots(bookings);
+
             const slots = days.map(dayObj => {
                 const { weekday, day, month, date, availableTimes } = dayObj;
 
                 const times = availableTimes.map(time => {
-                    const key = `${date}#${time}`;           // must match how you stored slot in DB
+
+                    let availableCourtCount = 0;
+
+
+                    const courtsWithStatus = courts.map(court => {
+                        const key = `${date}#${time}#${court.id}`;
+
+
+                        const isBooked = bookedSet.has(key);
+
+                        if (!isBooked) availableCourtCount++;
+
+                        const rawCourt = court.toJSON();
+
+                        delete rawCourt.createdAt;
+                        delete rawCourt.updatedAt;
+                        delete rawCourt.booking_info;
+                        delete rawCourt.court_position;
+                        delete rawCourt.court_type;
+                        delete rawCourt.activity;
+                        delete rawCourt.status;
+
+                        return {
+                            court: {
+                                ...rawCourt,
+                                court_data: safeParseJSON(court.court_data)
+                            },
+                            court_status: isBooked ? "unavailable" : "available"
+                        };
+                    });
+
                     return {
                         time,
-                        status: bookedSlots.has(key)
-                            ? "unavailable"
-                            : "available"
+                        total_available_courts: availableCourtCount,
+                        courts: courtsWithStatus
                     };
                 });
 
                 return { weekday, day, month, date, times };
             });
 
-            // 4) send back the new per-day array
             return res.json({ slots });
-
         } catch (error) {
+            console.error("Error in getSlots:", error);
             next(error);
         }
     },
+
 
 
     getCourtSlots: async (req, res, next) => {
