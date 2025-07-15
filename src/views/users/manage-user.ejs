@@ -1,0 +1,582 @@
+<%- include('../partials/header') %>
+    <!-- END #header -->
+    <!-- BEGIN #sidebar -->
+    <%- include('../partials/sidebar') %>
+        <!-- END #sidebar -->
+        <!-- BEGIN #content -->
+        <div id="content" class="app-content p-0">
+            <!-- BEGIN profile -->
+            <div class="profile">
+                <!-- BEGIN profile-header -->
+                <div class="profile-header">
+                    <div class="profile-header-cover"></div>
+                    <div class="profile-header-content">
+                        <div class="profile-header-img">
+                            <img src="display_img/<%= user.display_picture %>" alt="">
+                        </div>
+                        <ul class="profile-header-tab nav nav-tabs nav-tabs-v2">
+                            <!-- <li class="nav-item">
+                                <a href="#" class="nav-link " data-bs-toggle="tab">
+                                    <div class="nav-field">Points</div>
+                                    <div class="nav-value">
+                                        <%= user.points %>
+                                    </div>
+                                </a>
+                            </li> -->
+                            <li class="nav-item">
+                                <a href="#bookings" class="nav-link active" data-bs-toggle="tab">
+                                    <div class="nav-field">Matches Played</div>
+                                    <div class="nav-value">
+                                        <%= user.total_matches_played %>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#classes" class="nav-link" data-bs-toggle="tab">
+                                    <div class="nav-field">Classes Joined</div>
+                                    <div class="nav-value">1,397</div>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#profile-video" class="nav-link" data-bs-toggle="tab">
+                                    <div class="nav-field">Videos</div>
+                                    <div class="nav-value">120</div>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#profile-followers" class="nav-link" data-bs-toggle="tab">
+                                    <div class="nav-field">Following</div>
+                                    <div class="nav-value">2,592</div>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- END profile-header -->
+                <!-- BEGIN profile-container -->
+                <div class="profile-container">
+                    <!-- BEGIN profile-sidebar -->
+                    <div class="profile-sidebar">
+                        <div class="desktop-sticky-top">
+                            <!-- profile info -->
+                            <h4>
+                                <%= `${user.first_name} ${user.last_name}` %>
+                            </h4>
+                            <div class="fw-500 mb-3 text-muted mt-n2">
+                                <%= user.email %>
+                            </div>
+                            <p>
+                                <%= user.bio %>
+                            </p>
+                            <div class="mb-1">
+                                <i class="fa fa-map-marker-alt fa-fw text-muted"></i>
+                                <%= `${user.address}, ${user.state}` %>
+                            </div>
+                            <div class="mb-3">
+                                <i class="fa fa-phone fa-fw text-muted"></i>
+                                <%= user.phone %>
+                            </div>
+                            <hr class="mt-4 mb-4">
+                            <!-- people-to-follow -->
+                            <!-- <div class="fw-500 mb-3 fs-16px">People to follow</div>
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="assets/img/user/user-1.jpg" alt="" width="30" class="rounded-circle">
+                                <div class="flex-fill px-3">
+                                    <div class="fw-500 text-truncate w-100px">Noor Rowe</div>
+                                    <div class="fs-12px text-body text-opacity-50">3.1m followers</div>
+                                </div>
+                                <a href="#" class="btn btn-sm btn-outline-theme fs-11px fw-500">Follow</a>
+                            </div>
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="assets/img/user/user-2.jpg" alt="" width="30" class="rounded-circle">
+                                <div class="flex-fill px-3">
+                                    <div class="fw-500 text-truncate w-100px">Abbey Parker</div>
+                                    <div class="fs-12px text-body text-opacity-50">302k followers</div>
+                                </div>
+                                <a href="#" class="btn btn-sm btn-outline-theme fs-11px fw-500">Follow</a>
+                            </div>
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="assets/img/user/user-3.jpg" alt="" width="30" class="rounded-circle">
+                                <div class="flex-fill px-3">
+                                    <div class="fw-500 text-truncate w-100px">Savannah Nicholson</div>
+                                    <div class="fs-12px text-body text-opacity-50">720k followers</div>
+                                </div>
+                                <a href="#" class="btn btn-sm btn-outline-theme fs-11px fw-500">Follow</a>
+                            </div>
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="assets/img/user/user-4.jpg" alt="" width="30" class="rounded-circle">
+                                <div class="flex-fill px-3">
+                                    <div class="fw-500 text-truncate w-100px">Kenny Bright</div>
+                                    <div class="fs-12px text-body text-opacity-50">1.4m followers</div>
+                                </div>
+                                <a href="#" class="btn btn-sm btn-outline-theme fs-11px fw-500">Follow</a>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <img src="assets/img/user/user-5.jpg" alt="" width="30" class="rounded-circle">
+                                <div class="flex-fill px-3">
+                                    <div class="fw-500 text-truncate w-100px">Cara Poole</div>
+                                    <div class="fs-12px text-body text-opacity-50">989k followers</div>
+                                </div>
+                                <a href="#" class="btn btn-sm btn-outline-theme fs-11px fw-500">Follow</a>
+                            </div> -->
+                        </div>
+                    </div>
+                    <!-- END profile-sidebar -->
+                    <!-- BEGIN profile-content -->
+                    <div class="profile-content">
+                        <div class="row">
+                            <div class="col-xl-8">
+                                <div class="tab-content p-0">
+                                    <!-- BEGIN tab-pane -->
+                                    <!-- END tab-pane -->
+                                    <!-- BEGIN tab-pane -->
+                                    <div class="tab-pane fade show active" id="bookings">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover text-nowrap">
+                                                <thead>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Booking Reference</th>
+                                                        <th>Created By</th>
+                                                        <th>Court</th>
+                                                        <th>Slot</th>
+                                                        <th>Status</th>
+                                                        <th>Booking Type</th>
+                                                        <th>Date Created</th>
+                                                        <th>Date Updated</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <% if (bookings.length> 0) { %> <% bookings.forEach(booking=> { %>
+                                                            <tr>
+                                                                <td class="w-10px align-middle">
+                                                                    <div class="form-check">
+                                                                        <input type="checkbox" class="form-check-input"
+                                                                            id="booking_<%= booking.id %>">
+                                                                    </div>
+                                                                </td>
+                                                                <td class="align-middle">
+                                                                    <%= booking.booking_reference %>
+                                                                </td>
+                                                                <td class="align-middle">
+                                                                    <%= booking.user.first_name %>
+                                                                        <%= booking.user.last_name %>
+                                                                </td>
+                                                                <td class="align-middle">
+                                                                    <%= booking.court.court_name %>
+                                                                </td>
+                                                                <td class="align-middle">
+                                                                    <span
+                                                                        class="badge bg-gray-100 text-black text-opacity-50 px-2 rounded fs-12px d-inline-flex align-items-center">
+                                                                        <%= booking.date %> | <%= booking.slot %>
+                                                                    </span>
+                                                                </td>
+                                                                <td class="py-1 align-middle">
+                                                                    <% const statusMap={ confirmed: {
+                                                                        bgClass: 'bg-success' ,
+                                                                        textClass: 'text-success' , label: 'Confirmed'
+                                                                        }, cancelled: { bgClass: 'bg-danger' ,
+                                                                        textClass: 'text-danger' , label: 'Cancelled' },
+                                                                        elapsed: { bgClass: 'bg-secondary' ,
+                                                                        textClass: 'text-secondary' , label: 'Elapsed'
+                                                                        }, pending: { bgClass: 'bg-warning' ,
+                                                                        textClass: 'text-warning' , label: 'Pending' }
+                                                                        }; const status=statusMap[booking.status] || {
+                                                                        bgClass: 'bg-light' , textClass: 'text-muted' ,
+                                                                        label: 'Unknown' }; %>
+                                                                        <span
+                                                                            class="badge <%= status.bgClass %> text-dark bg-opacity-25 px-2 rounded fs-12px d-inline-flex align-items-center">
+                                                                            <i
+                                                                                class="fa fa-circle <%= status.textClass %> fs-9px fa-fw me-5px"></i>
+                                                                            <%= status.label %>
+                                                                        </span>
+                                                                </td>
+                                                                <td class="py-1 align-middle">
+                                                                    <% const bookingStatusMap={ public: {
+                                                                        bgClass: 'bg-success' ,
+                                                                        textClass: 'text-success' , label: 'Open Match'
+                                                                        }, private: { bgClass: 'bg-primary' ,
+                                                                        textClass: 'text-primary' ,
+                                                                        label: 'Private Match' }, }; const
+                                                                        booking_type=bookingStatusMap[booking.booking_type]
+                                                                        || { bgClass: 'bg-light' ,
+                                                                        textClass: 'text-muted' , label: 'Unknown' }; %>
+                                                                        <span
+                                                                            class="badge <%= booking_type.bgClass %> text-dark bg-opacity-25 px-2 rounded fs-12px d-inline-flex align-items-center">
+                                                                            <i
+                                                                                class="fa fa-circle <%= booking_type.textClass %> fs-9px fa-fw me-5px"></i>
+                                                                            <%= booking_type.label %>
+                                                                        </span>
+                                                                </td>
+                                                                <td class="align-middle">
+                                                                    <%= new
+                                                                        Date(booking.created_at).toLocaleString('en-GB',
+                                                                        { day: 'numeric' , month: 'short' ,
+                                                                        year: 'numeric' , hour: '2-digit' ,
+                                                                        minute: '2-digit' , hour12: true }) %>
+                                                                </td>
+                                                                <td class="align-middle">
+                                                                    <%= new
+                                                                        Date(booking.updated_at).toLocaleString('en-GB',
+                                                                        { day: 'numeric' , month: 'short' ,
+                                                                        year: 'numeric' , hour: '2-digit' ,
+                                                                        minute: '2-digit' , hour12: true }) %>
+                                                                </td>
+                                                            </tr>
+                                                            <% }) %>
+                                                                <% } else { %>
+                                                                    <tr>
+                                                                        <td colspan="8" class="text-center text-muted">
+                                                                            No bookings found.</td>
+                                                                    </tr>
+                                                                    <% } %>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <!-- Pagination Info and Controls -->
+                                        <div class="d-md-flex align-items-center justify-content-between">
+                                            <div class="me-md-auto text-md-left text-center mb-2 mb-md-0"> Showing <%=
+                                                    pagination.offset + 1 %> to <%= pagination.offset + bookings.length
+                                                        %> of <%= pagination.total %> entries </div>
+                                            <ul class="pagination mb-0 justify-content-center">
+                                                <li
+                                                    class="page-item <%= pagination.currentPage === 1 ? 'disabled' : '' %>">
+                                                    <a class="page-link"
+                                                        href="<%= pagination.baseUrl %>?page=<%= pagination.currentPage - 1 %>#bookings">Previous</a>
+                                                </li>
+                                                <% for (let i=1; i <=pagination.totalPages; i++) { %>
+                                                    <li
+                                                        class="page-item <%= pagination.currentPage === i ? 'active' : '' %>">
+                                                        <a class="page-link"
+                                                            href="<%= pagination.baseUrl %>?page=<%= i %>#bookings">
+                                                            <%= i %>
+                                                        </a>
+                                                    </li>
+                                                    <% } %>
+                                                        <li
+                                                            class="page-item <%= pagination.currentPage === pagination.totalPages ? 'disabled' : '' %>">
+                                                            <a class="page-link"
+                                                                href="<%= pagination.baseUrl %>?page=<%= pagination.currentPage + 1 %>#bookings">Next</a>
+                                                        </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <!-- END tab-pane -->
+                                    <!-- BEGIN tab-pane -->
+                                    <div class="tab-pane fade" id="classes">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover text-nowrap">
+                                                <thead>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Title</th>
+                                                        <th>Activity</th>
+                                                        <th>Duration</th>
+                                                        <th>Players</th>
+                                                        <th>Activity Date</th>
+                                                        <th>Category</th>
+                                                        <th>Academy Type</th>
+                                                        <th>End Registration</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <% if (academyStudents.length> 0) { %> <%
+                                                            academyStudents.forEach(student=> { const academy =
+                                                            student.academy || {}; %> <tr>
+                                                                <td class="w-10px align-middle">
+                                                                    <div class="form-check">
+                                                                        <input type="checkbox" class="form-check-input"
+                                                                            id="academy_<%= academy.id %>">
+                                                                    </div>
+                                                                </td>
+                                                                <td class="align-middle">
+                                                                    <%= academy.title || 'N/A' %>
+                                                                </td>
+                                                                <td class="align-middle">
+                                                                    <%= academy.session_activity || 'N/A' %>
+                                                                </td>
+                                                                <td class="align-middle">
+                                                                    <%= academy.session_duration || 'N/A' %> mins
+                                                                </td>
+                                                                <td class="align-middle">
+                                                                    <%= academy.num_of_players || 'N/A' %>
+                                                                </td>
+                                                                <td class="align-middle">
+                                                                    <%= new
+                                                                        Date(academy.activity_date).toLocaleDateString('en-GB',
+                                                                        { day: 'numeric' , month: 'short' ,
+                                                                        year: 'numeric' }) %>
+                                                                </td>
+                                                                <td class="align-middle">
+                                                                    <%= academy.category || 'N/A' %>
+                                                                </td>
+                                                                <td class="align-middle">
+                                                                    <%= academy.academy_type || 'N/A' %>
+                                                                </td>
+                                                                <td class="align-middle">
+                                                                    <%= new
+                                                                        Date(academy.end_registration_date).toLocaleDateString('en-GB',
+                                                                        { day: 'numeric' , month: 'short' ,
+                                                                        year: 'numeric' }) %>
+                                                                </td>
+                                                            </tr>
+                                                            <% }) %>
+                                                                <% } else { %>
+                                                                    <tr>
+                                                                        <td colspan="9" class="text-center text-muted">
+                                                                            No classes found.</td>
+                                                                    </tr>
+                                                                    <% } %>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <!-- Pagination Controls -->
+                                        <div class="d-md-flex align-items-center justify-content-between">
+                                            <div class="me-md-auto text-md-left text-center mb-2 mb-md-0"> Showing <%=
+                                                    academyPagination.offset + 1 %> to <%= academyPagination.offset +
+                                                        academyStudents.length %> of <%= academyPagination.total %>
+                                                            entries </div>
+                                            <ul class="pagination mb-0 justify-content-center">
+                                                <li
+                                                    class="page-item <%= academyPagination.currentPage === 1 ? 'disabled' : '' %>">
+                                                    <a class="page-link"
+                                                        href="<%= academyPagination.baseUrl %>?academyPage=<%= academyPagination.currentPage - 1 %>#classes">Previous</a>
+                                                </li>
+                                                <% for (let i=1; i <=academyPagination.totalPages; i++) { %>
+                                                    <li
+                                                        class="page-item <%= academyPagination.currentPage === i ? 'active' : '' %>">
+                                                        <a class="page-link"
+                                                            href="<%= academyPagination.baseUrl %>?academyPage=<%= i %>#classes">
+                                                            <%= i %>
+                                                        </a>
+                                                    </li>
+                                                    <% } %>
+                                                        <li
+                                                            class="page-item <%= academyPagination.currentPage === academyPagination.totalPages ? 'disabled' : '' %>">
+                                                            <a class="page-link"
+                                                                href="<%= academyPagination.baseUrl %>?academyPage=<%= academyPagination.currentPage + 1 %>#classes">Next</a>
+                                                        </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <!-- END tab-pane -->
+                                    <!-- BEGIN tab-pane -->
+                                    <div class="tab-pane fade" id="profile-video">
+                                        <div class="card mb-3">
+                                            <div class="card-header fw-bold bg-transparent">Collections #1</div>
+                                            <div class="card-body">
+                                                <div class="row gx-1">
+                                                    <div class="col-md-4 col-sm-6 mb-1">
+                                                        <a href="https://www.youtube.com/watch?v=RQ5ljyGg-ig"
+                                                            data-lity="">
+                                                            <img src="../../img.youtube.com/vi/RQ5ljyGg-ig/mqdefault.jpg"
+                                                                alt="" class="d-block w-100">
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-md-4 col-sm-6 mb-1">
+                                                        <a href="https://www.youtube.com/watch?v=5lWkZ-JaEOc"
+                                                            data-lity="">
+                                                            <img src="../../img.youtube.com/vi/5lWkZ-JaEOc/mqdefault.jpg"
+                                                                alt="" class="d-block w-100">
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-md-4 col-sm-6 mb-1">
+                                                        <a href="https://www.youtube.com/watch?v=9ZfN87gSjvI"
+                                                            data-lity="">
+                                                            <img src="../../img.youtube.com/vi/9ZfN87gSjvI/mqdefault.jpg"
+                                                                alt="" class="d-block w-100">
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-md-4 col-sm-6 mb-1">
+                                                        <a href="https://www.youtube.com/watch?v=w2H07DRv2_M"
+                                                            data-lity="">
+                                                            <img src="../../img.youtube.com/vi/w2H07DRv2_M/mqdefault.jpg"
+                                                                alt="" class="d-block w-100">
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-md-4 col-sm-6 mb-1">
+                                                        <a href="https://www.youtube.com/watch?v=PntG8KEVjR8"
+                                                            data-lity="">
+                                                            <img src="../../img.youtube.com/vi/PntG8KEVjR8/mqdefault.jpg"
+                                                                alt="" class="d-block w-100">
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-md-4 col-sm-6 mb-1">
+                                                        <a href="https://www.youtube.com/watch?v=q8kxKvSQ7MI"
+                                                            data-lity="">
+                                                            <img src="../../img.youtube.com/vi/q8kxKvSQ7MI/mqdefault.jpg"
+                                                                alt="" class="d-block w-100">
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-md-4 col-sm-6 mb-1">
+                                                        <a href="https://www.youtube.com/watch?v=cutu3Bw4ep4"
+                                                            data-lity="">
+                                                            <img src="../../img.youtube.com/vi/cutu3Bw4ep4/mqdefault.jpg"
+                                                                alt="" class="d-block w-100">
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-md-4 col-sm-6 mb-1">
+                                                        <a href="https://www.youtube.com/watch?v=gCspUXGrraM"
+                                                            data-lity="">
+                                                            <img src="../../img.youtube.com/vi/gCspUXGrraM/mqdefault.jpg"
+                                                                alt="" class="d-block w-100">
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card mb-3">
+                                            <div class="card-header fw-bold bg-transparent">Collections #2</div>
+                                            <div class="card-body">
+                                                <div class="row gx-1">
+                                                    <div class="col-md-4 col-sm-6 mb-1">
+                                                        <a href="https://www.youtube.com/watch?v=COtpTM1MpAA"
+                                                            data-lity="">
+                                                            <img src="../../img.youtube.com/vi/COtpTM1MpAA/mqdefault.jpg"
+                                                                alt="" class="d-block w-100">
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-md-4 col-sm-6 mb-1">
+                                                        <a href="https://www.youtube.com/watch?v=8NVkGHVOazc"
+                                                            data-lity="">
+                                                            <img src="../../img.youtube.com/vi/8NVkGHVOazc/mqdefault.jpg"
+                                                                alt="" class="d-block w-100">
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-md-4 col-sm-6 mb-1">
+                                                        <a href="https://www.youtube.com/watch?v=ZtT3jaTcCsY"
+                                                            data-lity="">
+                                                            <img src="../../img.youtube.com/vi/ZtT3jaTcCsY/mqdefault.jpg"
+                                                                alt="" class="d-block w-100">
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-md-4 col-sm-6 mb-1">
+                                                        <a href="https://www.youtube.com/watch?v=Dmw0ucCv8aQ"
+                                                            data-lity="">
+                                                            <img src="../../img.youtube.com/vi/Dmw0ucCv8aQ/mqdefault.jpg"
+                                                                alt="" class="d-block w-100">
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-md-4 col-sm-6 mb-1">
+                                                        <a href="https://www.youtube.com/watch?v=r1d7ST2TG2U"
+                                                            data-lity="">
+                                                            <img src="../../img.youtube.com/vi/r1d7ST2TG2U/mqdefault.jpg"
+                                                                alt="" class="d-block w-100">
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-md-4 col-sm-6 mb-1">
+                                                        <a href="https://www.youtube.com/watch?v=WUR-XWBcHvs"
+                                                            data-lity="">
+                                                            <img src="../../img.youtube.com/vi/WUR-XWBcHvs/mqdefault.jpg"
+                                                                alt="" class="d-block w-100">
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-md-4 col-sm-6 mb-1">
+                                                        <a href="https://www.youtube.com/watch?v=A7sQ8RWj0Cw"
+                                                            data-lity="">
+                                                            <img src="../../img.youtube.com/vi/A7sQ8RWj0Cw/mqdefault.jpg"
+                                                                alt="" class="d-block w-100">
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-md-4 col-sm-6 mb-1">
+                                                        <a href="https://www.youtube.com/watch?v=IMN2VfiXls4"
+                                                            data-lity="">
+                                                            <img src="../../img.youtube.com/vi/IMN2VfiXls4/mqdefault.jpg"
+                                                                alt="" class="d-block w-100">
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- END tab-pane -->
+                                </div>
+                            </div>
+                            <div class="col-xl-4">
+                                <div class="desktop-sticky-top d-none d-lg-block">
+                                    <div class="card mb-3">
+                                        <div class="list-group list-group-flush">
+                                            <div class="list-group-item fw-500 px-3 d-flex">
+                                                <span class="flex-fill">User Activity</span>
+                                                <a href="#" class="text-muted"><i class="fa fa-cog"></i></a>
+                                            </div>
+                                            <div class="list-group-item px-3">
+                                                <div class="text-muted"><small><strong>Trending
+                                                            Worldwide</strong></small></div>
+                                                <div class="fw-500 mb-2">#BreakingNews</div>
+                                                <a href="#"
+                                                    class="card overflow-hidden mb-1 text-body text-decoration-none">
+                                                    <div class="row no-gutters">
+                                                        <div class="col-md-8">
+                                                            <div class="card-body p-1 px-2">
+                                                                <div class="fs-12px text-muted">Space</div>
+                                                                <div class="h-40px fs-13px overflow-hidden">Distant star
+                                                                    explosion is brightest ever seen, study finds</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 d-flex">
+                                                            <div class="h-100 w-100"
+                                                                style="background: url(assets/img/gallery/news-1.jpg) center; background-size: cover;">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                                <div><small class="text-muted">1.89m share</small></div>
+                                            </div>
+                                            <div class="list-group-item px-3">
+                                                <div class="fw-500 mb-2">#TrollingForGood</div>
+                                                <div class="fs-13px">Be a good Troll and spread some positivity on
+                                                    Studio today. </div>
+                                                <div><small class="text-muted"><i
+                                                            class="fa fa-external-link-square-alt"></i> Promoted by
+                                                        Studio Trolls</small></div>
+                                            </div>
+                                            <div class="list-group-item px-3">
+                                                <div class="text-muted"><small><strong>Trending
+                                                            Worldwide</strong></small></div>
+                                                <div class="fw-500 mb-2">#CronaOutbreak</div>
+                                                <div class="fs-13px">The coronavirus is affecting 210 countries around
+                                                    the world and 2 ...</div>
+                                                <div><small class="text-muted">49.3m share</small></div>
+                                            </div>
+                                            <div class="list-group-item px-3">
+                                                <div class="text-muted"><small><strong>Trending in New
+                                                            York</strong></small>
+                                                </div>
+                                                <div class="fw-500 mb-2">#CoronavirusPandemic</div>
+                                                <a href="#"
+                                                    class="card overflow-hidden mb-1 text-body text-decoration-none">
+                                                    <div class="row no-gutters">
+                                                        <div class="col-md-8">
+                                                            <div class="card-body p-1 px-2">
+                                                                <div class="fs-12px text-muted">Coronavirus</div>
+                                                                <div class="h-40px fs-13px overflow-hidden">Coronavirus:
+                                                                    US suspends travel from Europe</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4 d-flex">
+                                                            <div class="h-100 w-100"
+                                                                style="background: url(assets/img/gallery/news-2.jpg) center; background-size: cover;">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                                <div><small class="text-muted">821k share</small></div>
+                                            </div>
+                                            <a href="#" class="list-group-item list-group-action text-center"> Show more
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END profile-content -->
+                </div>
+                <!-- END profile-container -->
+            </div>
+            <!-- END profile -->
+        </div>
+        <!-- END #content -->
+        <!-- BEGIN btn-scroll-top -->
+        <%- include('../partials/footer') %>

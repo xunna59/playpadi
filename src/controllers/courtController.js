@@ -1,39 +1,54 @@
 const { SportsCenter, Court, Bookings, User } = require('../models');
 
 const dayjs = require("dayjs");
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const generateTimeSlots = (daysToGenerate) => {
-    const startHour = 9;   // 9:00 AM
-    const endHour = 19;    // 7:00 PM
-    const interval = 30;   // 30-minute intervals
-    //  const daysToGenerate = 90;  // Next 3 months
+    const startHour = 9;    // 9:00 AM
+    const endHour = 19;     // 7:00 PM
+    const interval = 30;    // 30-minute intervals
+    const timezoneId = 'Africa/Lagos';
+
+    const now = dayjs().tz(timezoneId);  // Lock to Africa/Lagos
     const slots = [];
 
+    const baseDate = dayjs().tz(timezoneId); // Lock "today" in Lagos
+
     for (let i = 0; i < daysToGenerate; i++) {
-        const date = dayjs().add(i, 'day');
+        const date = baseDate.add(i, 'day');  // Keep everything in Lagos time
         if (date.day() === 1) continue; // Skip Mondays
 
         const availableTimes = [];
 
         for (let hour = startHour; hour < endHour; hour++) {
             for (let minute = 0; minute < 60; minute += interval) {
-                const time = date.hour(hour).minute(minute);
-                const timeFormatted = time.format('h:mm A'); // 12-hour format with AM/PM
-                availableTimes.push(timeFormatted);
+                const time = date.hour(hour).minute(minute).second(0);
+
+                // ✅ Exclude past times only for today in Lagos
+                if (date.isSame(now, 'day') && time.isBefore(now)) {
+                    continue;
+                }
+
+                availableTimes.push(time.format('h:mm A'));
             }
         }
 
         slots.push({
-            weekday: date.format('ddd').toUpperCase(), // 'TUE'
-            day: date.format('DD'),                    // '04'
-            month: date.format('MMM'),                 // 'Feb'
-            date: date.format('YYYY-MM-DD'),           // '2025-02-04'
-            availableTimes: availableTimes
+            weekday: date.format('ddd').toUpperCase(),
+            day: date.format('DD'),
+            month: date.format('MMM'),
+            date: date.format('YYYY-MM-DD'),
+            availableTimes
         });
     }
 
     return slots;
 };
+
 
 
 function generateReference(length) {
@@ -277,6 +292,56 @@ const courtController = {
             next(error);
         }
     },
+
+    updateCourt: async (req, res, next) => {
+        try {
+            const { court_id } = req.params;
+            const { court_name, court_location, court_type, activity, court_position, price, duration } = req.body;
+
+            const court = await Court.findByPk(court_id);
+            if (!court) return res.status(404).json({ message: "Court not found" });
+
+            const court_data = Array.isArray(price) && Array.isArray(duration)
+                ? price.map((p, i) => ({ price: p, duration: duration[i] }))
+                : [];
+
+            await court.update({
+                court_name,
+                court_location,
+                court_type,
+                activity,
+                court_position,
+                court_data
+            });
+
+            req.flash('success_msg', 'Court updated successfully');
+            return res.redirect('back');
+        } catch (error) {
+            next(error);
+        }
+    },
+
+    deleteCourt: async (req, res, next) => {
+        try {
+            const { court_id } = req.params;
+
+            const court = await Court.findByPk(court_id);
+            if (!court) {
+                req.flash('error_msg', 'Court not found');
+                return res.redirect('back');
+            }
+
+            await court.destroy();
+
+            req.flash('success_msg', 'Court deleted successfully');
+            return res.redirect('back');
+        } catch (error) {
+            next(error);
+        }
+    },
+
+
+
 
 
     bookCourt: async (req, res, next) => {

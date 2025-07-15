@@ -42,9 +42,15 @@ router.put('/sports-center/update-sports-center/:id', authMiddleware, sportsCent
 
 
 router.get('/manage-users/', authMiddleware, usersController.renderManageUsers);
+router.get('/manage-user/:userid', authMiddleware, usersController.renderViewUser);
+
 
 
 router.post('/sports-centers/create-court/:id', courtController.createCourt);
+router.put('/sports-centers/update-court/:court_id', courtController.updateCourt);
+router.delete('/sports-centers/delete-court/:court_id', courtController.deleteCourt);
+
+
 
 
 router.get('/bookings/', authMiddleware, bookingsController.renderAllBookings);

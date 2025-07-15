@@ -1,4 +1,4 @@
-const { User, BookingPlayers, SportsCenter, FavouriteSportsCenter, UserActivity } = require('../models');
+const { User, BookingPlayers, SportsCenter, FavouriteSportsCenter, UserActivity, Bookings, Court, AcademyStudents, Academy } = require('../models');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
@@ -15,7 +15,7 @@ const UsersController = {
 
     try {
       const page = parseInt(req.query.page, 10) || 1;
-      const limit = 5;
+      const limit = 20;
       const offset = (page - 1) * limit;
 
       const { count, rows: users } = await User.findAndCountAll({
@@ -46,6 +46,123 @@ const UsersController = {
 
 
   },
+
+
+  renderViewUser: async (req, res, next) => {
+    try {
+      const { userid } = req.params;
+      const page = parseInt(req.query.page) || 1;
+      const academyPage = parseInt(req.query.academyPage) || 1;
+      const limit = 10;
+
+      const [user, publicMatchCount, privateMatchCount] = await Promise.all([
+        User.findByPk(userid),
+        BookingPlayers.count({ where: { user_id: userid } }),
+        Bookings.count({ where: { user_id: userid, booking_type: 'private' } })
+      ]);
+
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      const total_matches_played = publicMatchCount + privateMatchCount;
+
+      const sanitizeDisplayPicture = (pic) => {
+        if (typeof pic === 'string') return pic.trim().replace(/^"|"$/g, '');
+        return '';
+      };
+
+      const parsePrefs = (input, fallback = {}) => {
+        try {
+          let data = typeof input === 'string' ? JSON.parse(input) : input;
+          if (typeof data === 'string') data = JSON.parse(data);
+          return typeof data === 'object' && data !== null ? data : fallback;
+        } catch {
+          return fallback;
+        }
+      };
+
+      const sanitizedUser = {
+        ...user.toJSON(),
+        display_picture: sanitizeDisplayPicture(user.display_picture),
+        preferences: {
+          best_hand: 'not set',
+          court_position: 'not set',
+          match_type: 'not set',
+          play_time: 'not set',
+          ...parsePrefs(user.preferences)
+        },
+        total_matches_played
+      };
+
+      // Fetch private and joined public bookings concurrently
+      const [privateBookings, joinedBookingLinks] = await Promise.all([
+        Bookings.findAll({
+          where: { user_id: userid, booking_type: 'private' },
+          include: [{ model: User, as: 'user' }, { model: Court, as: 'court' }]
+        }),
+        BookingPlayers.findAll({ where: { user_id: userid } })
+      ]);
+
+      const joinedBookingIds = joinedBookingLinks.map(link => link.bookings_id);
+
+      const publicBookings = joinedBookingIds.length > 0
+        ? await Bookings.findAll({
+          where: {
+            id: joinedBookingIds,
+            booking_type: 'public'
+          },
+          include: [{ model: User, as: 'user' }, { model: Court, as: 'court' }]
+        })
+        : [];
+
+      const combinedBookings = [...privateBookings, ...publicBookings].sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      );
+
+      const bookingOffset = (page - 1) * limit;
+      const paginatedBookings = combinedBookings.slice(bookingOffset, bookingOffset + limit);
+      const totalBookingPages = Math.ceil(combinedBookings.length / limit);
+
+      // Fetch Academy Students
+      const academyOffset = (academyPage - 1) * limit;
+      const academyData = await AcademyStudents.findAndCountAll({
+        where: { user_id: userid },
+        include: [{ model: Academy, as: 'academy' }],
+        limit,
+        offset: academyOffset,
+        order: [['created_at', 'DESC']]
+      });
+
+      const totalAcademyPages = Math.ceil(academyData.count / limit);
+
+      return res.render('users/manage-user', {
+        title: `Manage ${user.first_name}`,
+        admin: req.admin,
+        user: sanitizedUser,
+        bookings: paginatedBookings,
+        pagination: {
+          offset: bookingOffset,
+          total: combinedBookings.length,
+          totalPages: totalBookingPages,
+          currentPage: page,
+          baseUrl: `/admin/manage-user/${userid}`
+        },
+        academyStudents: academyData.rows,
+        academyPagination: {
+          offset: academyOffset,
+          total: academyData.count,
+          totalPages: totalAcademyPages,
+          currentPage: academyPage,
+          baseUrl: `/admin/manage-user/${userid}`
+        }
+      });
+    } catch (error) {
+      console.error("Error in renderViewUser:", error);
+      next(error);
+    }
+  },
+
+
+
 
 
   renderManageUsersJson: async (req, res, next) => {
@@ -343,8 +460,8 @@ const UsersController = {
       };
 
       // Debug logs (optional)
-      console.log('RAW preferences:', preferences);
-      console.log('RAW interests:', interests);
+      // console.log('RAW preferences:', preferences);
+      // console.log('RAW interests:', interests);
 
       // Merge preferences
       const currentPrefs = safeParse(user.preferences, {});

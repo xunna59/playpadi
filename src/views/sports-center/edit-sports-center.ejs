@@ -41,10 +41,10 @@
                         class="text-decoration-none text-body d-flex align-items-center"><i
                             class="fa fa-pen me-2 text-body text-opacity-50 my-n1"></i> Edit</a></div>
             </div> -->
-                            <div class="row gx-4">
-                                <div class="col-xl-8">
-                                    <form method="POST"
-                                        action="/admin/sports-center/update-sports-center/<%= sportsCenter.id %>?_method=PUT">
+                            <form method="POST"
+                                action="/admin/sports-center/update-sports-center/<%= sportsCenter.id %>?_method=PUT">
+                                <div class="row gx-4">
+                                    <div class="col-xl-8">
                                         <div class="card mb-4">
                                             <div class="card-header bg-none fw-bold"> Sports Center Information </div>
                                             <div class="card-body">
@@ -65,14 +65,16 @@
                                                     <div class="col-lg-6">
                                                         <div class="mb-3">
                                                             <label class="form-label">Website</label>
-                                                            <input type="text" class="form-control" name="website"
+                                                            <input type="text" class="form-control"
+                                                                value="<%= sportsCenter.website %>" name="website"
                                                                 placeholder="Website" required>
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-6">
                                                         <div class="mb-3">
                                                             <label class="form-label">Phone Number</label>
-                                                            <input type="text" class="form-control" name="phone"
+                                                            <input type="number" class="form-control"
+                                                                value="<%= sportsCenter.phone %>" name="phone"
                                                                 placeholder="Phone Number" required>
                                                         </div>
                                                     </div>
@@ -112,7 +114,7 @@
                                             </div>
                                             <div class="card-body">
                                                 <input type="file" class="form-control" id="coverImageInput"
-                                                    name="cover_photo" accept="image/*" required>
+                                                    name="cover_photo" accept="image/*">
                                                 <center>
                                                     <div class="mt-3">
                                                         <img id="coverImagePreview"
@@ -126,67 +128,135 @@
                                         </div>
                                         <center><button class="btn btn-primary" type="submit">Save Changes</button>
                                         </center>
-                                    </form>
-                                </div>
-                                <div class="col-xl-4">
-                                    <div class="card mb-4">
-                                        <div class="card-header d-flex align-items-center  bg-none fw-semibold"> Courts
-                                            (3) <!-- <a href="#"
+                                    </div>
+                                    <div class="col-xl-4">
+                                        <div class="card mb-4">
+                                            <div class="card-header d-flex align-items-center  bg-none fw-semibold">
+                                                Courts (<%= sportsCenter.courts.length %>) <!-- <a href="#"
                                 class="ms-auto text-decoration-none text-primary fs-13px d-flex align-items-center"><i
                                     class="fa fa-plus-circle me-2 my-n1"></i> Add Court</a> -->
-                                        </div>
-                                        <div class="card-body">
-                                            <% if (sportsCenter.courts.length> 0) { %> <%
-                                                    sportsCenter.courts.forEach(court=> { %> <div
-                                                        class="row align-items-center">
-                                                        <div class="col-lg-8 d-flex align-items-center">
-                                                            <div
-                                                                class="h-65px w-65px d-flex align-items-center justify-content-center position-relative bg-body rounded p-2">
-                                                                <i class="fa fa-box"></i>
-                                                                <img src="assets/img/product/product-1-thumb.png" alt=""
-                                                                    class="mw-100 mh-100">
-                                                                <!-- <span
-                                                    class="w-20px h-20px p-0 d-flex align-items-center justify-content-center badge bg-theme text-theme-color position-absolute end-0 top-0 fw-bold fs-12px rounded-pill mt-n2 me-n2">
-                                                    <%= court.id %>
-                                                </span> -->
-                                                            </div>
-                                                            <div class="ps-3 flex-1">
-                                                                <div><a href="#" class="text-decoration-none text-body">
-                                                                        <%= court.court_name %>
-                                                                    </a></div>
-                                                                <div class="text-body text-opacity-50 small"> Location:
-                                                                    <%= court.court_location %> | Game: <%=
-                                                                            court.activity %>
+                                            </div>
+                                            <div class="card-body">
+                                                <% if (sportsCenter.courts.length> 0) { %> <%
+                                                        sportsCenter.courts.forEach(court=> { %> <div
+                                                            class="row align-items-center">
+                                                            <div class="col-lg-8 d-flex align-items-center">
+                                                                <div
+                                                                    class="h-65px w-65px d-flex align-items-center justify-content-center position-relative bg-body rounded p-2">
+                                                                    <i class="fa fa-box"></i>
+                                                                    <img src="assets/img/product/product-1-thumb.png"
+                                                                        alt="" class="mw-100 mh-100">
+                                                                </div>
+                                                                <div class="ps-3 flex-1">
+                                                                    <div>
+                                                                        <a href="#"
+                                                                            class="text-decoration-none text-body">
+                                                                            <%= court.court_name %>
+                                                                        </a>
+                                                                    </div>
+                                                                    <div class="d-flex flex-wrap gap-2 mt-1">
+                                                                        <span class="badge bg-primary">Location: <%=
+                                                                                court.court_location %>
+                                                                        </span>
+                                                                        <span class="badge bg-success ">Game: <%=
+                                                                                court.activity %></span>
+                                                                        <span class="badge bg-info ">Court Type: <%=
+                                                                                court.court_type %>
+                                                                        </span>
+                                                                    </div>
+                                                                    <% if (Array.isArray(court.court_data) &&
+                                                                        court.court_data.length> 0) { %> <div
+                                                                            class="mt-3">
+                                                                            <div class="row g-3">
+                                                                                <% court.court_data.forEach((entry)=> {
+                                                                                    %> <div class="col-auto">
+                                                                                        <div class="border rounded text-center p-2"
+                                                                                            style="min-width: 100px;">
+                                                                                            <div class="fw-bold">₦<%=
+                                                                                                    entry.price %>
+                                                                                            </div>
+                                                                                            <div
+                                                                                                class="text-muted small">
+                                                                                                <%= entry.duration %>
+                                                                                                    mins
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <% }); %>
+                                                                            </div>
+                                                                        </div>
+                                                                        <% } else { %>
+                                                                            <div class="small text-muted mt-2">No
+                                                                                pricing data available.</div>
+                                                                            <% } %>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                        <div class="col-lg-2 m-0 ps-lg-3"></div>
-                                                        <div class="col-lg-2 m-0 text-end">
-                                                            <a href="/admin/court/view/<%= court.id %>"
-                                                                class="text-primary p-2" title="View">
-                                                                <i class="fas fa-pen"></i>
-                                                            </a>
-                                                            <a href="/admin/court/delete/<%= court.id %>"
-                                                                class="text-danger p-2" title="Delete">
-                                                                <i class="fas fa-trash-alt"></i>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                    <hr class="opacity-1 my-4">
-                                                    <% }); %>
-                                                        <% } else { %>
-                                                            <div class="text-center text-muted py-4">
-                                                                <p>No courts found for this sports center.</p>
+                                                            <div class="col-lg-2 m-0 ps-lg-3"></div>
+                                                            <div class="col-lg-2 m-0 text-end">
+                                                                <a href="#" class="text-primary p-2 open-edit-modal"
+                                                                    title="Edit" data-bs-toggle="modal"
+                                                                    data-bs-target="#editModalCoverExample"
+                                                                    data-id="<%= court.id %>"
+                                                                    data-name="<%= court.court_name %>"
+                                                                    data-location="<%= court.court_location %>"
+                                                                    data-type="<%= court.court_type %>"
+                                                                    data-activity="<%= court.activity %>"
+                                                                    data-position="<%= court.court_position %>"
+                                                                    data-pricing='<%= JSON.stringify(court.court_data || []) %>'>
+                                                                    <i class="fas fa-pen"></i>
+                                                                </a>
+                                                                <form
+                                                                    action="/admin/sports-centers/delete-court/<%= court.id %>?_method=DELETE"
+                                                                    method="POST"
+                                                                    onsubmit="return confirm('Are you sure you want to delete this court?')"
+                                                                    class="d-inline">
+                                                                    <button type="submit"
+                                                                        class="btn btn-link text-danger p-2"
+                                                                        title="Delete">
+                                                                        <i class="fas fa-trash-alt"></i>
+                                                                    </button>
+                                                                </form>
                                                             </div>
-                                                            <% } %>
-                                        </div>
-                                        <!-- <div class="card-footer bg-none d-flex p-3">
+                                                        </div>
+                                                        <hr class="opacity-1 my-4">
+                                                        <% }); %>
+                                                            <% } else { %>
+                                                                <div class="text-center text-muted py-4">
+                                                                    <p>No courts found for this sports center.</p>
+                                                                </div>
+                                                                <% } %>
+                                            </div>
+                                            <!-- <div class="card-footer bg-none d-flex p-3">
                             <a href="#" class="btn btn-default fw-semibold fs-13px ms-auto dropdown-toggle">More</a>
                             <a href="#" class="btn btn-theme fw-semibold fs-13px ms-2">Add Tracking</a>
                         </div> -->
+                                        </div>
+                                        <div class="card mb-4">
+                                            <div class="card-header bg-none fw-bold d-flex align-items-center">
+                                                <div class="flex-1">Features</div>
+                                            </div>
+                                            <div class="card-body">
+                                                <div id="featuresDropdown"
+                                                    data-features='<%= sportsCenter.sports_center_features || "[]" %>'>
+                                                </div>
+                                                <input type="hidden" name="sports_center_features" id="featuresInput"
+                                                    required>
+                                            </div>
+                                        </div>
+                                        <div class="card mb-4">
+                                            <div class="card-header bg-none fw-bold d-flex align-items-center">
+                                                <div class="flex-1">Games</div>
+                                            </div>
+                                            <div class="card-body">
+                                                <div id="gamesDropdown"
+                                                    data-games='<%= sportsCenter.sports_center_games || "[]" %>'></div>
+                                                <input type="hidden" name="sports_center_games" id="gamesInput"
+                                                    required>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </form>
         </div>
         <div class="modal modal-cover fade" id="modalCoverExample">
             <div class="modal-dialog">
@@ -257,6 +327,77 @@
                 </div>
             </div>
         </div>
+        <div class="modal modal-cover fade" id="editModalCoverExample">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Edit Court</h3>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-3">Update court to your sports facility. A court represents a specific area or
+                            space where a particular sport or activity takes place (e.g., darts board, padel court,
+                            snooker table).</p>
+                        <form method="POST" id="editCourtForm" action="">
+                            <input type="hidden" id="edit_court_id" name="court_id" />
+                            <div class="row mb-5">
+                                <div class="col-md-12 mb-3">
+                                    <input type="text" id="edit_court_name" name="court_name" placeholder="Court Name"
+                                        class="form-control form-control-sm" required>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <select id="edit_court_location" name="court_location"
+                                        class="form-control form-control-sm" required>
+                                        <option value="">Select Court Location</option>
+                                        <option value="Indoor">Indoor</option>
+                                        <option value="Outdoor">Outdoor</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <select id="edit_court_type" name="court_type" class="form-control form-control-sm"
+                                        required>
+                                        <option value="">Select Court Type</option>
+                                        <option value="court">Court</option>
+                                        <option value="table">Table</option>
+                                        <option value="board">Board</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <select id="edit_activity" name="activity" class="form-control form-control-sm"
+                                        required>
+                                        <option value="">Select Activity</option>
+                                        <option value="paddle">Paddle</option>
+                                        <option value="snooker">Snooker</option>
+                                        <option value="darts">Darts</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <select id="edit_court_position" name="court_position"
+                                        class="form-control form-control-sm" required>
+                                        <option value="">Select Court Position</option>
+                                        <option value="left">Left</option>
+                                        <option value="right">Right</option>
+                                        <option value="center">Center</option>
+                                        <option value="n/a">N/A</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <label><strong>Court Price Duration</strong></label>
+                                    <div id="edit_price_duration_wrapper">
+                                        <!-- Will be filled dynamically -->
+                                    </div>
+                                    <button type="button" id="edit_add_price_duration"
+                                        class="btn btn-secondary btn-sm mt-2">+ Add Another</button>
+                                </div>
+                                <div class="col-md-12">
+                                    <button type="submit" class="btn btn-primary btn-lg btn-block">Submit</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- END #content -->
         <!-- BEGIN btn-scroll-top -->
         <script>
@@ -314,5 +455,171 @@
                     preview.classList.add('d-none');
                 }
             });
+        </script>
+        <script>
+            function createMultiSelectDropdown(containerId, inputId, options, selected = []) {
+                const container = document.getElementById(containerId);
+                const input = document.getElementById(inputId);
+
+                container.innerHTML = "";
+
+                const toggle = document.createElement("button");
+                toggle.className = "btn btn-secondary dropdown-toggle";
+                toggle.setAttribute("data-bs-toggle", "dropdown");
+                toggle.type = "button";
+                toggle.textContent = "Choose Options";
+
+                const dropdown = document.createElement("ul");
+                dropdown.className = "dropdown-menu show p-2"; // remove 'show' for production
+
+                const tagBox = document.createElement("div");
+                tagBox.className = "mt-2 d-flex flex-wrap gap-2";
+
+                options.forEach((option) => {
+                    const li = document.createElement("li");
+                    const checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.value = option;
+                    checkbox.className = "form-check-input me-2";
+                    if (selected.includes(option)) checkbox.checked = true;
+
+                    const label = document.createElement("label");
+                    label.className = "form-check-label";
+                    label.textContent = option;
+
+                    li.className = "dropdown-item";
+                    li.appendChild(checkbox);
+                    li.appendChild(label);
+                    dropdown.appendChild(li);
+                });
+
+                function updateSelected() {
+                    tagBox.innerHTML = "";
+                    const values = [];
+                    dropdown.querySelectorAll("input[type='checkbox']").forEach((cb) => {
+                        if (cb.checked) {
+                            values.push(cb.value);
+                            const tag = document.createElement("span");
+                            tag.className = "badge bg-primary text-white d-flex align-items-center";
+                            tag.textContent = cb.value;
+                            const removeBtn = document.createElement("button");
+                            removeBtn.className = "btn-close btn-close-white ms-2";
+                            removeBtn.onclick = () => {
+                                cb.checked = false;
+                                updateSelected();
+                            };
+                            tag.appendChild(removeBtn);
+                            tagBox.appendChild(tag);
+                        }
+                    });
+                    input.value = JSON.stringify(values);
+                }
+
+                dropdown.addEventListener("change", updateSelected);
+
+                container.appendChild(toggle);
+                container.appendChild(dropdown);
+                container.appendChild(tagBox);
+
+                updateSelected();
+            }
+
+            document.addEventListener("DOMContentLoaded", () => {
+                const featuresContainer = document.getElementById("featuresDropdown");
+                const gamesContainer = document.getElementById("gamesDropdown");
+
+                let preSelectedFeatures = [];
+                let preSelectedGames = [];
+
+                try {
+                    preSelectedFeatures = JSON.parse(featuresContainer.dataset.features || "[]");
+                } catch (e) {
+                    console.error("Invalid features JSON", e);
+                }
+
+                try {
+                    preSelectedGames = JSON.parse(gamesContainer.dataset.games || "[]");
+                } catch (e) {
+                    console.error("Invalid games JSON", e);
+                }
+
+                createMultiSelectDropdown("featuresDropdown", "featuresInput", [
+                    "Indoor Courts", "Outdoor Courts", "Lockers", "Shower Rooms",
+                    "Equipment Rental", "Parking", "Snack Bar / Cafe", "Seating / Spectator Area",
+                    "Scoreboards", "Online Booking", "Wheelchair Accessibility", "First Aid Station",
+                    "Lighting", "Changing Rooms", "Wi-Fi", "Pro Shop", "Membership Plans"
+                ], preSelectedFeatures);
+
+                createMultiSelectDropdown("gamesDropdown", "gamesInput", [
+                    "Padel", "Snooker", "Darts"
+                ], preSelectedGames);
+            });
+        </script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const editModal = document.getElementById("editModalCoverExample");
+
+                document.querySelectorAll(".open-edit-modal").forEach(button => {
+                    button.addEventListener("click", () => {
+                        const courtId = button.dataset.id;
+                        const name = button.dataset.name;
+                        const location = button.dataset.location;
+                        const type = button.dataset.type;
+                        const activity = button.dataset.activity;
+                        const position = button.dataset.position;
+                        const pricing = JSON.parse(button.dataset.pricing || "[]");
+
+                        const form = document.getElementById("editCourtForm");
+                        form.action = `/admin/sports-centers/update-court/${courtId}?_method=PUT`;
+
+                        // Fill form fields
+                        document.getElementById("edit_court_name").value = name || "";
+                        document.getElementById("edit_court_location").value = location || "";
+                        document.getElementById("edit_court_type").value = type || "";
+                        document.getElementById("edit_activity").value = activity || "";
+                        document.getElementById("edit_court_position").value = position || "";
+
+                        // Reset pricing fields
+                        const wrapper = document.getElementById("edit_price_duration_wrapper");
+                        wrapper.innerHTML = "";
+
+                        pricing.forEach(item => {
+                            const row = document.createElement("div");
+                            row.className = "d-flex gap-2 mb-2";
+
+                            row.innerHTML = `
+                    <input type="number" name="price[]" class="form-control form-control-sm" placeholder="Price" value="${item.price}" required>
+                    <input type="number" name="duration[]" class="form-control form-control-sm" placeholder="Duration (mins)" value="${item.duration}" required>
+                    <button type="button" class="btn btn-sm btn-danger remove-row">×</button>
+                `;
+
+                            wrapper.appendChild(row);
+                        });
+
+                        // Add handler to remove buttons
+                        wrapper.querySelectorAll(".remove-row").forEach(btn => {
+                            btn.addEventListener("click", () => btn.parentElement.remove());
+                        });
+                    });
+                });
+
+                // Handle Add Another button
+                document.getElementById("edit_add_price_duration").addEventListener("click", () => {
+                    const row = document.createElement("div");
+                    row.className = "d-flex gap-2 mb-2";
+
+                    row.innerHTML = `
+            <input type="number" name="price[]" class="form-control form-control-sm" placeholder="Price" required>
+            <input type="number" name="duration[]" class="form-control form-control-sm" placeholder="Duration (mins)" required>
+            <button type="button" class="btn btn-sm btn-danger remove-row">×</button>
+        `;
+
+                    const wrapper = document.getElementById("edit_price_duration_wrapper");
+                    wrapper.appendChild(row);
+
+                    row.querySelector(".remove-row").addEventListener("click", () => row.remove());
+                });
+            });
+
         </script>
         <%- include('../partials/footer') %>

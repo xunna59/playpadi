@@ -40,6 +40,14 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: true,
       },
+      address: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      state: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       password: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -89,6 +97,25 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: true,
 
+      },
+      email_verified: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
+      account_status: {
+        type: Sequelize.BOOLEAN,
+
+        defaultValue: true,  // Default value is true
+      },
+      referralCode: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        unique: true
+      },
+      referredBy: {
+        type: Sequelize.STRING,
+        allowNull: true,
       },
       created_at: {
         type: Sequelize.DATE,

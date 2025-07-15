@@ -153,6 +153,18 @@
                                                                         year: 'numeric' , hour: '2-digit' ,
                                                                         minute: '2-digit' , hour12: true }) %>
                                                                 </td>
+                                                                <td class="w-10px align-middle">
+                                                                    <div class="d-flex align-items-center gap-2">
+                                                                        <a href="admin/manage-user/<%= user.id %>"
+                                                                            class="text-primary p-2" title="View">
+                                                                            <i class="fas fa-pen"></i>
+                                                                        </a>
+                                                                        <a href="#" class="text-danger p-2"
+                                                                            title="Delete">
+                                                                            <i class="fas fa-trash-alt"></i>
+                                                                        </a>
+                                                                    </div>
+                                                                </td>
                                                             </tr>
                                                             <% }) %>
                                                                 <% } else { %>

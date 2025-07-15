@@ -42,6 +42,14 @@ module.exports = (sequelize) => {
             type: DataTypes.TEXT,
             allowNull: true,
         },
+        address: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+        state: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
         password: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -95,6 +103,25 @@ module.exports = (sequelize) => {
             allowNull: true,
 
         },
+        email_verified: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,  // Default value is false
+        },
+        account_status: {
+            type: DataTypes.BOOLEAN,
+
+            defaultValue: true,  // Default value is false
+        },
+        referralCode: {
+            type: DataTypes.STRING,
+            allowNull: true,
+            unique: true
+        },
+        referredBy: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
 
         created_at: {
             type: DataTypes.DATE,
@@ -115,6 +142,7 @@ module.exports = (sequelize) => {
 
     User.associate = (models) => {
         // User.hasOne(models.Cart, { foreignKey: 'user_id', as: 'cart' }); // User has one Cart
+        User.hasMany(models.Transaction, { foreignKey: 'user_id', as: 'transactions' });
         User.hasMany(models.Bookings, { foreignKey: 'user_id', as: 'bookings' });
         User.hasMany(models.BookingPlayers, { foreignKey: 'user_id', as: 'bookingplayers' });
         //    User.hasMany(models.Notifications, { foreignKey: 'user_id', as: 'notifications' });

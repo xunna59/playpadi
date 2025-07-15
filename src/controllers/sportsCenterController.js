@@ -65,6 +65,24 @@ const sportsCenterController = {
                 return res.status(404).json({ message: "Sports center not found" });
             }
 
+            const courtsWithParsedData = sportsCenter.courts.map(court => {
+                let parsedCourtData = [];
+
+                try {
+                    parsedCourtData = JSON.parse(court.court_data || '[]');
+                } catch (err) {
+                    console.warn(`Failed to parse court_data for court ID ${court.id}`);
+                }
+
+                return {
+                    ...court.toJSON(), // ensure plain object
+                    court_data: parsedCourtData,
+                };
+            });
+
+            // 🔄 Replace courts with parsed version
+            sportsCenter.courts = courtsWithParsedData;
+
             return res.render('sports-center/edit-sports-center', {
                 title: 'View Sports Center',
                 admin: req.admin,
@@ -166,9 +184,9 @@ const sportsCenterController = {
             if (err) {
                 return res.status(400).json({ success: false, message: err.message });
             }
-            if (!req.file) {
-                return res.status(400).json({ success: false, message: 'Please upload an image' });
-            }
+            // if (!req.file) {
+            //     return res.status(400).json({ success: false, message: 'Please upload an image' });
+            // }
 
             try {
                 const { id } = req.params;
