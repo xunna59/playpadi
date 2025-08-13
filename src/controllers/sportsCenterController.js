@@ -80,7 +80,7 @@ const sportsCenterController = {
                 };
             });
 
-            // 🔄 Replace courts with parsed version
+            // ðŸ”„ Replace courts with parsed version
             sportsCenter.courts = courtsWithParsedData;
 
             return res.render('sports-center/edit-sports-center', {
@@ -175,34 +175,49 @@ const sportsCenterController = {
 
     // Update a sports center
     update: async (req, res) => {
-
-
-
-
-
         flexibleUpload.single('cover_photo')(req, res, async (err) => {
             if (err) {
                 return res.status(400).json({ success: false, message: err.message });
             }
-            // if (!req.file) {
-            //     return res.status(400).json({ success: false, message: 'Please upload an image' });
-            // }
 
             try {
                 const { id } = req.params;
-                const updated = await SportsCenter.update(req.body, { where: { id } });
+                const data = { ...req.body };
 
-                if (!updated) {
+                // Helper to safely parse stringified JSON arrays
+                const parseIfString = (val) => {
+                    if (typeof val === 'string') {
+                        try {
+                            const parsed = JSON.parse(val);
+                            return Array.isArray(parsed) ? parsed : [];
+                        } catch {
+                            return [];
+                        }
+                    }
+                    return Array.isArray(val) ? val : [];
+                };
+
+                // Parse form inputs
+                data.sports_center_features = parseIfString(data.sports_center_features);
+                data.sports_center_games = parseIfString(data.sports_center_games);
+
+                // ✅ No JSON.stringify — let Sequelize store as native array (requires DB JSON column)
+                const updated = await SportsCenter.update(data, { where: { id } });
+
+                if (!updated || updated[0] === 0) {
                     return res.status(404).json({ message: "Sports center not found or no changes made" });
                 }
+
                 req.flash('success_msg', 'Sports Center Updated Successfully');
                 return res.redirect('/admin/sports-center/');
-                //    res.status(200).json({ message: "Sports center updated successfully" });
             } catch (error) {
-                res.status(500).json({ message: "Error updating sports center", error: error.message });
+                return res.status(500).json({ message: "Error updating sports center", error: error.message });
             }
         });
     },
+
+
+
 
     // Delete a sports center
     delete: async (req, res) => {

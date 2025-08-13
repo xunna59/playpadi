@@ -13,12 +13,16 @@ router.post('/login', UsersController.login);
 router.post('/validate-email', UsersController.checkEmailExists);
 
 
+router.post('/verify-email', protect, UsersController.resendVerificationEmail);
+
+
+
 
 
 // Google OAuth: Initiate authentication
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 // Google OAuth callback
-router.get('/google/callback', UsersController.googleAuthCallback);
+router.post('/google-auth', UsersController.googleAuthenticate);
 
 // Apple OAuth: Initiate authentication
 router.get('/apple', passport.authenticate('apple', { scope: ['email', 'name'] }));

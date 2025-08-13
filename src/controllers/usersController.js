@@ -6,7 +6,22 @@ const UserActivityController = require('./userActivityController');
 const flexibleUpload = require('../middleware/uploadMiddleware');
 const sendPushNotification = require('../utils/notification');
 const { Op } = require('sequelize');
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const { validationResult } = require('express-validator');
+const sendEmail = require('../utils/sendEmail');
 
+
+
+
+function generateRandomPassword(length) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let genpassword = '';
+  for (let i = 0; i < length; i++) {
+    genpassword += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return genpassword;
+}
 
 
 const UsersController = {
@@ -225,6 +240,9 @@ const UsersController = {
       const payload = { id: user.id, email: user.email, user_type: 'User' };
       const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '180d' });
 
+      await UsersController.sendVerificationEmail(user);
+
+
 
       return res.status(201).json({
         success: true,
@@ -242,6 +260,60 @@ const UsersController = {
 
     } catch (error) {
       return res.status(500).json({ message: 'Error registering user', error });
+    }
+  },
+
+  sendVerificationEmail: async (user, res) => {
+    // Create a verification token
+    const verificationToken = jwt.sign(
+      { id: user.id },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' } // Token expires in 1 hour
+    );
+
+    // Generate a verification link
+    const verificationLink = `https://app.playpadi.com/auth/verify-account?token=${verificationToken}`;
+
+    await sendEmail(user.email, 'Email Verification', 'verification', user.firstname, verificationLink);
+
+
+
+  },
+
+
+  resendVerificationEmail: async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false, errors: errors.array().map(err => ({
+          msg: err.msg,
+          key: err.path,
+        })),
+      });
+    }
+
+    try {
+      const email = req.body.email || req.user.email;
+
+      if (!email) {
+        return res.status(400).json({ success: false, message: 'Email is required' });
+      }
+
+      const user = await User.findOne({ where: { email } });
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+
+      if (user.email_verified) {
+        return res.status(400).json({ success: false, message: 'Email is already verified' });
+      }
+
+      // Call the sendVerificationEmail function to generate a token and send the email
+      await UsersController.sendVerificationEmail(user);
+
+      res.status(200).json({ success: true, message: 'Verification email sent successfully' });
+    } catch (error) {
+      next(error);
     }
   },
 
@@ -291,24 +363,63 @@ const UsersController = {
   },
 
 
+  googleAuthenticate: async (req, res) => {
+    const { idToken } = req.body;
 
-  googleAuthCallback: (req, res) => {
-    passport.authenticate('google', { session: false }, (err, user) => {
-      if (err || !user) {
-        return res.redirect('playpadi://auth?error=GoogleAuthFailed');
+    try {
+      const ticket = await client.verifyIdToken({
+        idToken,
+        audience: process.env.GOOGLE_CLIENT_ID, // same as web client ID used in Flutter
+      });
+
+      const payload = ticket.getPayload();
+      const email = payload.email;
+
+      let user = await User.findOne({ where: { email } });
+
+      if (!user) {
+        const rawPassword = generateRandomPassword(12);
+        const hashedPassword = await bcrypt.hash(rawPassword, 10);
+
+        user = await User.create({
+          first_name: payload.given_name || '',
+          last_name: payload.family_name || '',
+          email: email,
+          password: hashedPassword, // not required, but good to keep
+        });
       }
 
-      // Generate JWT for the authenticated user
       const token = jwt.sign(
         { id: user.id, email: user.email },
         process.env.JWT_SECRET,
         { expiresIn: '180d' }
       );
 
-      // Redirect to Flutter app with the token
-      return res.redirect(`playpadi://auth?token=${token}`);
-    })(req, res);
+      return res.json({ token, user });
+    } catch (error) {
+      console.error('Google auth failed:', error);
+      return res.status(401).json({ error: 'Invalid Google token' });
+    }
   },
+
+
+  // googleAuthCallback: (req, res) => {
+  //   passport.authenticate('google', { session: false }, (err, user) => {
+  //     if (err || !user) {
+  //       return res.redirect('playpadi://auth?error=GoogleAuthFailed');
+  //     }
+
+  //     // Generate JWT for the authenticated user
+  //     const token = jwt.sign(
+  //       { id: user.id, email: user.email },
+  //       process.env.JWT_SECRET,
+  //       { expiresIn: '180d' }
+  //     );
+
+  //     // Redirect to Flutter app with the token
+  //     return res.redirect(`playpadi://auth?token=${token}`);
+  //   })(req, res);
+  // },
 
   // Apple OAuth callback handler
   appleAuthCallback: (req, res) => {

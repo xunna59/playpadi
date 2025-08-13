@@ -19,16 +19,16 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
-      court_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'courts',
-          key: 'id'
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
-      },
+      // court_id: {
+      //   type: Sequelize.INTEGER,
+      //   allowNull: false,
+      //   references: {
+      //     model: 'courts',
+      //     key: 'id'
+      //   },
+      //   onUpdate: 'CASCADE',
+      //   onDelete: 'CASCADE'
+      // },
       coach_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -64,6 +64,11 @@ module.exports = {
       activity_date: {
         type: Sequelize.DATE,
         allowNull: false
+      },
+      time_slot: {
+        type: Sequelize.STRING,
+        allowNull: false,
+
       },
       end_registration_date: {
         type: Sequelize.DATE,

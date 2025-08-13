@@ -15,14 +15,14 @@ module.exports = (sequelize) => {
                 key: 'id'
             }
         },
-        court_id: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            references: {
-                model: 'courts',
-                key: 'id'
-            }
-        },
+        // court_id: {
+        //     type: DataTypes.INTEGER,
+        //     allowNull: false,
+        //     references: {
+        //         model: 'courts',
+        //         key: 'id'
+        //     }
+        // },
 
         coach_id: {
             type: DataTypes.INTEGER,
@@ -61,6 +61,11 @@ module.exports = (sequelize) => {
         activity_date: {
             type: DataTypes.DATE, // Stores full date and time: YYYY-MM-DD HH:mm:ss
             allowNull: false
+        },
+        time_slot: {
+            type: DataTypes.STRING,
+            allowNull: false,
+
         },
         end_registration_date: {
             type: DataTypes.DATE, // Stores full date and time: YYYY-MM-DD HH:mm:ss/
@@ -102,10 +107,10 @@ module.exports = (sequelize) => {
             as: 'sportsCenter'
         });
 
-        Academy.belongsTo(models.Court, {
-            foreignKey: 'court_id',
-            as: 'court'
-        });
+        // Academy.belongsTo(models.Court, {
+        //     foreignKey: 'court_id',
+        //     as: 'court'
+        // });
 
 
         Academy.belongsTo(models.Coach, {

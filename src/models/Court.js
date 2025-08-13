@@ -70,10 +70,10 @@ module.exports = (sequelize) => {
             as: 'bookings'
         });
 
-        Court.hasMany(models.Academy, {
-            foreignKey: 'court_id',
-            as: 'academy'
-        });
+        // Court.hasMany(models.Academy, {
+        //     foreignKey: 'court_id',
+        //     as: 'academy'
+        // });
     };
 
     return Court;

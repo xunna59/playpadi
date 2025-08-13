@@ -1,5 +1,6 @@
 const { Bookings, Court, User, SportsCenter, BookingPlayers, Refunds } = require('../models');
 const UserActivityController = require('./userActivityController');
+const sendEmail = require('../utils/sendEmail');
 const { Op } = require('sequelize');
 const dayjs = require('dayjs');
 const customParseFormat = require('dayjs/plugin/customParseFormat');
@@ -121,8 +122,14 @@ const bookingsController = {
                 });
             }
 
-            const { id: user_id, user_type } = req.user;
+            const { id: user_id, user_type, } = req.user;
             const { court_id, sports_center_id } = req.params;
+
+
+            const user = await User.findByPk(user_id);
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
 
             const court = await Court.findByPk(court_id);
             if (!court) {
@@ -138,7 +145,8 @@ const bookingsController = {
                 where: {
                     date,
                     slot,
-                    game_type
+                    game_type,
+                    court_id
                 }
             });
 
@@ -219,6 +227,7 @@ const bookingsController = {
             }
 
 
+            await sendEmail(user.email, 'Booking Confirmed', 'booking', user.first_name, game_type, date, slot,);
 
 
             return res.status(201).json({ message: 'Booking created successfully', booking });

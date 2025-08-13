@@ -9,6 +9,7 @@ const courtController = require('../controllers/courtController');
 const usersController = require('../controllers/usersController');
 const bookingsController = require('../controllers/bookingsController');
 const academyController = require('../controllers/academyController');
+const transactionController = require('../controllers/transactionController');
 
 
 const { protect } = require('../middleware/userAuthMiddleware');
@@ -49,6 +50,9 @@ router.get('/manage-user/:userid', authMiddleware, usersController.renderViewUse
 router.post('/sports-centers/create-court/:id', courtController.createCourt);
 router.put('/sports-centers/update-court/:court_id', courtController.updateCourt);
 router.delete('/sports-centers/delete-court/:court_id', courtController.deleteCourt);
+
+
+router.get('/manage-transactions/', authMiddleware, transactionController.renderUserTransactions);
 
 
 

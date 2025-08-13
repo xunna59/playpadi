@@ -17,6 +17,71 @@
     <link href="assets/plugins/tag-it/css/jquery.tagit.css" rel="stylesheet">
     <!-- ================== END core-css ================== -->
     <link rel="shortcut icon" href="assets/img/logo-icon.png">
+    <style>
+        /* Date selector row */
+        /* Horizontal date scroll */
+        .date-scroll {
+            display: flex;
+            overflow-x: auto;
+            gap: 15px;
+            padding-bottom: 10px;
+            scrollbar-width: none;
+        }
+
+        .date-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .date-card {
+            text-align: center;
+            min-width: 60px;
+            padding: 10px;
+            border-radius: 50%;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .date-card.active {
+            background: #7C4DFF;
+        }
+
+        .date-card span {
+            display: block;
+            font-size: 12px;
+            color: #ccc;
+        }
+
+        /* Time slots grid */
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .time-slot {
+            border: 1px solid #555;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        /* Highlight selected time slot */
+        .time-slot.selected {
+            background: #7C4DFF;
+            color: white;
+            border-color: #7C4DFF;
+        }
+
+        /* Courts list */
+        .court {
+            font-size: 12px;
+            margin-top: 5px;
+            color: #aaa;
+        }
+    </style>
 </head>
 
 <body>

@@ -72,10 +72,10 @@
                                                         <th class="border-top-0 pt-0 pb-2"></th>
                                                         <th class="border-top-0 pt-0 pb-2">Title</th>
                                                         <th class="border-top-0 pt-0 pb-2">Sports Center</th>
-                                                        <th class="border-top-0 pt-0 pb-2">Court</th>
                                                         <th class="border-top-0 pt-0 pb-2"> Activity</th>
-                                                        <th class="border-top-0 pt-0 pb-2">Activity Date</th>
-                                                        <th class="border-top-0 pt-0 pb-2">Subscription status</th>
+                                                        <th class="border-top-0 pt-0 pb-2">Activity Date & Time</th>
+                                                        <th class="border-top-0 pt-0 pb-2">Duration</th>
+                                                        <th class="border-top-0 pt-0 pb-2">Total Joined</th>
                                                         <th class="border-top-0 pt-0 pb-2">Date Created</th>
                                                         <th class="border-top-0 pt-0 pb-2">Date Updated</th>
                                                     </tr>
@@ -95,20 +95,28 @@
                                                                     <%= academy_class.title %>
                                                                 </td>
                                                                 <td class="align-middle">
-                                                                    <%= academy_class.sportsCenter.sport_center_name %>
-                                                                </td>
-                                                                <td>
-                                                                    <%= academy_class.court.court_name %>
+                                                                    <%= academy_class.sportsCenter.sports_center_name %>
                                                                 </td>
                                                                 <td>
                                                                     <%= academy_class.session_activity %>
                                                                 </td>
                                                                 <td class="align-middle"><span
                                                                         class="badge bg-gray-100 text-black text-opacity-50 px-2 pt-5px pb-5px rounded fs-12px d-inline-flex align-items-center">
-                                                                        <%= academy_class.session_duration %>
+                                                                        <%= new
+                                                                            Date(academy_class.activity_date).toLocaleString('en-GB',
+                                                                            { day: 'numeric' , month: 'short' ,
+                                                                            year: 'numeric' }) %> | <%=
+                                                                                academy_class.time_slot %>
                                                                     </span>
                                                                 </td>
                                                                 <td class="py-1 align-middle">
+                                                                    <%= academy_class.session_duration %> Mins
+                                                                </td>
+                                                                <td class="align-middle"><span
+                                                                        class="badge bg-dark-100 text-black text-opacity-50 px-2 pt-5px pb-5px rounded fs-12px d-inline-flex align-items-center">
+                                                                        <%= academy_class.total_students_joined %> / <%=
+                                                                                academy_class.num_of_players %>
+                                                                    </span>
                                                                 </td>
                                                                 <td class="align-middle">
                                                                     <%= new
@@ -346,10 +354,16 @@
                     </div>
                     <div class="modal-body">
                         <p class="mb-3"> Fill in the details below to create a new academy session. </p>
-                        <form method="POST" action="/admin/academy/create-class" enctype="multipart/form-data">
+                        <form method="POST" action="/admin/academy/create-class" enctype="multipart/form-data"
+                            id="create_class">
+                            <div class="date-scroll" id="dateScroll"></div>
+                            <!-- Time Slots -->
+                            <div id="timeSlots" class="time-slots"></div>
+                            <hr>
                             <div class="row mb-3">
-                                <div class="col-md-6 mb-3">
-                                    <label for="sports_center_id" class="form-label">Sports Center</label>
+                                <div class="col-md-12 mb-3">
+                                    <label for="sports_center_id" class="form-label"><small>Sports
+                                            Center</small></label>
                                     <select id="sports_center_id" name="sports_center_id"
                                         class="form-control form-control-sm" required>
                                         <option value="">Select Sports Center</option>
@@ -359,16 +373,16 @@
                                             <% }); %>
                                     </select>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="court_id" class="form-label">Court</label>
+                                <!-- <div class="col-md-6 mb-3">
+                                    <label for="court_id" class="form-label"><small>Court</small></label>
                                     <select id="court_id" name="court_id" class="form-control form-control-sm" required>
                                         <option value="">Select Court</option>
                                     </select>
-                                </div>
+                                </div> -->
                                 <div class="col-md-12 mb-3">
-                                    <label for="coach" class="form-label">Select Coach</label>
-                                    <select id="sports_center_id" name="coach_id"
-                                        class="form-control form-control-sm" required>
+                                    <label for="coach" class="form-label"><small>Select Coach</small></label>
+                                    <select id="sports_center_id" name="coach_id" class="form-control form-control-sm"
+                                        required>
                                         <option value="">Select coach</option>
                                         <% coaches.forEach(coach=> { %> <option value="<%= coach.id %>">
                                                 <%= coach.first_name %>
@@ -378,64 +392,87 @@
                                     </select>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <input type="text" name="title" placeholder="Academy Title"
+                                    <label><small>Class Title</small></label>
+                                    <input type="text" name="title" placeholder="Class Title"
                                         class="form-control form-control-sm" required>
                                 </div>
                                 <div class="col-md-6 mb-3">
+                                    <label><small>Class Activity</small></label>
                                     <select name="session_activity" class="form-control form-control-sm" required>
                                         <option value="">Select Activity</option>
-                                        <option value="paddle">Paddle</option>
-                                        <option value="snooker">Snooker</option>
-                                        <option value="darts">Darts</option>
+                                        <option value="padel">Padel</option>
+                                        <!-- <option value="snooker">Snooker</option>
+                                        <option value="darts">Darts</option> -->
                                         <!-- Add more if needed -->
                                     </select>
                                 </div>
                                 <div class="col-md-12 mb-3">
+                                    <label><small>Class Description</small></label>
                                     <textarea name="description" placeholder="Description" rows="3"
                                         class="form-control form-control-sm" required></textarea>
                                 </div>
                                 <div class="col-md-6 mb-3">
+                                    <label><small>Session Price (Amount per Person)</small></label>
                                     <input type="number" step="0.01" name="session_price" placeholder="Session Price"
                                         class="form-control form-control-sm" required>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <input type="text" name="session_duration"
-                                        placeholder="Session Duration (e.g. 2 hours)"
+                                    <label><small>Duration (in minutes e.g. 120)</small></label>
+                                    <input type="number" name="session_duration" placeholder="Session Duration "
                                         class="form-control form-control-sm" required>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <input type="number" name="num_of_players" placeholder="Number of Players"
-                                        class="form-control form-control-sm" required>
+                                    <label><small>Number of Players <span id="players_validation"
+                                                style="color: red;"></span></small></label>
+                                    <input type="number" name="num_of_players" id="num_of_players"
+                                        placeholder="Number of Players" class="form-control form-control-sm" required>
+                                </div>
+                                <input type="text" name="time_slot" id="time_slot" class="form-control form-control-sm"
+                                    hidden required>
+                                <div class="col-md-6 mb-3">
+                                    <label><small>Activity Date</small></label>
+                                    <input type="text" name="activity_date" id="activity_date_hidden"
+                                        class="form-control form-control-sm" hidden required>
+                                    <!-- Disabled field for display -->
+                                    <input type="text" id="activity_date_display" class="form-control form-control-sm"
+                                        disabled>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <input type="date" name="activity_date" class="form-control form-control-sm"
-                                        required>
+                                    <label><small>End Registration Date</small></label>
+                                    <input type="text" name="end_registration_date" id="end_registration_date"
+                                        class="form-control form-control-sm" hidden required>
+                                    <input type="text" id="end_registration_date_display"
+                                        class="form-control form-control-sm" disabled>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <input type="date" name="end_registration_date" class="form-control form-control-sm"
-                                        required>
-                                </div>
-                                <div class="col-md-6 mb-3">
+                                    <label><small>Category</small></label>
                                     <select name="category" class="form-control form-control-sm" required>
                                         <option value="">Select Category</option>
+                                        <option value="general">General</option>
+                                        <option value="networking">Networking</option>
+                                        <option value="festivity">Festivity</option>
                                         <option value="kids">Kids</option>
                                         <option value="adults">Adults</option>
                                         <option value="mixed">Mixed</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6 mb-3">
+                                    <label><small>Class Type</small></label>
                                     <select name="academy_type" class="form-control form-control-sm" required>
-                                        <option value="">Select Academy Type</option>
+                                        <option value="">Select Class Type</option>
                                         <option value="private">Private</option>
                                         <option value="public">Public</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6 mb-3">
+                                    <label><small>Cover Photo</small></label>
                                     <input type="file" class="form-control" id="coverImageInput" name="cover_photo"
                                         accept="image/*" required>
                                 </div>
+                                <div id="validation_msg" style="color:red;"></div>
                                 <div class="col-md-12">
-                                    <button type="submit" class="btn btn-primary btn-lg btn-block w-100">Submit</button>
+                                    <button type="submit" class="btn btn-primary btn-lg btn-block w-100"
+                                        id="submit_btn">Submit</button>
                                 </div>
                             </div>
                         </form>
@@ -611,24 +648,29 @@
             document.getElementById('sports_center_id').addEventListener('change', function () {
                 const centerId = this.value;
 
-                const courtSelect = document.getElementById('court_id');
-                courtSelect.innerHTML = '<option value="">Loading...</option>';
 
-                fetch(`/api/courts/${centerId}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        courtSelect.innerHTML = '<option value="">Select Court</option>';
-                        data.forEach(court => {
-                            const option = document.createElement('option');
-                            option.value = court.id;
-                            option.textContent = court.court_name;
-                            courtSelect.appendChild(option);
-                        });
-                    })
-                    .catch(err => {
-                        courtSelect.innerHTML = '<option value="">Error loading courts</option>';
-                        console.error(err);
-                    });
+
+                // const courtSelect = document.getElementById('court_id');
+                // courtSelect.innerHTML = '<option value="">Loading...</option>';
+
+                // fetch(`/api/courts/${centerId}`)
+                //     .then(res => res.json())
+                //     .then(data => {
+                //         courtSelect.innerHTML = '<option value="">Select Court</option>';
+                //         data.forEach(court => {
+                //             const option = document.createElement('option');
+                //             option.value = court.id;
+                //             option.textContent = court.court_name;
+                //             courtSelect.appendChild(option);
+                //         });
+                //     })
+                //     .catch(err => {
+                //         courtSelect.innerHTML = '<option value="">Error loading courts</option>';
+                //         console.error(err);
+                //     });
+
+                fetchSlots(centerId);
+
             });
 
             document.getElementById('coverImageInput').addEventListener('change', function (event) {
@@ -665,6 +707,158 @@
 
 
 
+
+
+
+        </script>
+        <script>
+            const baseUrl = 'https://app.playpadi.com'; // Replace with your base URL
+            let allSlots = [];
+
+            async function fetchSlots() {
+                try {
+                    const res = await fetch(`${baseUrl}/api/fetch-slots-admin/1?game_type=padel`);
+                    const data = await res.json();
+                    allSlots = data.slots || [];
+
+                    renderDates();
+                    if (allSlots.length) renderTimeSlots(allSlots[0]);
+                } catch (error) {
+                    console.error('Error fetching slots:', error);
+                }
+            }
+
+            function renderDates() {
+                const dateScroll = document.getElementById('dateScroll');
+                dateScroll.innerHTML = '';
+
+                allSlots.forEach((slot, index) => {
+                    const dateDiv = document.createElement('div');
+                    dateDiv.className = `date-card ${index === 0 ? 'active' : ''}`;
+                    dateDiv.innerHTML = `
+                     <strong>${slot.weekday}</strong>
+            <strong>${slot.day}</strong>
+            <span>${slot.month}</span>
+        `;
+
+                    dateDiv.onclick = () => {
+                        document.querySelectorAll('.date-card').forEach(el => el.classList.remove('active'));
+                        dateDiv.classList.add('active');
+
+                        // ✅ Set date inputs when date is clicked
+                        document.getElementById('activity_date_hidden').value = slot.date;
+                        document.getElementById('activity_date_display').value = slot.date;
+
+                        document.getElementById('end_registration_date').value = slot.date;
+                        document.getElementById('end_registration_date_display').value = slot.date;
+
+                        // ✅ Load time slots for the chosen date
+                        renderTimeSlots(slot);
+                    };
+
+                    dateScroll.appendChild(dateDiv);
+                });
+
+                // Pre-select the first date on load
+                if (allSlots.length > 0) {
+                    document.getElementById('activity_date_hidden').value = allSlots[0].date;
+                    document.getElementById('activity_date_display').value = allSlots[0].date;
+
+                    document.getElementById('end_registration_date').value = allSlots[0].date;
+                    document.getElementById('end_registration_date_display').value = allSlots[0].date;
+                    renderTimeSlots(allSlots[0]);
+                }
+            }
+
+
+
+            function renderTimeSlots(slot) {
+                const timeSlotsDiv = document.getElementById('timeSlots');
+                const selectedTimeSlot = document.getElementById('time_slot');
+                const numPlayersInput = document.getElementById('num_of_players');
+                const validationMsg = document.getElementById('validation_msg');
+                const submitBtn = document.getElementById('submit_btn');
+
+                timeSlotsDiv.innerHTML = '';
+
+                // Reset UI
+                selectedTimeSlot.value = '';
+                numPlayersInput.value = '';
+                numPlayersInput.disabled = true;
+                submitBtn.disabled = true;
+                validationMsg.textContent = 'Please select a time slot.';
+
+                // Single source of truth for validation (updated on slot click)
+                let currentAllowedPlayers = [];
+
+                // Single validator (no multiple listeners)
+                numPlayersInput.oninput = () => {
+                    const val = parseInt(numPlayersInput.value, 10);
+
+                    if (!selectedTimeSlot.value) {
+                        validationMsg.textContent = 'Please select a time slot.';
+                        submitBtn.disabled = true;
+                        return;
+                    }
+
+                    if (!Number.isInteger(val) || !currentAllowedPlayers.includes(val)) {
+                        validationMsg.textContent = `Valid number of players for this slot: ${currentAllowedPlayers.join(', ')}`;
+                        submitBtn.disabled = true;
+                    } else {
+                        validationMsg.textContent = '';
+                        submitBtn.disabled = false;
+                    }
+                };
+
+                slot.times.forEach(timeSlot => {
+                    // Only courts with available status
+                    const availableCourts = timeSlot.courts.filter(c => String(c.court_status).toLowerCase() === 'available');
+                    if (availableCourts.length === 0) return;
+
+                    const slotDiv = document.createElement('div');
+                    slotDiv.className = 'time-slot';
+                    slotDiv.innerHTML = `<strong>${timeSlot.time}</strong>`;
+
+                    // Show courts
+                    availableCourts.forEach(courtInfo => {
+                        const courtDiv = document.createElement('div');
+                        courtDiv.className = 'court';
+                        courtDiv.innerHTML = `${courtInfo.court.court_name} - ${courtInfo.court_status}`;
+                        slotDiv.appendChild(courtDiv);
+                    });
+
+                    // Allowed players are multiples of 4 up to #courts * 4
+                    const allowed = Array.from({ length: availableCourts.length }, (_, i) => (i + 1) * 4);
+
+                    slotDiv.addEventListener('click', () => {
+                        document.querySelectorAll('.time-slot').forEach(el => el.classList.remove('selected'));
+                        slotDiv.classList.add('selected');
+
+                        // Update current slot state
+                        selectedTimeSlot.value = timeSlot.time;
+                        currentAllowedPlayers = allowed.slice(); // IMPORTANT: update the shared validator state
+
+                        // UX: constrain and default to max valid
+                        numPlayersInput.min = allowed[0];
+                        numPlayersInput.max = allowed[allowed.length - 1];
+                        numPlayersInput.step = 4;
+                        numPlayersInput.value = allowed[allowed.length - 1]; // e.g., 8 for 2 courts, 12 for 3 courts
+                        numPlayersInput.disabled = false;
+
+                        // Valid now
+                        validationMsg.textContent = '';
+                        submitBtn.disabled = false;
+                    });
+
+                    timeSlotsDiv.appendChild(slotDiv);
+                });
+            }
+
+
+
+
+
+            //   fetchSlots();
 
 
 

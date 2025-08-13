@@ -1,6 +1,7 @@
 const { Academy, SportsCenter, Court, YoutubeTutorial, Coach, AcademyStudents, User } = require('../models');
 const flexibleUpload = require('../middleware/uploadMiddleware');
 const UserActivityController = require('./userActivityController');
+const { Sequelize, Op, fn, col } = require('sequelize');
 
 
 const academyController = {
@@ -17,27 +18,54 @@ const academyController = {
                 offset,
                 order: [['created_at', 'DESC']],
                 include: [
-                    { model: Court, as: 'court' },
-                    { model: SportsCenter, as: 'sportsCenter' }
+                    { model: SportsCenter, as: 'sportsCenter' },
                 ]
             });
+
+            // IDs for the counts query
+            const classIds = classes.map(c => c.id);
+
+            // ✅ Get total students per academy_id (skip if no classes)
+            const counts = classIds.length
+                ? await AcademyStudents.findAll({
+                    attributes: [
+                        'academy_id',
+                        [Sequelize.fn('COUNT', Sequelize.col('id')), 'total']
+                    ],
+                    where: { academy_id: classIds },
+                    group: ['academy_id'],
+                    raw: true // so we can access fields directly
+                })
+                : [];
+
+            // Convert results into lookup
+            const countMap = Object.fromEntries(
+                counts.map(row => [row.academy_id, parseInt(row.total, 10)])
+            );
+
+            // Attach counts to each class
+            classes.forEach(c => {
+                c.setDataValue('total_students_joined', countMap[c.id] || 0);
+            });
+
+
 
             const youtubeVideos = await YoutubeTutorial.findAll({
                 order: [['created_at', 'DESC']]
             });
 
             const coaches = await Coach.findAll();
-
-
             const sportsCenter = await SportsCenter.findAll();
-            //    const courts = await Court.findAll();
 
             const totalPages = Math.ceil(count / limit);
+
+            // ✅ Convert to plain objects so EJS sees total_students_joined
+            const plainClasses = classes.map(c => c.get({ plain: true }));
 
             return res.render('academy/index', {
                 title: 'Manage Classes',
                 admin: req.admin,
-                classes,
+                classes: plainClasses, // <- pass plain objects
                 count,
                 currentPage: page,
                 totalPages,
@@ -47,12 +75,12 @@ const academyController = {
                 youtubeVideos,
                 coaches,
                 YOUTUBE_API_KEY: process.env.YOUTUBE_KEY
-                //courts
             });
         } catch (error) {
             next(error);
         }
     },
+
 
 
 
@@ -69,7 +97,7 @@ const academyController = {
             try {
                 const {
                     sports_center_id,
-                    court_id,
+                    //   court_id,
                     coach_id,
                     title,
                     description,
@@ -78,6 +106,7 @@ const academyController = {
                     session_duration,
                     num_of_players,
                     activity_date,
+                    time_slot,
                     end_registration_date,
                     category,
                     academy_type
@@ -86,7 +115,7 @@ const academyController = {
                 // Basic validation
                 if (
                     !sports_center_id ||
-                    !court_id ||
+                    // !court_id ||
                     !coach_id ||
                     !title ||
                     !description ||
@@ -94,7 +123,8 @@ const academyController = {
                     !session_price ||
                     !session_duration ||
                     !num_of_players ||
-                    !activity_date
+                    !activity_date ||
+                    !time_slot
                 ) {
                     return res.status(400).json({ message: 'Required fields are missing' });
                 }
@@ -102,7 +132,7 @@ const academyController = {
                 // Create new academy record
                 const newAcademy = await Academy.create({
                     sports_center_id,
-                    court_id,
+                    //   court_id,
                     coach_id,
                     title,
                     description,
@@ -111,6 +141,7 @@ const academyController = {
                     session_duration,
                     num_of_players,
                     activity_date,
+                    time_slot,
                     end_registration_date,
                     category,
                     cover_image: `${req.file.filename}`,
@@ -269,103 +300,103 @@ const academyController = {
     //     }
     // },
 
-getAllAcademies: async (req, res, next) => {
-    try {
-        const userId = req.user.id;
+    getAllAcademies: async (req, res, next) => {
+        try {
+            const userId = req.user.id;
 
-        const academies = await Academy.findAll({
-            where: {
-                availability_status: true
-            },
-            include: [
-                {
-                    model: Coach,
-                    as: 'coach',
-                    attributes: ['id', 'first_name', 'last_name', 'display_picture']
+            const academies = await Academy.findAll({
+                where: {
+                    availability_status: true
                 },
-                {
-                    model: SportsCenter,
-                    as: 'sportsCenter',
-                    attributes: ['id', 'sports_center_name', 'sports_center_address', 'cover_image']
-                },
-                {
-                    model: AcademyStudents,
-                    as: 'academy_students',
-                    include: [
-                        {
-                            model: User,
-                            as: 'user',
-                            attributes: ['first_name', 'points', 'display_picture']
-                        }
-                    ]
-                }
-            ],
-            order: [['created_at', 'DESC']]
-        });
+                include: [
+                    {
+                        model: Coach,
+                        as: 'coach',
+                        attributes: ['id', 'first_name', 'last_name', 'display_picture']
+                    },
+                    {
+                        model: SportsCenter,
+                        as: 'sportsCenter',
+                        attributes: ['id', 'sports_center_name', 'sports_center_address', 'cover_image']
+                    },
+                    {
+                        model: AcademyStudents,
+                        as: 'academy_students',
+                        include: [
+                            {
+                                model: User,
+                                as: 'user',
+                                attributes: ['first_name', 'points', 'display_picture']
+                            }
+                        ]
+                    }
+                ],
+                order: [['created_at', 'DESC']]
+            });
 
-        const data = await Promise.all(
-            academies.map(async academy => {
-                let joinedStatus = false;
+            const data = await Promise.all(
+                academies.map(async academy => {
+                    let joinedStatus = false;
 
-                if (userId) {
-                    const alreadyJoined = await AcademyStudents.findOne({
-                        where: {
-                            user_id: userId,
-                            academy_id: academy.id
-                        }
-                    });
-                    joinedStatus = !!alreadyJoined;
-                }
-
-                const academyData = academy.toJSON();
-
-                if (typeof academyData.sportsCenter?.cover_image === 'string') {
-    let image = academyData.sportsCenter.cover_image.trim();
-
-    if (
-        (image.startsWith('"') && image.endsWith('"')) ||
-        (image.startsWith("'") && image.endsWith("'"))
-    ) {
-        image = image.slice(1, -1);
-    }
-
-    academyData.sportsCenter.cover_image = image;
-}
-
-                // Transform academy_students to desired flat structure
-                academyData.academy_students = (academyData.academy_students || []).map(student => {
-                    let avatar = student.user?.display_picture || '';
-                    if (typeof avatar === 'string') {
-                        avatar = avatar.trim();
-                        if (
-                            (avatar.startsWith('"') && avatar.endsWith('"')) ||
-                            (avatar.startsWith("'") && avatar.endsWith("'"))
-                        ) {
-                            avatar = avatar.slice(1, -1);
-                        }
+                    if (userId) {
+                        const alreadyJoined = await AcademyStudents.findOne({
+                            where: {
+                                user_id: userId,
+                                academy_id: academy.id
+                            }
+                        });
+                        joinedStatus = !!alreadyJoined;
                     }
 
-                    return {
-                        name: student.user?.first_name || 'Unknown',
-                        image: avatar || 'https://i.pravatar.cc/150'
-                    };
-                });
+                    const academyData = academy.toJSON();
 
-                academyData.total_students = academyData.academy_students.length;
-                academyData.joinedStatus = joinedStatus;
-                return academyData;
-            })
-        );
+                    if (typeof academyData.sportsCenter?.cover_image === 'string') {
+                        let image = academyData.sportsCenter.cover_image.trim();
 
-        return res.status(200).json({
-            message: 'Academies retrieved successfully',
-            data
-        });
-    } catch (err) {
-        console.error('getAllAcademies error:', err);
-        next(err);
-    }
-},
+                        if (
+                            (image.startsWith('"') && image.endsWith('"')) ||
+                            (image.startsWith("'") && image.endsWith("'"))
+                        ) {
+                            image = image.slice(1, -1);
+                        }
+
+                        academyData.sportsCenter.cover_image = image;
+                    }
+
+                    // Transform academy_students to desired flat structure
+                    academyData.academy_students = (academyData.academy_students || []).map(student => {
+                        let avatar = student.user?.display_picture || '';
+                        if (typeof avatar === 'string') {
+                            avatar = avatar.trim();
+                            if (
+                                (avatar.startsWith('"') && avatar.endsWith('"')) ||
+                                (avatar.startsWith("'") && avatar.endsWith("'"))
+                            ) {
+                                avatar = avatar.slice(1, -1);
+                            }
+                        }
+
+                        return {
+                            name: student.user?.first_name || 'Unknown',
+                            image: avatar || 'https://i.pravatar.cc/150'
+                        };
+                    });
+
+                    academyData.total_students = academyData.academy_students.length;
+                    academyData.joinedStatus = joinedStatus;
+                    return academyData;
+                })
+            );
+
+            return res.status(200).json({
+                message: 'Academies retrieved successfully',
+                data
+            });
+        } catch (err) {
+            console.error('getAllAcademies error:', err);
+            next(err);
+        }
+    },
 
 
     getAllYoutubeVideos: async (req, res, next) => {

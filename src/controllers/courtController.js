@@ -194,6 +194,100 @@ const courtController = {
     },
 
 
+    getSlotsAdmin: async (req, res, next) => {
+        try {
+            const sportsCenterId = req.params.id;
+            const gameType = req.query.game_type; // e.g. 'paddle', 'tennis', etc.
+
+            const sports_center = await SportsCenter.findByPk(sportsCenterId);
+            if (!sports_center) {
+                return res.status(404).json({ message: "Sports Center not found" });
+            }
+
+
+
+            let daysToGenerate = 30;
+
+
+            const days = generateTimeSlots(daysToGenerate);
+
+            // Fetch courts filtered by sports_center_id and optional game_type
+            const courtWhere = { sports_center_id: sportsCenterId };
+            if (gameType) {
+                courtWhere[Op.and] = [
+                    where(fn('LOWER', col('activity')), gameType.toLowerCase())
+                ];
+            }
+
+            const courts = await Court.findAll({
+                where: courtWhere
+            });
+
+            // Fetch bookings
+            const bookings = await Bookings.findAll({
+                where: { sports_center_id: sportsCenterId },
+                attributes: ["date", "slot", "court_id", "session_duration"]
+            });
+
+            // const bookedSet = new Set(
+            //     bookings.map(b => `${b.date}#${b.slot}#${b.court_id}`)
+            // );
+
+            const bookedSet = generateBlockedSlots(bookings);
+
+            const slots = days.map(dayObj => {
+                const { weekday, day, month, date, availableTimes } = dayObj;
+
+                const times = availableTimes.map(time => {
+
+                    let availableCourtCount = 0;
+
+
+                    const courtsWithStatus = courts.map(court => {
+                        const key = `${date}#${time}#${court.id}`;
+
+
+                        const isBooked = bookedSet.has(key);
+
+                        if (!isBooked) availableCourtCount++;
+
+                        const rawCourt = court.toJSON();
+
+                        delete rawCourt.createdAt;
+                        delete rawCourt.updatedAt;
+                        delete rawCourt.booking_info;
+                        delete rawCourt.court_position;
+                        delete rawCourt.court_type;
+                        delete rawCourt.activity;
+                        delete rawCourt.status;
+
+                        return {
+                            court: {
+                                ...rawCourt,
+                                court_data: safeParseJSON(court.court_data)
+                            },
+                            court_status: isBooked ? "unavailable" : "available"
+                        };
+                    });
+
+                    return {
+                        time,
+                        total_available_courts: availableCourtCount,
+                        courts: courtsWithStatus
+                    };
+                });
+
+                return { weekday, day, month, date, times };
+            });
+
+            return res.json({ slots });
+        } catch (error) {
+            console.error("Error in getSlots:", error);
+            next(error);
+        }
+    },
+
+
 
     getCourtSlots: async (req, res, next) => {
         try {
