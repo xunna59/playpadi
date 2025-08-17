@@ -13,12 +13,7 @@ module.exports = {
       user_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: {
-          model: 'users',
-          key: 'id'
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+
       },
       court_id: {
         type: Sequelize.INTEGER,
@@ -35,14 +30,14 @@ module.exports = {
         allowNull: false,
 
       },
-         session_price: {
-            type: Sequelize.DECIMAL(10, 2), // Price field with 2 decimal places
-            allowNull: false,
-        },
-        session_duration: {
-            type: Sequelize.INTEGER, // e.g 60 mins
-            allowNull: false,
-        },
+      session_price: {
+        type: Sequelize.DECIMAL(10, 2), // Price field with 2 decimal places
+        allowNull: false,
+      },
+      session_duration: {
+        type: Sequelize.INTEGER, // e.g 60 mins
+        allowNull: false,
+      },
       booking_reference: {
         type: Sequelize.STRING,
         allowNull: false,

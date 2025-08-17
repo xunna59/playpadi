@@ -10,10 +10,7 @@ module.exports = (sequelize) => {
         user_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            references: {
-                model: 'users',
-                key: 'id'
-            }
+
         },
         court_id: {
             type: DataTypes.INTEGER,
@@ -37,7 +34,7 @@ module.exports = (sequelize) => {
             allowNull: false,
 
         },
-          session_price: {
+        session_price: {
             type: DataTypes.DECIMAL(10, 2), // Price field with 2 decimal places
             allowNull: false,
         },
@@ -101,7 +98,14 @@ module.exports = (sequelize) => {
 
         Bookings.belongsTo(models.User, {
             foreignKey: 'user_id',
+            constraints: false,
             as: 'user'
+        });
+
+        Bookings.belongsTo(models.Admin, {
+            foreignKey: 'user_id',
+            constraints: false,
+            as: 'admin'
         });
 
         Bookings.hasMany(models.BookingPlayers, {

@@ -1,4 +1,4 @@
-const { Bookings, Court, User, SportsCenter, BookingPlayers, Refunds } = require('../models');
+const { Bookings, Court, User, SportsCenter, BookingPlayers, Refunds, Admin } = require('../models');
 const UserActivityController = require('./userActivityController');
 const sendEmail = require('../utils/sendEmail');
 const { Op } = require('sequelize');
@@ -46,7 +46,8 @@ const bookingsController = {
                 order: [['created_at', 'DESC']],
                 include: [
                     { model: Court, as: 'court' },
-                    { model: User, as: 'user' }
+                    { model: User, as: 'user', required: false },
+                    { model: Admin, as: 'admin', required: false }
                 ]
             });
 
@@ -271,7 +272,7 @@ const bookingsController = {
 
             // Fetch all public bookings
             const allPublicBookings = await Bookings.findAll({
-                where: { booking_type: 'public' },
+                where: { booking_type: 'public', user_type: 'User' },
                 include: [
                     {
                         model: BookingPlayers,

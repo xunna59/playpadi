@@ -1,8 +1,15 @@
-const { Academy, SportsCenter, Court, YoutubeTutorial, Coach, AcademyStudents, User } = require('../models');
+const { Academy, SportsCenter, Court, YoutubeTutorial, Coach, AcademyStudents, User, Bookings, } = require('../models');
 const flexibleUpload = require('../middleware/uploadMiddleware');
 const UserActivityController = require('./userActivityController');
 const { Sequelize, Op, fn, col } = require('sequelize');
 
+
+function generateBookingReference() {
+    const prefix = 'BK';
+    const date = new Date().toISOString().slice(0, 10).replace(/-/g, ''); // YYYYMMDD
+    const random = Math.floor(1000 + Math.random() * 9000); // 4-digit random
+    return `${prefix}-${date}-${random}`;
+}
 
 const academyController = {
 
@@ -97,7 +104,7 @@ const academyController = {
             try {
                 const {
                     sports_center_id,
-                    //   court_id,
+                    court_id,
                     coach_id,
                     title,
                     description,
@@ -115,7 +122,7 @@ const academyController = {
                 // Basic validation
                 if (
                     !sports_center_id ||
-                    // !court_id ||
+                    !court_id ||
                     !coach_id ||
                     !title ||
                     !description ||
@@ -132,7 +139,6 @@ const academyController = {
                 // Create new academy record
                 const newAcademy = await Academy.create({
                     sports_center_id,
-                    //   court_id,
                     coach_id,
                     title,
                     description,
@@ -148,10 +154,60 @@ const academyController = {
                     academy_type
                 });
 
-                return res.status(201).json({
-                    message: 'Academy created successfully',
-                    data: newAcademy
+
+
+                if (!Array.isArray(court_id) || court_id.length === 0) {
+                    return res.status(400).json({ success: false, message: 'court_id must be a non-empty array' });
+                }
+
+                // Make sure IDs are numbers and not null
+                const validCourtIds = court_id.filter(id => Number.isInteger(Number(id)));
+
+                if (validCourtIds.length === 0) {
+                    return res.status(400).json({ success: false, message: 'No valid court IDs found' });
+                }
+
+                // Optional: check they exist in DB
+                const existingCourts = await Court.findAll({
+                    where: { id: validCourtIds }
                 });
+
+                if (existingCourts.length !== validCourtIds.length) {
+                    return res.status(400).json({ success: false, message: 'One or more courts do not exist' });
+                }
+
+                if (newAcademy) {
+                    try {
+                        for (const court of validCourtIds) {
+                            console.log(`*********************************************************** inserting booking for court_id: ${court}`);
+                            await Bookings.create({
+                                user_id: req.admin.id,
+                                court_id: court,
+                                sports_center_id,
+                                booking_reference: generateBookingReference(),
+                                date: activity_date,
+                                slot: time_slot,
+                                gender_allowed: 'mixed',
+                                booking_type: 'private',
+                                user_type: 'System',
+                                game_type: session_activity,
+                                total_players: 4,
+                                session_price,
+                                session_duration
+                            });
+                        }
+                    } catch (err) {
+                        console.error("Error creating bookings:", err);
+                        throw err;
+                    }
+                }
+
+
+
+
+                req.flash('success_msg', 'Class Created Successfully');
+                return res.redirect('/admin/academy/');
+
 
             } catch (err) {
 
@@ -203,10 +259,10 @@ const academyController = {
 
                 });
 
-                return res.status(201).json({
-                    message: 'Youtbube Video Uploaded successfully',
-                    data: newVideo
-                });
+
+
+                req.flash('success_msg', 'Youtbube Video Uploaded successfully');
+                return res.redirect('/admin/academy/');
 
             } catch (err) {
 
@@ -521,7 +577,10 @@ const academyController = {
 
             try {
                 const coach = await Coach.create(req.body);
-                return res.status(201).json(coach);
+
+                req.flash('success_msg', 'Coach Created Successfully');
+                return res.redirect('/admin/academy/');
+                // return res.status(201).json(coach);
             } catch (error) {
                 return res.status(400).json({ error: error.message });
             }

@@ -110,8 +110,15 @@
                                                                     <%= booking.booking_reference %>
                                                                 </td>
                                                                 <td class="align-middle">
-                                                                    <%= booking.user.first_name %>
-                                                                        <%= booking.user.last_name %>
+                                                                    <% if (booking.user_type==='User' && booking.user) {
+                                                                        %>
+                                                                        <%= booking.user.first_name %>
+                                                                            <%= booking.user.last_name %>
+                                                                                <% } else if
+                                                                                    (booking.user_type==='System' &&
+                                                                                    booking.admin) { %>
+                                                                                    <%= 'System Admin' %>
+                                                                                        <% } else { %> N/A <% } %>
                                                                 </td>
                                                                 <td>
                                                                     <%= booking.court.court_name %>

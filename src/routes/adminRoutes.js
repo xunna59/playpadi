@@ -30,6 +30,9 @@ router.post('/admin-login',
 
 router.get('/logout', adminController.logout);
 
+router.get('/settings', authMiddleware, adminController.getSettings);
+
+
 
 router.get('/dashboard', authMiddleware, dashboardController.renderDashboard);
 

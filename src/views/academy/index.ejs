@@ -373,12 +373,6 @@
                                             <% }); %>
                                     </select>
                                 </div>
-                                <!-- <div class="col-md-6 mb-3">
-                                    <label for="court_id" class="form-label"><small>Court</small></label>
-                                    <select id="court_id" name="court_id" class="form-control form-control-sm" required>
-                                        <option value="">Select Court</option>
-                                    </select>
-                                </div> -->
                                 <div class="col-md-12 mb-3">
                                     <label for="coach" class="form-label"><small>Select Coach</small></label>
                                     <select id="sports_center_id" name="coach_id" class="form-control form-control-sm"
@@ -451,24 +445,27 @@
                                         <option value="general">General</option>
                                         <option value="networking">Networking</option>
                                         <option value="festivity">Festivity</option>
-                                        <option value="kids">Kids</option>
-                                        <option value="adults">Adults</option>
-                                        <option value="mixed">Mixed</option>
+                                        <option value="fundraising">Fundraising</option>
+                                        <option value="Social Night">Social Night</option>
                                     </select>
                                 </div>
-                                <div class="col-md-6 mb-3">
+                                <!-- <div class="col-md-6 mb-3">
                                     <label><small>Class Type</small></label>
                                     <select name="academy_type" class="form-control form-control-sm" required>
                                         <option value="">Select Class Type</option>
-                                        <option value="private">Private</option>
+                                        <option selected value="private">Private</option>
                                         <option value="public">Public</option>
                                     </select>
-                                </div>
-                                <div class="col-md-6 mb-3">
+                                </div> -->
+                                <input type="text" name="academy_type" value="private"
+                                    class="form-control form-control-sm" hidden required>
+                                <div class="col-md-12 mb-3">
                                     <label><small>Cover Photo</small></label>
                                     <input type="file" class="form-control" id="coverImageInput" name="cover_photo"
                                         accept="image/*" required>
                                 </div>
+                                <div id="hiddenCourtsContainer"></div>
+                                <!-- <input type="text" name="court_id[]" id="court_id" required /> -->
                                 <div id="validation_msg" style="color:red;"></div>
                                 <div class="col-md-12">
                                     <button type="submit" class="btn btn-primary btn-lg btn-block w-100"
@@ -649,26 +646,6 @@
                 const centerId = this.value;
 
 
-
-                // const courtSelect = document.getElementById('court_id');
-                // courtSelect.innerHTML = '<option value="">Loading...</option>';
-
-                // fetch(`/api/courts/${centerId}`)
-                //     .then(res => res.json())
-                //     .then(data => {
-                //         courtSelect.innerHTML = '<option value="">Select Court</option>';
-                //         data.forEach(court => {
-                //             const option = document.createElement('option');
-                //             option.value = court.id;
-                //             option.textContent = court.court_name;
-                //             courtSelect.appendChild(option);
-                //         });
-                //     })
-                //     .catch(err => {
-                //         courtSelect.innerHTML = '<option value="">Error loading courts</option>';
-                //         console.error(err);
-                //     });
-
                 fetchSlots(centerId);
 
             });
@@ -712,12 +689,12 @@
 
         </script>
         <script>
-            const baseUrl = 'https://app.playpadi.com'; // Replace with your base URL
+            const baseUrl = 'http://127.0.0.1:8080'; // Replace with your base URL
             let allSlots = [];
 
-            async function fetchSlots() {
+            async function fetchSlots(centerId) {
                 try {
-                    const res = await fetch(`${baseUrl}/api/fetch-slots-admin/1?game_type=padel`);
+                    const res = await fetch(`${baseUrl}/api/fetch-slots-admin/${centerId}?game_type=padel`);
                     const data = await res.json();
                     allSlots = data.slots || [];
 
@@ -778,8 +755,10 @@
                 const numPlayersInput = document.getElementById('num_of_players');
                 const validationMsg = document.getElementById('validation_msg');
                 const submitBtn = document.getElementById('submit_btn');
+                const container = document.getElementById('hiddenCourtsContainer');
 
                 timeSlotsDiv.innerHTML = '';
+                container.innerHTML = '';
 
                 // Reset UI
                 selectedTimeSlot.value = '';
@@ -788,10 +767,10 @@
                 submitBtn.disabled = true;
                 validationMsg.textContent = 'Please select a time slot.';
 
-                // Single source of truth for validation (updated on slot click)
                 let currentAllowedPlayers = [];
+                let currentAvailableCourts = [];
 
-                // Single validator (no multiple listeners)
+                // Validator for player input
                 numPlayersInput.oninput = () => {
                     const val = parseInt(numPlayersInput.value, 10);
 
@@ -807,11 +786,21 @@
                     } else {
                         validationMsg.textContent = '';
                         submitBtn.disabled = false;
+
+                        // Update hidden court inputs based on players needed
+                        const courtsNeeded = val / 4; // 4 players per court
+                        container.innerHTML = '';
+                        currentAvailableCourts.slice(0, courtsNeeded).forEach(c => {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'court_id[]';
+                            input.value = c.court.id;
+                            container.appendChild(input);
+                        });
                     }
                 };
 
                 slot.times.forEach(timeSlot => {
-                    // Only courts with available status
                     const availableCourts = timeSlot.courts.filter(c => String(c.court_status).toLowerCase() === 'available');
                     if (availableCourts.length === 0) return;
 
@@ -819,7 +808,6 @@
                     slotDiv.className = 'time-slot';
                     slotDiv.innerHTML = `<strong>${timeSlot.time}</strong>`;
 
-                    // Show courts
                     availableCourts.forEach(courtInfo => {
                         const courtDiv = document.createElement('div');
                         courtDiv.className = 'court';
@@ -827,25 +815,35 @@
                         slotDiv.appendChild(courtDiv);
                     });
 
-                    // Allowed players are multiples of 4 up to #courts * 4
                     const allowed = Array.from({ length: availableCourts.length }, (_, i) => (i + 1) * 4);
 
                     slotDiv.addEventListener('click', () => {
                         document.querySelectorAll('.time-slot').forEach(el => el.classList.remove('selected'));
                         slotDiv.classList.add('selected');
 
-                        // Update current slot state
                         selectedTimeSlot.value = timeSlot.time;
-                        currentAllowedPlayers = allowed.slice(); // IMPORTANT: update the shared validator state
+                        currentAllowedPlayers = allowed.slice();
+                        currentAvailableCourts = availableCourts.slice();
 
-                        // UX: constrain and default to max valid
+                        // Default to max players allowed for the slot
+                        const defaultPlayers = allowed[allowed.length - 1];
                         numPlayersInput.min = allowed[0];
                         numPlayersInput.max = allowed[allowed.length - 1];
                         numPlayersInput.step = 4;
-                        numPlayersInput.value = allowed[allowed.length - 1]; // e.g., 8 for 2 courts, 12 for 3 courts
+                        numPlayersInput.value = defaultPlayers;
                         numPlayersInput.disabled = false;
 
-                        // Valid now
+                        // Pre-fill hidden inputs for default selection
+                        const courtsNeeded = defaultPlayers / 4;
+                        container.innerHTML = '';
+                        currentAvailableCourts.slice(0, courtsNeeded).forEach(c => {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'court_id[]';
+                            input.value = c.court.id;
+                            container.appendChild(input);
+                        });
+
                         validationMsg.textContent = '';
                         submitBtn.disabled = false;
                     });
@@ -853,9 +851,6 @@
                     timeSlotsDiv.appendChild(slotDiv);
                 });
             }
-
-
-
 
 
             //   fetchSlots();

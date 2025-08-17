@@ -89,6 +89,19 @@
         integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ=="
         data-cf-beacon='{"rayId":"9234fc217ce19ed0","version":"2025.1.0","r":1,"serverTiming":{"name":{"cfExtPri":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}},"token":"4db8c6ef997743fda032d4f73cfeff63","b":1}'
         crossorigin="anonymous"></script> -->
+<script src="https://unpkg.com/dayjs/dayjs.min.js"></script>
+<script src="https://unpkg.com/dayjs/plugin/advancedFormat.js"></script>
+<script>
+        // Extend dayjs with advancedFormat to support "Do"
+        dayjs.extend(window.dayjs_plugin_advancedFormat);
+
+        const input = document.getElementById('datetimeInput');
+
+        // Format: 12th August, 2025 02:35 PM
+        const now = dayjs().format('Do MMMM, YYYY hh:mm A');
+
+        input.value = now;
+</script>
 </body>
 
 </html>

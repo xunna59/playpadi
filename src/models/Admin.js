@@ -36,5 +36,13 @@ module.exports = (sequelize) => {
         updatedAt: 'updated_at',
     });
 
+
+    Admin.associate = (models) => {
+
+        Admin.hasMany(models.Bookings, { foreignKey: 'user_id', as: 'bookings' });
+
+
+    };
+
     return Admin;
 };

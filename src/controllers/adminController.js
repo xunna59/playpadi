@@ -259,6 +259,34 @@ const adminAuthController = {
     },
 
 
+    getSettings: async (req, res, next) => {
+        // Validate request
+        // const errors = validationResult(req);
+        // if (!errors.isEmpty()) {
+        //     return res.status(400).json({
+        //         success: false,
+        //         errors: errors.array().map(err => ({
+        //             msg: err.msg,
+        //             key: err.path,
+        //         })),
+        //     });
+        // }
+
+        try {
+
+
+            return res.render('settings/index', {
+                title: 'Manage Settings',
+                admin: req.admin,
+
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    },
+
+
     logout: (req, res) => {
         res.clearCookie('token', { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
 
