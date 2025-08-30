@@ -26,6 +26,11 @@ module.exports = {
           key: 'id'
         }
       },
+      booking_reference: {
+        type: Sequelize.STRING,
+        allowNull: false,
+
+      },
       created_at: {
         type: Sequelize.DATE,
         allowNull: false,

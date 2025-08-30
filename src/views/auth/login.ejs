@@ -24,7 +24,7 @@
 			<!-- BEGIN login-content -->
 			<div class="login-content">
 				<center>
-					<img src="assets/img/logo-dark.png" style="width: 40%;" />
+					<img src="assets/img/logo-dark.png" id="logo" style="width: 40%;" />
 				</center><br>
 				<h4 class="text-center">Sign In</h4>
 				<div class="text-muted text-center mb-4"> For your protection, please verify your identity. </div>
@@ -43,10 +43,10 @@
 											placeholder="username@address.com" required>
 									</div>
 									<div class="mb-3">
-										<div class="d-flex">
+										<!-- <div class="d-flex">
 											<label class="form-label">Password</label>
 											<a href="#" class="ms-auto text-muted">Forgot password?</a>
-										</div>
+										</div> -->
 										<input type="password" class="form-control form-control-lg fs-15px"
 											name="password" placeholder="Enter your password" required>
 									</div>
@@ -72,7 +72,7 @@
 			<a href="javascript:;" data-click="theme-panel-expand" class="theme-collapse-btn"><i
 					class="fa fa-cog"></i></a>
 			<div class="theme-panel-content">
-				<ul class="theme-list clearfix">
+				<!-- <ul class="theme-list clearfix">
 					<li><a href="javascript:;" class="bg-red" data-theme="theme-red" data-click="theme-selector"
 							data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-container="body"
 							data-bs-title="Red" data-original-title="" title="">&nbsp;</a></li>
@@ -97,9 +97,10 @@
 					<li><a href="javascript:;" class="bg-cyan" data-theme="theme-cyan" data-click="theme-selector"
 							data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-container="body"
 							data-bs-title="Aqua" data-original-title="" title="">&nbsp;</a></li>
-					<li class="active"><a href="javascript:;" class="bg-blue" data-theme="" data-click="theme-selector"
-							data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-container="body"
-							data-bs-title="Default" data-original-title="" title="">&nbsp;</a></li>
+					<li class="active"><a href="javascript:;" class="bg-blue" data-theme=""
+							data-click="theme-selector" data-bs-toggle="tooltip" data-bs-trigger="hover"
+							data-bs-container="body" data-bs-title="Default" data-original-title="" title="">&nbsp;</a>
+					</li>
 					<li><a href="javascript:;" class="bg-purple" data-theme="theme-purple" data-click="theme-selector"
 							data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-container="body"
 							data-bs-title="Purple" data-original-title="" title="">&nbsp;</a></li>
@@ -110,7 +111,7 @@
 							data-click="theme-selector" data-bs-toggle="tooltip" data-bs-trigger="hover"
 							data-bs-container="body" data-bs-title="Gray" data-original-title="" title="">&nbsp;</a>
 					</li>
-				</ul>
+				</ul> -->
 				<hr class="mb-0">
 				<div class="row mt-10px pt-3px">
 					<div class="col-9 control-label text-body-emphasis fw-bold">
@@ -146,6 +147,48 @@
 		integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ=="
 		data-cf-beacon='{"rayId":"9234fc3cbe4a8ded","version":"2025.1.0","r":1,"serverTiming":{"name":{"cfExtPri":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}},"token":"4db8c6ef997743fda032d4f73cfeff63","b":1}'
 		crossorigin="anonymous"></script>
+	<script>
+		function getCookie(name) {
+			const value = `; ${document.cookie}`;
+			const parts = value.split(`; ${name}=`);
+			if (parts.length === 2) return parts.pop().split(';').shift();
+			return "";
+		}
+
+		function setCookie(name, value, days = 7) {
+			let expires = "";
+			if (days) {
+				const date = new Date();
+				date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+				expires = "; expires=" + date.toUTCString();
+			}
+			document.cookie = name + "=" + (value || "") + expires + "; path=/";
+		}
+
+		function updateLogo() {
+			const logo = document.getElementById('logo');
+			const theme = getCookie("dark-mode");
+			if (theme === "dark-mode") {
+				logo.src = "assets/img/logo-light.png";
+			} else {
+				logo.src = "assets/img/logo-dark.png";
+			}
+		}
+
+		// Run on page load
+		updateLogo();
+
+		// Example toggle button
+		document.getElementById("appThemeDarkMode").addEventListener("click", () => {
+			const current = getCookie("dark-mode");
+			if (current === "dark-mode") {
+				setCookie("dark-mode", "", 7); // clear cookie
+			} else {
+				setCookie("dark-mode", "dark-mode", 7);
+			}
+			updateLogo(); // apply immediately
+		});
+	</script>
 </body>
 
 </html>

@@ -101,6 +101,53 @@
         const now = dayjs().format('Do MMMM, YYYY hh:mm A');
 
         input.value = now;
+
+
+
+
+
+        // Helper: read cookie by name
+        // cookie helper
+        function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(';').shift();
+                return "";
+        }
+
+        function setCookie(name, value, days = 7) {
+                let expires = "";
+                if (days) {
+                        const date = new Date();
+                        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                        expires = "; expires=" + date.toUTCString();
+                }
+                document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+
+        function updateLogo() {
+                const logo = document.getElementById('logo');
+                const theme = getCookie("dark-mode");
+                if (theme === "dark-mode") {
+                        logo.src = "assets/img/logo-light.png";
+                } else {
+                        logo.src = "assets/img/logo-dark.png";
+                }
+        }
+
+        // Run on page load
+        updateLogo();
+
+        // Example toggle button
+        document.getElementById("appThemeDarkMode").addEventListener("click", () => {
+                const current = getCookie("dark-mode");
+                if (current === "dark-mode") {
+                        setCookie("dark-mode", "", 7); // clear cookie
+                } else {
+                        setCookie("dark-mode", "dark-mode", 7);
+                }
+                updateLogo(); // apply immediately
+        });
 </script>
 </body>
 

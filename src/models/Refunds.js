@@ -23,6 +23,11 @@ module.exports = (sequelize) => {
                 key: 'id',
             },
         },
+        booking_reference: {
+            type: DataTypes.STRING,
+            allowNull: false,
+
+        },
         eligible: {
             type: DataTypes.BOOLEAN,
             allowNull: false,

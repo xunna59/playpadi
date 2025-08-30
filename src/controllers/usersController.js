@@ -68,7 +68,7 @@ const UsersController = {
       const { userid } = req.params;
       const page = parseInt(req.query.page) || 1;
       const academyPage = parseInt(req.query.academyPage) || 1;
-      const limit = 10;
+      const limit = 15;
 
       const [user, publicMatchCount, privateMatchCount] = await Promise.all([
         User.findByPk(userid),
@@ -123,7 +123,8 @@ const UsersController = {
         ? await Bookings.findAll({
           where: {
             id: joinedBookingIds,
-            booking_type: 'public'
+            booking_type: 'public',
+
           },
           include: [{ model: User, as: 'user' }, { model: Court, as: 'court' }]
         })
@@ -149,6 +150,45 @@ const UsersController = {
 
       const totalAcademyPages = Math.ceil(academyData.count / limit);
 
+
+      const activities = await UserActivity.findAll({
+        where: { user_id: userid },
+        order: [['created_at', 'DESC']],
+        limit: 10, // Always return only the latest 10
+        attributes: {
+          exclude: ['updated_at'],
+        },
+      });
+
+      const formattedActivities = activities.map(activity => {
+        const {
+          id,
+          user_id,
+          activity_type,
+          description,
+          ip_address,
+          device,
+          created_at,
+        } = activity.toJSON();
+
+        const base = {
+          id,
+          user_id,
+          activity_type,
+          description,
+          ip_address,
+          created_at,
+        };
+
+        // Only include device if activity_type is login
+        if (activity_type === 'login') {
+          base.device = device || 'Unknown';
+        }
+
+        return base;
+      });
+
+
       return res.render('users/manage-user', {
         title: `Manage ${user.first_name}`,
         admin: req.admin,
@@ -162,6 +202,7 @@ const UsersController = {
           baseUrl: `/admin/manage-user/${userid}`
         },
         academyStudents: academyData.rows,
+        activities: formattedActivities,
         academyPagination: {
           offset: academyOffset,
           total: academyData.count,
@@ -997,7 +1038,25 @@ const UsersController = {
   },
 
 
+  deleteUser: async (req, res) => {
+    try {
+      const { id } = req.params;
 
+      // Find and delete
+      const user = await User.findByPk(id);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      await user.destroy();
+      req.flash('success_msg', 'User Deleted successfully');
+      // Redirect back after delete
+      return res.redirect('/admin/manage-users/');
+    } catch (error) {
+      console.error('Error deleting users:', error);
+      return res.status(500).json({ error: 'An error occurred while deleting the user.' });
+    }
+  }
 
 
 

@@ -28,6 +28,11 @@ module.exports = {
         },
         onDelete: 'CASCADE',
       },
+      booking_reference: {
+        type: Sequelize.STRING,
+        allowNull: false,
+
+      },
       eligible: {
         type: Sequelize.BOOLEAN,
         allowNull: false,

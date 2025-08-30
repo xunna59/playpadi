@@ -13,7 +13,7 @@
                             <%= title %>
                         </li>
                     </ul>
-                    <h1 class="page-header mb-0">Manage Bookings</h1>
+                    <h1 class="page-header mb-0">Manage Refunds</h1>
                 </div>
             </div>
             <% if (success_msg.length> 0) { %> <div class="alert alert-success">
@@ -25,23 +25,6 @@
                         </div>
                         <% } %>
                             <div class="card">
-                                <!-- <ul class="nav nav-tabs nav-tabs-v2 px-4">
-                                    <li class="nav-item me-3"><a href="#allTab" class="nav-link active px-2"
-                                            data-bs-toggle="tab">All</a></li>
-                                    <li class="nav-item me-3"><a href="#publishedTab" class="nav-link px-2"
-                                            data-bs-toggle="tab">Unfulfilled</a>
-                                    </li>
-                                    <li class="nav-item me-3"><a href="#expiredTab" class="nav-link px-2"
-                                            data-bs-toggle="tab">Unpaid</a></li>
-                                    <li class="nav-item me-3"><a href="#deletedTab" class="nav-link px-2"
-                                            data-bs-toggle="tab">Open</a>
-                                    </li>
-                                    <li class="nav-item me-3"><a href="#deletedTab" class="nav-link px-2"
-                                            data-bs-toggle="tab">Closed</a></li>
-                                    <li class="nav-item me-3"><a href="#deletedTab" class="nav-link px-2"
-                                            data-bs-toggle="tab">Local delivery</a>
-                                    </li>
-                                </ul> -->
                                 <div class="tab-content p-4">
                                     <div class="tab-pane fade show active" id="allTab">
                                         <!-- BEGIN input-group -->
@@ -49,35 +32,13 @@
                                             <div class="flex-fill position-relative">
                                                 <div class="input-group">
                                                     <input type="text" class="form-control ps-35px"
-                                                        placeholder="Search Booking Reference">
+                                                        placeholder="Search Transaction Reference">
                                                     <div class="input-group-text position-absolute top-0 bottom-0 bg-none border-0"
                                                         style="z-index: 1020;">
                                                         <i class="fa fa-search opacity-5"></i>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <!-- <button class="btn btn-default dropdown-toggle rounded-0" type="button"
-                                                data-bs-toggle="dropdown"><span class="d-none d-md-inline">Payment
-                                                    Status</span><span class="d-inline d-md-none"><i
-                                                        class="fa fa-credit-card"></i></span> &nbsp;</button>
-                                            <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="#">Action</a>
-                                                <a class="dropdown-item" href="#">Another action</a>
-                                                <a class="dropdown-item" href="#">Something else here</a>
-                                                <div role="separator" class="dropdown-divider"></div>
-                                                <a class="dropdown-item" href="#">Separated link</a>
-                                            </div>
-                                            <button class="btn btn-default dropdown-toggle" type="button"
-                                                data-bs-toggle="dropdown"><span class="d-none d-md-inline">Fulfillment
-                                                    status</span><span class="d-inline d-md-none"><i
-                                                        class="fa fa-check"></i></span></button>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a class="dropdown-item" href="#">Action</a>
-                                                <a class="dropdown-item" href="#">Another action</a>
-                                                <a class="dropdown-item" href="#">Something else here</a>
-                                                <div role="separator" class="dropdown-divider"></div>
-                                                <a class="dropdown-item" href="#">Separated link</a>
-                                            </div> -->
                                         </div>
                                         <!-- END input-group -->
                                         <!-- BEGIN table -->
@@ -86,64 +47,52 @@
                                                 <thead>
                                                     <tr>
                                                         <th class="border-top-0 pt-0 pb-2"></th>
-                                                        <th class="border-top-0 pt-0 pb-2">Booking Reference</th>
-                                                        <th class="border-top-0 pt-0 pb-2">Booked By</th>
-                                                        <th class="border-top-0 pt-0 pb-2">Court</th>
-                                                        <th class="border-top-0 pt-0 pb-2">Slot</th>
-                                                        <th class="border-top-0 pt-0 pb-2"> Status</th>
+                                                        <th class="border-top-0 pt-0 pb-2">Transaction Reference</th>
+                                                        <th class="border-top-0 pt-0 pb-2">User</th>
+                                                        <th class="border-top-0 pt-0 pb-2">Amount</th>
+                                                        <th class="border-top-0 pt-0 pb-2">Reason</th>
+                                                        <th class="border-top-0 pt-0 pb-2"> status</th>
                                                         <th class="border-top-0 pt-0 pb-2">Date Created</th>
-                                                        <th class="border-top-0 pt-0 pb-2">Date Updated</th>
+                                                        <th class="border-top-0 pt-0 pb-2">Last Modified</th>
+                                                        <th class="border-top-0 pt-0 pb-2"></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <% if (bookings.length> 0) { %> <% bookings.forEach((booking,
-                                                            index)=> { %> <tr>
+                                                    <% if (refunds.length> 0) { %> <% refunds.forEach((refund, index)=>
+                                                            { %> <tr>
                                                                 <td class="w-10px align-middle">
                                                                     <%= index + 1 %>
                                                                 </td>
                                                                 <td class="align-middle">
-                                                                    <%= booking.booking_reference %>
+                                                                    <%= refund.booking_reference %>
                                                                 </td>
                                                                 <td class="align-middle">
-                                                                    <% if (booking.user_type==='User' && booking.user) {
+                                                                    <%= refund.user.first_name %>
+                                                                        <%= refund.user.last_name %>
+                                                                </td>
+                                                                <td> ₦<%= Number(refund.refund_amount).toLocaleString()
                                                                         %>
-                                                                        <%= booking.user.first_name %>
-                                                                            <%= booking.user.last_name %>
-                                                                                <% } else if
-                                                                                    (booking.user_type==='System' &&
-                                                                                    booking.admin) { %>
-                                                                                    <%= 'System Admin' %>
-                                                                                        <% } else { %> N/A <% } %>
                                                                 </td>
-                                                                <td>
-                                                                    <%= booking.court.court_name %>
-                                                                </td>
-                                                                <!-- <td class="py-1 align-middle"><span
-                                                                        class="badge bg-teal text-teal-800 bg-opacity-25 px-2 pt-5px pb-5px rounded fs-12px d-inline-flex align-items-center"><i
-                                                                            class="fa fa-circle text-teal fs-9px fa-fw me-5px"></i>
-                                                                        <%= booking.gender ? booking.gender : "N/A" %>
-                                                                    </span>
-                                                                </td> -->
                                                                 <td class="align-middle"><span
                                                                         class="badge bg-gray-100 text-black text-opacity-50 px-2 pt-5px pb-5px rounded fs-12px d-inline-flex align-items-center">
-                                                                        <%= booking.date %> | <%= booking.slot %>
+                                                                        <%= refund.reason %> %>
                                                                     </span>
                                                                 </td>
                                                                 <td class="py-1 align-middle">
-                                                                    <% const statusMap={ 'confirmed' : {
+                                                                    <% const statusMap={ 'success' : {
                                                                         bgClass: 'bg-success' ,
-                                                                        textClass: 'text-success' , label: 'Confirmed'
-                                                                        }, 'cancelled' : { bgClass: 'bg-danger' ,
-                                                                        textClass: 'text-danger' , label: 'Cancelled'
-                                                                        }, 'elapsed' : { bgClass: 'bg-dark' ,
-                                                                        textClass: 'text-dark' , label: 'Elapsed'
+                                                                        textClass: 'text-success' , label: 'Success'
+                                                                        }, 'failed' : { bgClass: 'bg-danger' ,
+                                                                        textClass: 'text-danger' , label: 'Failed'
+                                                                        }, 'elapsed' : { bgClass: 'bg-secondary' ,
+                                                                        textClass: 'text-secondary' , label: 'Elapsed'
                                                                         }, 'pending' : { bgClass: 'bg-warning' ,
                                                                         textClass: 'text-warning' , label: 'Pending' }
-                                                                        }; const status=statusMap[booking.status] || {
+                                                                        }; const status=statusMap[refund.status] || {
                                                                         bgClass: 'bg-light' , textClass: 'text-muted' ,
                                                                         label: 'Unknown' }; %>
                                                                         <span
-                                                                            class="badge <%= status.bgClass %>  bg-opacity-25 px-2 pt-5px pb-5px rounded fs-12px d-inline-flex align-items-center <%= status.textClass %>">
+                                                                            class="badge <%= status.bgClass %> text-dark bg-opacity-25 px-2 pt-5px pb-5px rounded fs-12px d-inline-flex align-items-center">
                                                                             <i
                                                                                 class="fa fa-circle <%= status.textClass %> fs-9px fa-fw me-5px"></i>
                                                                             <%= status.label %>
@@ -151,23 +100,31 @@
                                                                 </td>
                                                                 <td class="align-middle">
                                                                     <%= new
-                                                                        Date(booking.created_at).toLocaleString('en-GB',
+                                                                        Date(refund.created_at).toLocaleString('en-GB',
                                                                         { day: 'numeric' , month: 'short' ,
                                                                         year: 'numeric' , hour: '2-digit' ,
                                                                         minute: '2-digit' , hour12: true }) %>
                                                                 </td>
                                                                 <td class="align-middle">
                                                                     <%= new
-                                                                        Date(booking.updated_at).toLocaleString('en-GB',
+                                                                        Date(refund.updated_at).toLocaleString('en-GB',
                                                                         { day: 'numeric' , month: 'short' ,
                                                                         year: 'numeric' , hour: '2-digit' ,
                                                                         minute: '2-digit' , hour12: true }) %>
+                                                                </td>
+                                                                <td>
+                                                                    <% if (refund.eligible==1) { %>
+                                                                        <button class="btn btn-sm btn-primary"> Refund ₦
+                                                                            <%= Number(refund.refund_amount).toLocaleString()
+                                                                                %>
+                                                                        </button>
+                                                                        <% } %>
                                                                 </td>
                                                             </tr>
                                                             <% }) %>
                                                                 <% } else { %>
                                                                     <tr>
-                                                                        <td colspan="15">No bookings found.</td>
+                                                                        <td colspan="15">No data found.</td>
                                                                     </tr>
                                                                     <% } %>
                                                 </tbody>
@@ -177,19 +134,19 @@
                                         <div class="d-md-flex align-items-center">
                                             <!-- Showing X to Y of Z entries -->
                                             <div class="me-md-auto text-md-left text-center mb-2 mb-md-0"> Showing <%=
-                                                    offset + 1 %> to <%= offset + bookings.length %> of <%= count %>
+                                                    offset + 1 %> to <%= offset + refunds.length %> of <%= count %>
                                                             entries </div>
                                             <!-- Pagination Controls -->
                                             <ul class="pagination mb-0 justify-content-center">
                                                 <!-- Previous Button -->
                                                 <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
                                                     <a class="page-link"
-                                                        href="admin/bookings/?page=<%= currentPage - 1 %>">Previous</a>
+                                                        href="admin/manage-refunds/?page=<%= currentPage - 1 %>">Previous</a>
                                                 </li>
                                                 <!-- Page Numbers -->
                                                 <% for (let i=1; i <=totalPages; i++) { %>
                                                     <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                                                        <a class="page-link" href="admin/bookings/?page=<%= i %>">
+                                                        <a class="page-link" href="admin/manage-refunds/?page=<%= i %>">
                                                             <%= i %>
                                                         </a>
                                                     </li>
@@ -198,7 +155,7 @@
                                                         <li
                                                             class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
                                                             <a class="page-link"
-                                                                href="admin/bookings/?page=<%= currentPage + 1 %>">Next</a>
+                                                                href="admin/manage-refunds/?page=<%= currentPage + 1 %>">Next</a>
                                                         </li>
                                             </ul>
                                         </div>

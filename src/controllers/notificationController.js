@@ -1,7 +1,69 @@
 const { Notification, UserNotification, User } = require('../models');
+const sendPushNotification = require('../utils/notification');
+const { Op } = require('sequelize');
+
+
 
 const NotificationController = {
     // Fetch all notifications for a user (both general and personal)
+
+    renderAllNotifications: async (req, res) => {
+        try {
+            // Pagination params
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 10;
+            const offset = (page - 1) * limit;
+
+            // Fetch general notifications with count
+            const { count, rows } = await Notification.findAndCountAll({
+                where: { type: 'general' },
+                order: [['created_at', 'DESC']],
+                limit,
+                offset,
+                raw: true,
+            });
+
+            const totalPages = Math.ceil(count / limit);
+
+            return res.render('notifications/index', {
+                title: 'Manage Notifications',
+                admin: req.admin,
+                notifications: rows,
+                currentPage: page,
+                totalPages,
+                count,
+                offset,
+                limit,
+            });
+
+        } catch (error) {
+            console.error('Error fetching notifications:', error);
+            return res.status(500).json({ error: 'An error occurred while fetching notifications.' });
+        }
+    },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     getAllNotifications: async (req, res) => {
         try {
             const userId = req.user.id;
@@ -70,11 +132,32 @@ const NotificationController = {
                 data,
             });
 
-            return res.status(201).json({
-                success: true,
-                message: 'General notification created.',
-                notification,
+            // 2. Fetch users with FCM tokens
+            const users = await User.findAll({
+                where: {
+                    fcm_token: { [Op.ne]: null }, // users with non-null FCM tokens
+                },
             });
+
+            if (users.length > 0) {
+                // 3. Send push notifications in parallel
+                const results = await Promise.all(
+                    users.map((user) =>
+                        sendPushNotification(user.fcm_token, title, description) // 👈 use description as message body
+                    )
+                );
+
+                const failures = results.filter((result) => !result.success);
+
+                if (failures.length > 0) {
+                    console.warn(`Notification sent with ${failures.length} failure(s)`);
+                }
+            }
+
+            req.flash('success_msg', "Notification Created Successfully");
+            return res.redirect(303, `/admin/manage-users`);
+
+
         } catch (error) {
             console.error('Error creating general notification:', error);
             return res.status(500).json({ error: 'An error occurred while creating the notification.' });
@@ -141,6 +224,27 @@ const NotificationController = {
             return res.status(500).json({ error: 'An error occurred while marking the notification as read.' });
         }
     },
+
+    deleteNotification: async (req, res) => {
+        try {
+            const { id } = req.params;
+
+            // Find and delete
+            const notification = await Notification.findByPk(id);
+            if (!notification) {
+                return res.status(404).json({ error: 'Notification not found' });
+            }
+
+            await notification.destroy();
+            req.flash('success_msg', 'Notification Deleted successfully');
+            // Redirect back after delete
+            return res.redirect('/admin/notifications');
+        } catch (error) {
+            console.error('Error deleting notification:', error);
+            return res.status(500).json({ error: 'An error occurred while deleting the notification.' });
+        }
+    }
+
 };
 
 

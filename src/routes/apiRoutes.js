@@ -100,10 +100,11 @@ router.put('/update-dp', protect, UsersController.update_dp);
 router.put('/update-fcm-token', protect, UsersController.updateFCMToken);
 router.get('/get-fcm-token', protect, UsersController.getFCMToken);
 
-
+// push notifications
 router.post('/notify-user', UsersController.notifyUser);
 router.post('/notify-all-users', UsersController.notifyAllUsers);
 
+// app notifications
 router.post('/notifications/general', notificationController.createGeneralNotification);
 router.post('/notifications/personal', notificationController.sendPersonalNotification);
 router.get('/notifications', protect, notificationController.getAllNotifications);

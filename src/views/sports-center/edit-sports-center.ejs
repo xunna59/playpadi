@@ -205,17 +205,11 @@
                                                                     data-pricing='<%= JSON.stringify(court.court_data || []) %>'>
                                                                     <i class="fas fa-pen"></i>
                                                                 </a>
-                                                                <form
-                                                                    action="/admin/sports-centers/delete-court/<%= court.id %>?_method=DELETE"
-                                                                    method="POST"
-                                                                    onsubmit="return confirm('Are you sure you want to delete this court?')"
-                                                                    class="d-inline">
-                                                                    <button type="submit"
-                                                                        class="btn btn-link text-danger p-2"
-                                                                        title="Delete">
-                                                                        <i class="fas fa-trash-alt"></i>
-                                                                    </button>
-                                                                </form>
+                                                                <button type="button"
+                                                                    class="btn btn-link text-danger me-2"
+                                                                    data-bs-toggle="modal" data-bs-target="#modalSm"
+                                                                    data-court-id="<%= court.id %>"><i
+                                                                        class="fas fa-trash-alt"></i></button>
                                                             </div>
                                                         </div>
                                                         <hr class="opacity-1 my-4">
@@ -398,6 +392,37 @@
                 </div>
             </div>
         </div>
+        <div class="modal fade" id="modalSm">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirm Delete</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete this court?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                        <form id="deleteCourtForm" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-danger">Yes</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            const modalSm = document.getElementById('modalSm');
+            const deleteForm = document.getElementById('deleteCourtForm');
+
+            modalSm.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget; // Button that triggered the modal
+                const courtId = button.getAttribute('data-court-id'); // Extract ID
+
+                // Update form action dynamically
+                deleteForm.action = `/admin/sports-centers/delete-court/${courtId}?_method=DELETE`;
+            });
+        </script>
         <!-- END #content -->
         <!-- BEGIN btn-scroll-top -->
         <script>

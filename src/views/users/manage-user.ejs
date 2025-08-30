@@ -34,10 +34,12 @@
                             <li class="nav-item">
                                 <a href="#classes" class="nav-link" data-bs-toggle="tab">
                                     <div class="nav-field">Classes Joined</div>
-                                    <div class="nav-value">1,397</div>
+                                    <div class="nav-value">
+                                        <%= academyPagination.total %>
+                                    </div>
                                 </a>
                             </li>
-                            <li class="nav-item">
+                            <!-- <li class="nav-item">
                                 <a href="#profile-video" class="nav-link" data-bs-toggle="tab">
                                     <div class="nav-field">Videos</div>
                                     <div class="nav-value">120</div>
@@ -48,7 +50,7 @@
                                     <div class="nav-field">Following</div>
                                     <div class="nav-value">2,592</div>
                                 </a>
-                            </li>
+                            </li> -->
                         </ul>
                     </div>
                 </div>
@@ -73,52 +75,50 @@
                                 <%= `${user.address}, ${user.state}` %>
                             </div>
                             <div class="mb-3">
-                                <i class="fa fa-phone fa-fw text-muted"></i>
+                                <i class="fa fa-mobile fa-fw text-muted"></i>
                                 <%= user.phone %>
+                            </div>
+                            <div class="mb-3">
+                                <i class="fa fa-mars-and-venus fa-fw text-muted"></i>
+                                <%= user.gender %>
+                            </div>
+                            <div class="mb-3">
+                                <i class="fa fa-chart-line fa-fw text-muted"></i>
+                                <%= user.points %>
+                            </div>
+                            <div class="mb-3">
+                                <i class="fa fa-user fa-fw text-muted"></i>
+                                <%= user.account_type %>
                             </div>
                             <hr class="mt-4 mb-4">
                             <!-- people-to-follow -->
-                            <!-- <div class="fw-500 mb-3 fs-16px">People to follow</div>
-                            <div class="d-flex align-items-center mb-3">
-                                <img src="assets/img/user/user-1.jpg" alt="" width="30" class="rounded-circle">
-                                <div class="flex-fill px-3">
-                                    <div class="fw-500 text-truncate w-100px">Noor Rowe</div>
-                                    <div class="fs-12px text-body text-opacity-50">3.1m followers</div>
+                            <div class="fw-500 mb-3 fs-16px">Player Preferences</div>
+                            <div class="list-group list-group-flush">
+                                <div class="list-group-item d-flex justify-content-between">
+                                    <span class="fw-500">Best Hand:</span>
+                                    <span>
+                                        <%= user.preferences.best_hand %>
+                                    </span>
                                 </div>
-                                <a href="#" class="btn btn-sm btn-outline-theme fs-11px fw-500">Follow</a>
+                                <div class="list-group-item d-flex justify-content-between">
+                                    <span class="fw-500">Court Position:</span>
+                                    <span>
+                                        <%= user.preferences.court_position %>
+                                    </span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between">
+                                    <span class="fw-500">Match Type:</span>
+                                    <span>
+                                        <%= user.preferences.match_type %>
+                                    </span>
+                                </div>
+                                <div class="list-group-item d-flex justify-content-between">
+                                    <span class="fw-500">Preferred Play Time:</span>
+                                    <span>
+                                        <%= user.preferences.play_time %>
+                                    </span>
+                                </div>
                             </div>
-                            <div class="d-flex align-items-center mb-3">
-                                <img src="assets/img/user/user-2.jpg" alt="" width="30" class="rounded-circle">
-                                <div class="flex-fill px-3">
-                                    <div class="fw-500 text-truncate w-100px">Abbey Parker</div>
-                                    <div class="fs-12px text-body text-opacity-50">302k followers</div>
-                                </div>
-                                <a href="#" class="btn btn-sm btn-outline-theme fs-11px fw-500">Follow</a>
-                            </div>
-                            <div class="d-flex align-items-center mb-3">
-                                <img src="assets/img/user/user-3.jpg" alt="" width="30" class="rounded-circle">
-                                <div class="flex-fill px-3">
-                                    <div class="fw-500 text-truncate w-100px">Savannah Nicholson</div>
-                                    <div class="fs-12px text-body text-opacity-50">720k followers</div>
-                                </div>
-                                <a href="#" class="btn btn-sm btn-outline-theme fs-11px fw-500">Follow</a>
-                            </div>
-                            <div class="d-flex align-items-center mb-3">
-                                <img src="assets/img/user/user-4.jpg" alt="" width="30" class="rounded-circle">
-                                <div class="flex-fill px-3">
-                                    <div class="fw-500 text-truncate w-100px">Kenny Bright</div>
-                                    <div class="fs-12px text-body text-opacity-50">1.4m followers</div>
-                                </div>
-                                <a href="#" class="btn btn-sm btn-outline-theme fs-11px fw-500">Follow</a>
-                            </div>
-                            <div class="d-flex align-items-center">
-                                <img src="assets/img/user/user-5.jpg" alt="" width="30" class="rounded-circle">
-                                <div class="flex-fill px-3">
-                                    <div class="fw-500 text-truncate w-100px">Cara Poole</div>
-                                    <div class="fs-12px text-body text-opacity-50">989k followers</div>
-                                </div>
-                                <a href="#" class="btn btn-sm btn-outline-theme fs-11px fw-500">Follow</a>
-                            </div> -->
                         </div>
                     </div>
                     <!-- END profile-sidebar -->
@@ -332,31 +332,40 @@
                                         </div>
                                         <!-- Pagination Controls -->
                                         <div class="d-md-flex align-items-center justify-content-between">
-                                            <div class="me-md-auto text-md-left text-center mb-2 mb-md-0"> Showing <%=
-                                                    academyPagination.offset + 1 %> to <%= academyPagination.offset +
-                                                        academyStudents.length %> of <%= academyPagination.total %>
-                                                            entries </div>
-                                            <ul class="pagination mb-0 justify-content-center">
-                                                <li
-                                                    class="page-item <%= academyPagination.currentPage === 1 ? 'disabled' : '' %>">
-                                                    <a class="page-link"
-                                                        href="<%= academyPagination.baseUrl %>?academyPage=<%= academyPagination.currentPage - 1 %>#classes">Previous</a>
-                                                </li>
-                                                <% for (let i=1; i <=academyPagination.totalPages; i++) { %>
+                                            <div class="me-md-auto text-md-left text-center mb-2 mb-md-0">
+                                                <% if (academyPagination.total> 0) { %> Showing <%=
+                                                        academyPagination.offset + 1 %> to <%= academyPagination.offset
+                                                            + academyStudents.length %> of <%= academyPagination.total
+                                                                %> entries <% } else { %> No entries found <% } %>
+                                            </div>
+                                            <% if (academyPagination.totalPages> 1) { %> <ul
+                                                    class="pagination mb-0 justify-content-center">
+                                                    <!-- Previous -->
                                                     <li
-                                                        class="page-item <%= academyPagination.currentPage === i ? 'active' : '' %>">
+                                                        class="page-item <%= academyPagination.currentPage === 1 ? 'disabled' : '' %>">
                                                         <a class="page-link"
-                                                            href="<%= academyPagination.baseUrl %>?academyPage=<%= i %>#classes">
-                                                            <%= i %>
-                                                        </a>
+                                                            href="<%= academyPagination.baseUrl %>?academyPage=<%= academyPagination.currentPage - 1 %>#classes">
+                                                            Previous </a>
                                                     </li>
-                                                    <% } %>
+                                                    <!-- Page numbers -->
+                                                    <% for (let i=1; i <=academyPagination.totalPages; i++) { %>
                                                         <li
-                                                            class="page-item <%= academyPagination.currentPage === academyPagination.totalPages ? 'disabled' : '' %>">
+                                                            class="page-item <%= academyPagination.currentPage === i ? 'active' : '' %>">
                                                             <a class="page-link"
-                                                                href="<%= academyPagination.baseUrl %>?academyPage=<%= academyPagination.currentPage + 1 %>#classes">Next</a>
+                                                                href="<%= academyPagination.baseUrl %>?academyPage=<%= i %>#classes">
+                                                                <%= i %>
+                                                            </a>
                                                         </li>
-                                            </ul>
+                                                        <% } %>
+                                                            <!-- Next -->
+                                                            <li
+                                                                class="page-item <%= academyPagination.currentPage === academyPagination.totalPages ? 'disabled' : '' %>">
+                                                                <a class="page-link"
+                                                                    href="<%= academyPagination.baseUrl %>?academyPage=<%= academyPagination.currentPage + 1 %>#classes">
+                                                                    Next </a>
+                                                            </li>
+                                                </ul>
+                                                <% } %>
                                         </div>
                                     </div>
                                     <!-- END tab-pane -->
@@ -498,73 +507,37 @@
                                         <div class="list-group list-group-flush">
                                             <div class="list-group-item fw-500 px-3 d-flex">
                                                 <span class="flex-fill">User Activity</span>
-                                                <a href="#" class="text-muted"><i class="fa fa-cog"></i></a>
+                                                <i class="fa fa-heart-pulse"></i>
                                             </div>
-                                            <div class="list-group-item px-3">
-                                                <div class="text-muted"><small><strong>Trending
-                                                            Worldwide</strong></small></div>
-                                                <div class="fw-500 mb-2">#BreakingNews</div>
-                                                <a href="#"
-                                                    class="card overflow-hidden mb-1 text-body text-decoration-none">
-                                                    <div class="row no-gutters">
-                                                        <div class="col-md-8">
-                                                            <div class="card-body p-1 px-2">
-                                                                <div class="fs-12px text-muted">Space</div>
-                                                                <div class="h-40px fs-13px overflow-hidden">Distant star
-                                                                    explosion is brightest ever seen, study finds</div>
-                                                            </div>
+                                            <% if (activities && activities.length> 0) { %> <%
+                                                    activities.forEach(function(activity) { %>
+                                                    <div class="list-group-item px-3">
+                                                        <div class="fw-500 mb-2">
+                                                            <%= activity.activity_type %>
                                                         </div>
-                                                        <div class="col-md-4 d-flex">
-                                                            <div class="h-100 w-100"
-                                                                style="background: url(assets/img/gallery/news-1.jpg) center; background-size: cover;">
-                                                            </div>
+                                                        <div class="fs-13px">
+                                                            <%= activity.description %>
                                                         </div>
-                                                    </div>
-                                                </a>
-                                                <div><small class="text-muted">1.89m share</small></div>
-                                            </div>
-                                            <div class="list-group-item px-3">
-                                                <div class="fw-500 mb-2">#TrollingForGood</div>
-                                                <div class="fs-13px">Be a good Troll and spread some positivity on
-                                                    Studio today. </div>
-                                                <div><small class="text-muted"><i
-                                                            class="fa fa-external-link-square-alt"></i> Promoted by
-                                                        Studio Trolls</small></div>
-                                            </div>
-                                            <div class="list-group-item px-3">
-                                                <div class="text-muted"><small><strong>Trending
-                                                            Worldwide</strong></small></div>
-                                                <div class="fw-500 mb-2">#CronaOutbreak</div>
-                                                <div class="fs-13px">The coronavirus is affecting 210 countries around
-                                                    the world and 2 ...</div>
-                                                <div><small class="text-muted">49.3m share</small></div>
-                                            </div>
-                                            <div class="list-group-item px-3">
-                                                <div class="text-muted"><small><strong>Trending in New
-                                                            York</strong></small>
-                                                </div>
-                                                <div class="fw-500 mb-2">#CoronavirusPandemic</div>
-                                                <a href="#"
-                                                    class="card overflow-hidden mb-1 text-body text-decoration-none">
-                                                    <div class="row no-gutters">
-                                                        <div class="col-md-8">
-                                                            <div class="card-body p-1 px-2">
-                                                                <div class="fs-12px text-muted">Coronavirus</div>
-                                                                <div class="h-40px fs-13px overflow-hidden">Coronavirus:
-                                                                    US suspends travel from Europe</div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-4 d-flex">
-                                                            <div class="h-100 w-100"
-                                                                style="background: url(assets/img/gallery/news-2.jpg) center; background-size: cover;">
-                                                            </div>
+                                                        <div>
+                                                            <small class="text-muted">
+                                                                <i class="fa fa-clock"></i>
+                                                                <%= new Date(activity.created_at).toLocaleString() %>
+                                                                    <% if (activity.device) { %> | <i
+                                                                            class="fa fa-mobile"></i>
+                                                                        <%= activity.device %>
+                                                                            <% } %> | <i
+                                                                                    class="fa fa-map-marker-alt"></i>
+                                                                                <%= activity.ip_address %>
+                                                            </small>
                                                         </div>
                                                     </div>
-                                                </a>
-                                                <div><small class="text-muted">821k share</small></div>
-                                            </div>
-                                            <a href="#" class="list-group-item list-group-action text-center"> Show more
-                                            </a>
+                                                    <% }) %>
+                                                        <% } else { %>
+                                                            <div class="list-group-item px-3">
+                                                                <div class="text-muted">No recent activities found.
+                                                                </div>
+                                                            </div>
+                                                            <% } %>
                                         </div>
                                     </div>
                                 </div>

@@ -8,6 +8,8 @@ const path = require('path');
 const session = require('express-session');
 const flash = require('connect-flash');
 const methodOverride = require('method-override');
+require("./src/cron/bookingCron");
+
 
 const healthRoutes = require('./src/routes/healthRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');

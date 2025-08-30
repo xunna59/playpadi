@@ -25,6 +25,12 @@ module.exports = (sequelize) => {
             }
         },
 
+        booking_reference: {
+            type: DataTypes.STRING,
+            allowNull: false,
+
+        },
+
 
     }, {
         tableName: 'booking_players',

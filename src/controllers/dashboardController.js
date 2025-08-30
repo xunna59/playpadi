@@ -1,4 +1,5 @@
-const { User, Bookings, Transaction, Refunds } = require('../models');
+const { where } = require('sequelize');
+const { User, Bookings, Transaction, Refunds, Court, Admin } = require('../models');
 
 const dashboardController = {
     renderDashboard: async (req, res, next) => {
@@ -14,7 +15,8 @@ const dashboardController = {
                 totalPaymentsPublicBookings,
                 totalPaymentsClasses,
                 totalRefunds,
-                totalRefundAmount
+                totalRefundAmount,
+
             ] = await Promise.all([
                 User.count(),
                 Bookings.count(),
@@ -29,6 +31,33 @@ const dashboardController = {
                 Refunds.sum('refund_amount', { where: { status: 'refunded' } }),
 
             ]);
+
+            const getPendingRefunds = await Refunds.findAll({
+                where: { status: 'pending' }, limit: 10, order: [['created_at', 'DESC']],
+                include: [
+                    {
+                        model: User,
+                        as: 'user', // this alias must match how you defined the association
+                        required: false
+                    },
+
+                ]
+            });
+            const getRecentBookings = await Bookings.findAll({
+                limit: 10,
+                order: [['created_at', 'DESC']], // make sure your model uses `createdAt`, not `created_at`
+                include: [
+                    {
+                        model: User,
+                        as: 'user', // this alias must match how you defined the association
+                        required: false
+                    },
+                    { model: Court, as: 'court' },
+                    { model: Admin, as: 'admin', required: false }
+                ]
+            });
+
+
 
             return res.render('dashboard', {
                 title: 'Dashboard',
@@ -45,7 +74,9 @@ const dashboardController = {
                     refunds: totalRefunds,
                     totalAmountRefunded: totalRefundAmount || 0
 
-                }
+                },
+                getPendingRefunds,
+                getRecentBookings
             });
         } catch (error) {
             next(error);

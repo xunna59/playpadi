@@ -19,12 +19,24 @@ const sportsCenterController = {
 
             const totalPages = Math.ceil(count / limit);
 
-            const formattedCenters = sportsCenters.map(center => {
-                if (typeof center.sports_center_games === 'string') {
-                    center.sports_center_games = JSON.parse(center.sports_center_games);
-                }
-                return center;
-            });
+            const formattedCenters = await Promise.all(
+                sportsCenters.map(async (center) => {
+                    if (typeof center.sports_center_games === 'string') {
+                        center.sports_center_games = JSON.parse(center.sports_center_games);
+                    }
+
+                    // count courts for each center
+                    const totalCourts = await Court.count({
+                        where: { sports_center_id: center.id }
+                    });
+
+                    return {
+                        ...center.get({ plain: true }),
+                        totalCourts,
+                    };
+                })
+            );
+
 
             return res.render('sports-center/index', {
                 title: 'Manage Sports Center',

@@ -1,7 +1,7 @@
-const { Bookings, Court, User, SportsCenter, BookingPlayers, Refunds, Admin } = require('../models');
+const { Bookings, Court, User, SportsCenter, BookingPlayers, Refunds, Admin, Transaction } = require('../models');
 const UserActivityController = require('./userActivityController');
 const sendEmail = require('../utils/sendEmail');
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 const dayjs = require('dayjs');
 const customParseFormat = require('dayjs/plugin/customParseFormat');
 dayjs.extend(customParseFormat);
@@ -37,7 +37,7 @@ const bookingsController = {
     renderAllBookings: async (req, res, next) => {
         try {
             const page = parseInt(req.query.page, 10) || 1;
-            const limit = 5;
+            const limit = 15;
             const offset = (page - 1) * limit;
 
             const { count, rows: bookings } = await Bookings.findAndCountAll({
@@ -106,6 +106,7 @@ const bookingsController = {
                 session_duration
             } = req.body;
 
+
             const missingFields = [];
 
             if (!date) missingFields.push('date');
@@ -125,6 +126,12 @@ const bookingsController = {
 
             const { id: user_id, user_type, } = req.user;
             const { court_id, sports_center_id } = req.params;
+            const { transaction_reference_id } = req.query;
+
+            const transaction_reference = Transaction.findOne({ where: { reference: transaction_reference_id } });
+            if (!transaction_reference) {
+                return res.status(404).json({ message: 'Nice try Chief, complete payment to book this service.' });
+            }
 
 
             const user = await User.findByPk(user_id);
@@ -157,7 +164,9 @@ const bookingsController = {
                 });
             }
 
-            const booking_reference = generateBookingReference();
+            //   const booking_reference = generateBookingReference();
+            const booking_reference = transaction_reference_id;
+
 
             let total_players;
 
@@ -209,7 +218,8 @@ const bookingsController = {
 
                 await BookingPlayers.create({
                     user_id,
-                    bookings_id: booking.id
+                    bookings_id: booking.id,
+                    booking_reference: booking.booking_reference
                 });
 
                 await UserActivityController.log({
@@ -392,6 +402,13 @@ const bookingsController = {
             const { bookingId } = req.params;
             const userId = req.user.id;
 
+            const { transaction_reference_id } = req.query;
+
+            const transaction_reference = Transaction.findOne({ where: { reference: transaction_reference_id } });
+            if (!transaction_reference) {
+                return res.status(404).json({ message: 'Nice try Chief, complete payment to join this booking.' });
+            }
+
             const booking = await Bookings.findOne({
                 where: {
                     id: bookingId,
@@ -470,6 +487,7 @@ const bookingsController = {
             await Refunds.create({
                 user_id: req.user.id,
                 booking_id: booking.id,
+                booking_reference: booking.booking_reference,
                 eligible: refundEligible,
                 refund_amount: refundEligible ? booking.session_price : 0,
                 reason: refundEligible
@@ -538,6 +556,7 @@ const bookingsController = {
             await Refunds.create({
                 user_id: userId,
                 booking_id: booking.id,
+                booking_reference: booking.booking_reference,
                 eligible: refundEligible,
                 refund_amount: refundEligible ? perPlayerRefund.toFixed(2) : 0,
                 reason: refundEligible

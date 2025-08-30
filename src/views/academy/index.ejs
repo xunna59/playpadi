@@ -81,15 +81,10 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <% if (classes.length> 0) { %> <% classes.forEach(academy_class=> {
-                                                            %> <tr>
+                                                    <% if (classes.length> 0) { %> <% classes.forEach((academy_class,
+                                                            index)=> { %> <tr>
                                                                 <td class="w-10px align-middle">
-                                                                    <div class="form-check">
-                                                                        <input type="checkbox" class="form-check-input"
-                                                                            id="product1">
-                                                                        <label class="form-check-label"
-                                                                            for="product1"></label>
-                                                                    </div>
+                                                                    <%= index + 1 %>
                                                                 </td>
                                                                 <td class="align-middle">
                                                                     <%= academy_class.title %>
@@ -201,14 +196,9 @@
                                                 </thead>
                                                 <tbody>
                                                     <% if (youtubeVideos.length> 0) { %> <%
-                                                            youtubeVideos.forEach(youtubeVideo=> { %> <tr>
+                                                            youtubeVideos.forEach((youtubeVideo, index)=> { %> <tr>
                                                                 <td class="w-10px align-middle">
-                                                                    <div class="form-check">
-                                                                        <input type="checkbox" class="form-check-input"
-                                                                            id="product1">
-                                                                        <label class="form-check-label"
-                                                                            for="product1"></label>
-                                                                    </div>
+                                                                    <%= index + 1 %>
                                                                 </td>
                                                                 <td class="align-middle">
                                                                     <%= youtubeVideo.video_title %>
@@ -279,14 +269,10 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <% if (coaches.length> 0) { %> <% coaches.forEach(coach=> { %> <tr>
+                                                    <% if (coaches.length> 0) { %> <% coaches.forEach((coach, index)=> {
+                                                            %> <tr>
                                                                 <td class="w-10px align-middle">
-                                                                    <div class="form-check">
-                                                                        <input type="checkbox" class="form-check-input"
-                                                                            id="coach-<%= coach.id %>">
-                                                                        <label class="form-check-label"
-                                                                            for="coach-<%= coach.id %>"></label>
-                                                                    </div>
+                                                                    <%= index + 1 %>
                                                                 </td>
                                                                 <td class="align-middle">
                                                                     <%= coach.first_name %>
@@ -689,7 +675,7 @@
 
         </script>
         <script>
-            const baseUrl = 'http://127.0.0.1:8080'; // Replace with your base URL
+            const baseUrl = 'http://app.playpadi.com'; // Replace with your base URL
             let allSlots = [];
 
             async function fetchSlots(centerId) {

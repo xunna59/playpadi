@@ -261,7 +261,7 @@ const academyController = {
 
 
 
-                req.flash('success_msg', 'Youtbube Video Uploaded successfully');
+                req.flash('success_msg', 'Youtube Video Uploaded successfully');
                 return res.redirect('/admin/academy/');
 
             } catch (err) {
@@ -694,6 +694,26 @@ const academyController = {
         } catch (error) {
             console.error(error);
             return res.status(500).json({ message: 'Server error', error });
+        }
+    },
+
+    deleteCoach: async (req, res) => {
+        try {
+            const { id } = req.params;
+
+            // Find and delete
+            const coach = await Coach.findByPk(id);
+            if (!coach) {
+                return res.status(404).json({ error: 'Coach not found' });
+            }
+
+            await coach.destroy();
+            req.flash('success_msg', 'Coach Deleted successfully');
+            // Redirect back after delete
+            return res.redirect('/admin/academy');
+        } catch (error) {
+            console.error('Error deleting Coach:', error);
+            return res.status(500).json({ error: 'An error occurred while deleting the Coach.' });
         }
     }
 

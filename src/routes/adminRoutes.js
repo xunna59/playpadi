@@ -10,6 +10,7 @@ const usersController = require('../controllers/usersController');
 const bookingsController = require('../controllers/bookingsController');
 const academyController = require('../controllers/academyController');
 const transactionController = require('../controllers/transactionController');
+const notificationController = require('../controllers/notificationController');
 
 
 const { protect } = require('../middleware/userAuthMiddleware');
@@ -32,6 +33,9 @@ router.get('/logout', adminController.logout);
 
 router.get('/settings', authMiddleware, adminController.getSettings);
 
+router.put('/update-password', authMiddleware, adminController.updateAdminPassword);
+router.put('/update-profile', authMiddleware, adminController.updateAdminProfile);
+
 
 
 router.get('/dashboard', authMiddleware, dashboardController.renderDashboard);
@@ -47,6 +51,8 @@ router.put('/sports-center/update-sports-center/:id', authMiddleware, sportsCent
 
 router.get('/manage-users/', authMiddleware, usersController.renderManageUsers);
 router.get('/manage-user/:userid', authMiddleware, usersController.renderViewUser);
+router.delete('/delete-user/:id', authMiddleware, usersController.deleteUser);
+
 
 
 
@@ -56,6 +62,7 @@ router.delete('/sports-centers/delete-court/:court_id', courtController.deleteCo
 
 
 router.get('/manage-transactions/', authMiddleware, transactionController.renderUserTransactions);
+router.get('/manage-refunds/', authMiddleware, transactionController.renderUserRefunds);
 
 
 
@@ -71,6 +78,8 @@ router.post('/academy/upload-video', authMiddleware, academyController.uploadYou
 
 router.post('/academy/create-coach', authMiddleware, academyController.createCoach);
 
+router.get('/notifications/', authMiddleware, notificationController.renderAllNotifications);
+router.delete('/notifications/:id', authMiddleware, notificationController.deleteNotification);
 
 
 

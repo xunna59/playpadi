@@ -323,26 +323,95 @@ const adminAuthController = {
             // Verify current password
             const isMatch = await bcrypt.compare(currentPassword, admin.password);
             if (!isMatch) {
-                //  req.flash('error_msg', "Current password is incorrect");
-                return res.status(400).json({ success: false, message: "Current password is incorrect" });
+                req.flash('error_msg', "Current password is incorrect");
+                //    return res.status(400).json({ success: false, message: "Current password is incorrect" });
+            } else {
+
+                // Hash new password
+                const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+                // Update admin password
+                await admin.update({ password: hashedPassword });
+
+
+                req.flash('success_msg', "Password updated successfully");
             }
 
-            // Hash new password
-            const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-            // Update admin password
-            await admin.update({ password: hashedPassword });
 
 
-            req.flash('success_msg', "Password updated successfully");
-
-            return res.redirect(303, `settings/account-settings`);
+            return res.redirect(303, `/admin/settings`);
 
             //   return res.status(200).json({ success: true, message: "Password updated successfully" });
         } catch (error) {
             next(error);
         }
-    }
+    },
+
+
+
+    updateAdminProfile: async (req, res, next) => {
+        const errors = validationResult(req);
+
+        // Validate request
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                success: false,
+                errors: errors.array().map(err => ({
+                    msg: err.msg,
+                    key: err.path,
+                })),
+            });
+        }
+
+        try {
+
+
+            const adminId = req.admin.id; // Ensure `authMiddleware` sets `req.admin`
+            const { username, email } = req.body;
+
+            // Fetch admin from database
+            const admin = await Admin.findByPk(adminId, {
+                attributes: ['id', 'email'], // Ensure password field is included
+            });
+
+            if (!admin) {
+                return res.status(404).json({ success: false, message: "Admin not found" });
+            }
+
+
+            const confirm_update = await admin.update({
+                username: username || admin.username,
+
+                email: email || admin.email,
+
+
+
+            });
+
+            if (confirm_update) {
+                req.flash('success_msg', "Profile updated successfully");
+            } else {
+                req.flash('error_msg', "An Error Occured");
+            }
+
+            return res.redirect(303, `/admin/settings`);
+
+            // Respond with the updated details
+            // res.status(200).json({
+            //     success: true,
+            //     message: 'Admin Profile updated successfully',
+            //     admin: {
+            //         username: admin.username,
+
+            //         email: admin.email,
+
+            //     },
+            // });
+        } catch (error) {
+            next(error); // Handle unexpected errors
+        }
+    },
+
 
 
 
