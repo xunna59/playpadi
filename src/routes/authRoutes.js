@@ -13,7 +13,9 @@ router.post('/login', UsersController.login);
 router.post('/validate-email', UsersController.checkEmailExists);
 
 
-router.post('/verify-email', protect, UsersController.resendVerificationEmail);
+router.post('/resend-email-verification', protect, UsersController.resendVerificationEmail);
+router.post('/forgot-password', UsersController.requestPasswordReset);
+router.get('/reset-password', UsersController.resetPassword);
 
 
 

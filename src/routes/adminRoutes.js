@@ -75,8 +75,20 @@ router.get('/academy/', authMiddleware, academyController.renderAllClasses);
 router.post('/academy/create-class', authMiddleware, academyController.createAcademy);
 
 router.post('/academy/upload-video', authMiddleware, academyController.uploadYoutubeTutorial);
+router.post('/academy/update-youtube/:id', authMiddleware, academyController.updateYoutubeTutorial);
+
 
 router.post('/academy/create-coach', authMiddleware, academyController.createCoach);
+
+router.delete('/delete-tutorial/:id', authMiddleware, academyController.deleteYoutubeTutorial);
+router.delete('/delete-coach/:id', authMiddleware, academyController.deleteCoach);
+router.delete('/delete-academy/:id', authMiddleware, academyController.deleteAcademy);
+
+
+
+
+
+
 
 router.get('/notifications/', authMiddleware, notificationController.renderAllNotifications);
 router.delete('/notifications/:id', authMiddleware, notificationController.deleteNotification);

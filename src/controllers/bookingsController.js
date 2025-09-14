@@ -443,7 +443,8 @@ const bookingsController = {
 
             const newPlayer = await BookingPlayers.create({
                 user_id: userId,
-                bookings_id: bookingId
+                bookings_id: bookingId,
+                booking_reference: transaction_reference_id
             });
 
             await UserActivityController.log({

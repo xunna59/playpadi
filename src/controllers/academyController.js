@@ -274,6 +274,49 @@ const academyController = {
 
     },
 
+    updateYoutubeTutorial: async (req, res, next) => {
+        flexibleUpload.single('youtube_cover')(req, res, async (err) => {
+            if (err) {
+                return res.status(400).json({ success: false, message: err.message });
+            }
+
+            try {
+                const { id } = req.params; // assuming you pass video id in URL like /admin/academy/:id/update
+                const {
+                    video_title,
+                    youtube_url,
+                    video_duration,
+                    upload_date,
+                } = req.body;
+
+                // Find video by ID
+                const video = await YoutubeTutorial.findByPk(id);
+                if (!video) {
+                    return res.status(404).json({ message: 'Video not found' });
+                }
+
+                // Update fields
+                video.video_title = video_title || video.video_title;
+                video.youtube_url = youtube_url || video.youtube_url;
+                video.video_duration = video_duration || video.video_duration;
+                video.upload_date = upload_date || video.upload_date;
+
+                // Replace cover image if uploaded
+                if (req.file) {
+                    video.cover_image = req.file.filename;
+                }
+
+                await video.save();
+
+                req.flash('success_msg', 'Youtube Video Updated successfully');
+                return res.redirect('/admin/academy/');
+            } catch (err) {
+                next(err);
+            }
+        });
+    },
+
+
     // getAllAcademies: async (req, res, next) => {
     //     try {
     //         const userId = req.user.id;
@@ -714,6 +757,48 @@ const academyController = {
         } catch (error) {
             console.error('Error deleting Coach:', error);
             return res.status(500).json({ error: 'An error occurred while deleting the Coach.' });
+        }
+    },
+
+    deleteYoutubeTutorial: async (req, res) => {
+        try {
+            const { id } = req.params;
+
+            // Find and delete
+            const youtubeTutorial = await YoutubeTutorial.findByPk(id);
+            if (!youtubeTutorial) {
+                return res.status(404).json({ error: 'youtubeTutorial not found' });
+            }
+
+            await youtubeTutorial.destroy();
+            req.flash('success_msg', 'youtubeTutorial Deleted successfully');
+            // Redirect back after delete
+            return res.redirect('/admin/academy');
+        } catch (error) {
+            console.error('Error deleting youtubeTutorial:', error);
+            return res.status(500).json({ error: 'An error occurred while deleting the youtubeTutorial.' });
+        }
+    },
+
+
+
+    deleteAcademy: async (req, res) => {
+        try {
+            const { id } = req.params;
+
+            // Find and delete
+            const academy = await Academy.findByPk(id);
+            if (!academy) {
+                return res.status(404).json({ error: 'academy not found' });
+            }
+
+            await academy.destroy();
+            req.flash('success_msg', 'academy Deleted successfully');
+            // Redirect back after delete
+            return res.redirect('/admin/academy');
+        } catch (error) {
+            console.error('Error deleting academy:', error);
+            return res.status(500).json({ error: 'An error occurred while deleting the academy.' });
         }
     }
 

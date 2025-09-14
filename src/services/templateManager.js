@@ -2,7 +2,7 @@
 const emailVerificationTemplate = require('../templates/emailVerificationTemplate');
 const notificationMailTemplate = require('../templates/notificationMailTemplate');
 const bookingTemplate = require('../templates/bookingConfirmationTemplate');
-// const completeRegistrationTemplate = require('../templates/completeRegistrationTemplate');
+const passwordResetTemplate = require('../templates/passwordResetTemplate');
 // const newsletterTemplate = require('../templates/newsletterTemplate');
 // const contactTemplate = require('../templates/contactTemplate');
 
@@ -11,8 +11,8 @@ const bookingTemplate = require('../templates/bookingConfirmationTemplate');
 const templates = {
     verification: emailVerificationTemplate,
     notification: notificationMailTemplate,
-    booking: bookingTemplate
-    // resetPassword: resetPasswordTemplate,
+    booking: bookingTemplate,
+    resetPassword: passwordResetTemplate,
     // completeRegistration: completeRegistrationTemplate,
     // newsletter: newsletterTemplate,
     // contact: contactTemplate,

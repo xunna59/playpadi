@@ -78,6 +78,7 @@
                                                         <th class="border-top-0 pt-0 pb-2">Total Joined</th>
                                                         <th class="border-top-0 pt-0 pb-2">Date Created</th>
                                                         <th class="border-top-0 pt-0 pb-2">Date Updated</th>
+                                                        <th></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -126,6 +127,23 @@
                                                                         { day: 'numeric' , month: 'short' ,
                                                                         year: 'numeric' , hour: '2-digit' ,
                                                                         minute: '2-digit' , hour12: true }) %>
+                                                                </td>
+                                                                <td class="w-10px align-middle">
+                                                                    <div class="d-flex align-items-center gap-2">
+                                                                        <a href="#" class="text-danger p-2"
+                                                                            title="Delete">
+                                                                            <form
+                                                                                action="/admin/delete-academy/<%= academy_class.id %>?_method=DELETE"
+                                                                                method="POST" class="ms-2">
+                                                                                <button type="submit"
+                                                                                    class="btn btn-sm "
+                                                                                    onclick="return confirm('Are you sure you want to delete this Class?');">
+                                                                                    <i class="fa fa-trash-alt"></i>
+                                                                                    <!-- Bootstrap Icons -->
+                                                                                </button>
+                                                                            </form>
+                                                                        </a>
+                                                                    </div>
                                                                 </td>
                                                             </tr>
                                                             <% }) %>
@@ -192,6 +210,7 @@
                                                         <th class="border-top-0 pt-0 pb-2"> Youtube Upload Date</th>
                                                         <th class="border-top-0 pt-0 pb-2">Date Created</th>
                                                         <th class="border-top-0 pt-0 pb-2">Date Updated</th>
+                                                        <th></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -225,6 +244,34 @@
                                                                         { day: 'numeric' , month: 'short' ,
                                                                         year: 'numeric' , hour: '2-digit' ,
                                                                         minute: '2-digit' , hour12: true }) %>
+                                                                </td>
+                                                                <td class="w-10px align-middle">
+                                                                    <div class="d-flex align-items-center gap-2">
+                                                                        <!-- <a href="admin/academy<%= youtubeVideo.id %>"
+                                                                            class="text-primary p-2" title="View">
+                                                                           
+                                                                        </a> -->
+                                                                        <i class="fas fa-pencil" data-bs-toggle="modal"
+                                                                            data-bs-target="#youtubeModalEdit"
+                                                                            data-id="<%= youtubeVideo.id %>" onclick="
+                                                                             document.querySelector('#youtubeEditForm').action =
+                                                                               '/academy/update-youtube/' + this.getAttribute('data-id') + '?_method=PUT';
+                                                                           ">
+                                                                        </i>
+                                                                        <a href="#" class="text-danger p-2"
+                                                                            title="Delete">
+                                                                            <form
+                                                                                action="/admin/delete-tutorial/<%= youtubeVideo.id %>?_method=DELETE"
+                                                                                method="POST" class="ms-2">
+                                                                                <button type="submit"
+                                                                                    class="btn btn-sm "
+                                                                                    onclick="return confirm('Are you sure you want to delete this viddeo?');">
+                                                                                    <i class="fa fa-trash-alt"></i>
+                                                                                    <!-- Bootstrap Icons -->
+                                                                                </button>
+                                                                            </form>
+                                                                        </a>
+                                                                    </div>
                                                                 </td>
                                                             </tr>
                                                             <% }) %>
@@ -266,6 +313,7 @@
                                                         <!-- <th class="border-top-0 pt-0 pb-2">Display Picture</th> -->
                                                         <th class="border-top-0 pt-0 pb-2">Date Created</th>
                                                         <th class="border-top-0 pt-0 pb-2">Date Updated</th>
+                                                        <th class="border-top-0 pt-0 pb-2"></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -312,6 +360,23 @@
                                                                         day: 'numeric' , month: 'short' ,
                                                                         year: 'numeric' , hour: '2-digit' ,
                                                                         minute: '2-digit' , hour12: true }) %>
+                                                                </td>
+                                                                <td class="w-10px align-middle">
+                                                                    <div class="d-flex align-items-center gap-2">
+                                                                        <a href="#" class="text-danger p-2"
+                                                                            title="Delete">
+                                                                            <form
+                                                                                action="/admin/delete-user/<%= coach.id %>?_method=DELETE"
+                                                                                method="POST" class="ms-2">
+                                                                                <button type="submit"
+                                                                                    class="btn btn-sm "
+                                                                                    onclick="return confirm('Are you sure you want to delete this coach?');">
+                                                                                    <i class="fa fa-trash-alt"></i>
+                                                                                    <!-- Bootstrap Icons -->
+                                                                                </button>
+                                                                            </form>
+                                                                        </a>
+                                                                    </div>
                                                                 </td>
                                                             </tr>
                                                             <% }) %>
@@ -521,6 +586,55 @@
                 </div>
             </div>
         </div>
+        <div class="modal modal-cover fade" id="youtubeModalEdit">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Edit YouTube Video</h3>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-3">Paste a YouTube video link to auto-fill session info.</p>
+                        <form id="youtubeEditForm" method="POST" action="" enctype="multipart/form-data">
+                            <div class="row mb-3">
+                                <!-- URL Input: Always Visible -->
+                                <div class="col-md-12 mb-3">
+                                    <input type="text" id="youtubeUrlEdit" name="youtube_url"
+                                        placeholder="YouTube Video URL" class="form-control form-control-sm" required>
+                                </div>
+                                <!-- Hidden Fields: Shown after link is parsed -->
+                                <div id="videoDetailsEdit" class="d-none">
+                                    <div class="col-md-12 mb-3">
+                                        <input type="text" id="videoTitleEdit" name="video_title"
+                                            class="form-control form-control-sm" readonly>
+                                    </div>
+                                    <div class="col-md-12 mb-3">
+                                        <input type="text" id="videoDurationEdit" name="video_duration"
+                                            class="form-control form-control-sm" readonly>
+                                    </div>
+                                    <div class="col-md-12 mb-3">
+                                        <input type="text" id="uploadDateEdit" name="upload_date"
+                                            class="form-control form-control-sm" readonly>
+                                    </div>
+                                    <div class="col-md-12 mb-3">
+                                        <input type="file" class="form-control" id="coverImageInputEdit"
+                                            name="youtube_cover" accept="image/*" required>
+                                    </div>
+                                    <div class="col-md-12 mb-3 text-center">
+                                        <img id="coverImagePreviewEdit" src="#" alt="Image Preview"
+                                            class="img-fluid rounded d-none" style="max-height: 250px;" />
+                                    </div>
+                                    <div class="col-md-12">
+                                        <button type="submit"
+                                            class="btn btn-primary btn-lg btn-block w-100">Submit</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="modal modal-cover fade" id="coachModal">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
@@ -626,6 +740,34 @@
                     }
                 }
             });
+
+
+            document.getElementById('youtubeUrlEdit').addEventListener('input', async (e) => {
+                const urlEdit = e.target.value;
+                const videoIdEdit = getYouTubeVideoId(urlEdit);
+
+                if (videoIdEdit) {
+                    const videoData = await fetchVideoData(videoIdEdit);
+                    if (videoData) {
+                        const snippet = videoData.snippet;
+                        const duration = formatDuration(videoData.contentDetails.duration);
+
+                        // Fill the fields
+                        document.getElementById('videoTitleEdit').value = snippet.title;
+                        document.getElementById('videoDurationEdit').value = duration;
+                        document.getElementById('uploadDateEdit').value = new Date(snippet.publishedAt).toLocaleDateString();
+
+                        const thumbnail = snippet.thumbnails?.medium?.url || snippet.thumbnails?.default?.url;
+                        const img = document.getElementById('coverImagePreviewEdit');
+                        img.src = thumbnail;
+                        img.classList.remove('d-none');
+
+                        // Reveal the hidden section
+                        document.getElementById('videoDetailsEdit').classList.remove('d-none');
+                    }
+                }
+            });
+
         </script>
         <script>
             document.getElementById('sports_center_id').addEventListener('change', function () {
